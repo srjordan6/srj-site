@@ -1,0 +1,47 @@
+---
+// The library hub: category cards in the canonical order.
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import meta from '../../content/governance/_meta.json';
+
+const all = await getCollection('governance');
+const bySlug = Object.fromEntries(all.map((e) => [e.data.slug, e.data]));
+const cats = meta.hub_order.map((s) => bySlug[s]).filter(Boolean);
+---
+<BaseLayout
+  title="AI Governance Reference Library for Executives | SRJ Consulting & Services"
+  description="A free reference library on AI governance: the EU AI Act, US federal and state AI law, sector rules, enforcement, standards, and data frameworks. Maintained against primary sources."
+>
+  <section class="hub-hero">
+    <div class="container">
+      <p class="eyebrow">Free Reference Material</p>
+      <h1>AI Governance Reference Library</h1>
+      <p class="lede">
+        Maintained against primary sources: statutes, regulators, standards bodies, and official
+        government publications. Written for people who have to defend a decision rather than
+        describe a technology.
+      </p>
+    </div>
+  </section>
+  <section class="container">
+    <div class="grid">
+      {cats.map((c) => (
+        <a class="card" href={`/ai-governance/${c.slug}/`}>
+          <h3>{c.title}</h3>
+          <p>{c.short}</p>
+          {c.children.length > 0 && <span class="count">{c.children.length} pages</span>}
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  .hub-hero { background: linear-gradient(180deg, var(--cream), var(--white)); padding: 84px 0 48px; border-bottom: 1px solid var(--line); margin-bottom: 48px; }
+  .lede { max-width: 68ch; font-size: 19px; color: var(--ink-soft); margin: 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 22px; }
+  .card { position: relative; display: block; padding: 26px; border: 1px solid var(--line); border-radius: var(--radius); text-decoration: none; background: var(--white); transition: box-shadow .15s ease, transform .15s ease; }
+  .card:hover { box-shadow: var(--shadow-card); transform: translateY(-2px); }
+  .card h3 { font-size: 20px; margin-bottom: 8px; }
+  .card p { font-size: 14.5px; color: var(--ink-soft); margin: 0 0 14px; }
+  .count { font-family: var(--font-body); font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--orange); }
+</style>

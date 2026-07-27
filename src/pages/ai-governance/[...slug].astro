@@ -1,0 +1,72 @@
+---
+// Every governance page, category or subcategory, from one route.
+// URL shape matches WordPress exactly:
+//   top-level:  /ai-governance/<slug>/
+//   child:      /ai-governance/<parent>/<slug>/
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const all = await getCollection('governance');
+  const bySlug = Object.fromEntries(all.map((e) => [e.data.slug, e.data]));
+  return all.map((e) => {
+    const d = e.data;
+    const path = d.parent ? `${d.parent}/${d.slug}` : d.slug;
+    return { params: { slug: path }, props: { entry: d, bySlug } };
+  });
+}
+
+const { entry, bySlug } = Astro.props;
+const parent = entry.parent ? bySlug[entry.parent] : null;
+const kids = (entry.children || []).map((s) => bySlug[s]).filter(Boolean);
+const childBase = entry.parent ? null : `/ai-governance/${entry.slug}/`;
+
+const title = entry.seo_title || `${entry.title} | SRJ Consulting & Services`;
+const description = entry.meta_description || entry.short;
+---
+<BaseLayout title={title} description={description}>
+  <article class="gov">
+    <header class="gov-hero">
+      <div class="container">
+        <p class="eyebrow">
+          <a href="/ai-governance/">AI Governance Reference Library</a>
+          {parent && <> &middot; <a href={`/ai-governance/${parent.slug}/`}>{parent.title}</a></>}
+        </p>
+        <h1>{entry.title}</h1>
+        <p class="sub">{entry.subtitle}</p>
+      </div>
+    </header>
+
+    <div class="container gov-body" set:html={entry.body_html} />
+
+    {kids.length > 0 && (
+      <section class="container kids">
+        <h2>In this section</h2>
+        <div class="grid">
+          {kids.map((k) => (
+            <a class="card" href={`${childBase}${k.slug}/`}>
+              <h3>{k.title}</h3>
+              <p>{k.short}</p>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+  </article>
+</BaseLayout>
+<style>
+  .gov-hero { background: linear-gradient(180deg, var(--cream), var(--white)); padding: 72px 0 44px; border-bottom: 1px solid var(--line); margin-bottom: 44px; }
+  .gov-hero .eyebrow a { color: var(--orange); text-decoration: none; }
+  .gov-hero h1 { max-width: 24ch; }
+  .sub { font-size: 19px; color: var(--ink-soft); max-width: 66ch; margin: 0; }
+  .gov-body { max-width: 860px; }
+  .gov-body :global(h2) { margin-top: 1.6em; }
+  .gov-body :global(h3) { margin-top: 1.3em; }
+  .gov-body :global(a) { word-break: break-word; }
+  .kids { margin-top: 64px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+  .card { display: block; padding: 24px; border: 1px solid var(--line); border-radius: var(--radius); text-decoration: none; background: var(--white); box-shadow: none; transition: box-shadow .15s ease, transform .15s ease; }
+  .card:hover { box-shadow: var(--shadow-card); transform: translateY(-2px); }
+  .card h3 { font-size: 19px; margin-bottom: 8px; }
+  .card p { font-size: 14.5px; color: var(--ink-soft); margin: 0; }
+</style>
