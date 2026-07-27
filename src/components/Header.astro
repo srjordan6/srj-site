@@ -1,0 +1,42 @@
+---
+// Primary navigation. Eight items, matching the live WordPress nav exactly
+// (Resources hub groups AI Governance + Insights; no URL changes).
+const nav = [
+  { href: '/',            label: 'Home' },
+  { href: '/about/',      label: 'About' },
+  { href: '/books/',      label: 'Books' },
+  { href: '/services/',   label: 'Services' },
+  { href: '/industries/', label: 'Industries' },
+  { href: '/resources/',  label: 'Resources' },
+  { href: '/press/',      label: 'Press' },
+  { href: '/contact/',    label: 'Contact' },
+];
+const current = Astro.url.pathname;
+---
+<header class="site-header">
+  <div class="container bar">
+    <a class="brand" href="/">
+      <span class="brand-srj">SRJ</span>
+      <span class="brand-rest">Consulting &amp; Services</span>
+    </a>
+    <nav aria-label="Primary">
+      <ul>
+        {nav.map((n) => (
+          <li><a href={n.href} aria-current={current === n.href ? 'page' : undefined}>{n.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>
+<style>
+  .site-header { background: var(--navy); position: sticky; top: 0; z-index: 50; }
+  .bar { display: flex; align-items: center; justify-content: space-between; height: 66px; }
+  .brand { display: flex; align-items: baseline; gap: 8px; text-decoration: none; }
+  .brand-srj { font-family: var(--font-head); font-weight: 700; font-size: 26px; color: var(--white); }
+  .brand-srj::after { content: ''; display: inline-block; width: 8px; height: 8px; margin-left: 2px; background: var(--orange); }
+  .brand-rest { font-family: var(--font-body); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cream); opacity: .85; }
+  nav ul { display: flex; gap: 26px; list-style: none; margin: 0; padding: 0; }
+  nav a { color: var(--white); font-size: 14.5px; font-weight: 500; text-decoration: none; opacity: .92; }
+  nav a:hover, nav a[aria-current="page"] { color: var(--orange); opacity: 1; }
+  @media (max-width: 860px) { nav ul { gap: 16px; flex-wrap: wrap; } .bar { height: auto; padding: 12px 24px; flex-direction: column; gap: 8px; } }
+</style>

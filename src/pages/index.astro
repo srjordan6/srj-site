@@ -1,0 +1,26 @@
+---
+// Staging placeholder. The real homepage migrates in stage 5;
+// this page exists so the scaffold deploys and the shell is reviewable.
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="SRJ Consulting & Services LLC | Operator-Led AI Advisory"
+  description="AI advisory, the Operating Discipline for AI Library, and the AI Governance Reference Library. Frisco, Texas."
+>
+  <section class="hero">
+    <div class="container">
+      <p class="eyebrow">Staging &middot; Session 1 Scaffold</p>
+      <h1>The platform build has begun.</h1>
+      <p class="lede">
+        This is the Astro shell for srjconsultingservices.com: brand tokens, header, footer,
+        SEO surface, and the Organization graph, deployed from git to the Cloudflare edge.
+        Production remains on WordPress until each path passes its parity gates.
+      </p>
+      <a class="btn btn-primary" href="/ai-governance/">AI Governance Library (stage 1 target)</a>
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  .hero { padding: 110px 0 90px; background: linear-gradient(180deg, var(--cream), var(--white)); }
+  .lede { max-width: 62ch; font-size: 19px; color: var(--ink-soft); margin-bottom: 34px; }
+</style>

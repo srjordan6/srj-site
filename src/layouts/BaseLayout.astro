@@ -1,0 +1,54 @@
+---
+// Base shell for every page. SEO surface is emitted here, exactly:
+// title, meta description, canonical, OG, and the Organization graph.
+// Per-page schema (Article/FAQ/HowTo/VideoObject) is passed via the
+// `schema` prop as ready JSON-LD objects and rendered verbatim.
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/tokens.css';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  schema?: object[];
+  ogImage?: string;
+}
+const { title, description, canonical, schema = [], ogImage } = Astro.props;
+const canonicalUrl = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
+
+const orgGraph = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': 'https://srjconsultingservices.com/#organization',
+  name: 'SRJ Consulting & Services LLC',
+  url: 'https://srjconsultingservices.com/',
+  founder: { '@type': 'Person', name: 'Stephen R. Jordan', url: 'https://srjconsultingservices.com/about/' },
+  address: { '@type': 'PostalAddress', addressLocality: 'Frisco', addressRegion: 'TX', addressCountry: 'US' },
+};
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalUrl} />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonicalUrl} />
+  {ogImage && <meta property="og:image" content={ogImage} />}
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script type="application/ld+json" set:html={JSON.stringify(orgGraph)} />
+  {schema.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
+</head>
+<body>
+  <Header />
+  <main><slot /></main>
+  <Footer />
+</body>
+</html>

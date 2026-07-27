@@ -1,0 +1,62 @@
+/* =====================================================================
+   SRJ brand tokens — single source of truth for the design system.
+   Mirrors SRJBrandStandards: Navy primary, Orange accent, Lora/Poppins.
+   Every component consumes these variables; no hard-coded colors.
+   ===================================================================== */
+:root {
+  /* palette */
+  --navy:       #201868;
+  --navy-deep:  #1A1357;
+  --orange:     #F07800;
+  --cream:      #FFF6EC;
+  --gray:       #7A8A9E;
+  --white:      #FFFFFF;
+  --ink:        #1A1A2E;   /* body text on light */
+  --ink-soft:   #3D3D55;
+  --paper:      #FBFAF7;   /* section alt background */
+  --line:       #E7E4DD;   /* hairline borders */
+
+  /* type */
+  --font-head: 'Lora', Georgia, 'Times New Roman', serif;
+  --font-body: 'Poppins', 'Segoe UI', system-ui, sans-serif;
+
+  /* scale */
+  --container: 1180px;
+  --radius: 4px;
+  --shadow-card: 0 18px 50px -18px rgba(32, 24, 104, 0.22);
+}
+
+/* reset-lite */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--white);
+}
+img { max-width: 100%; height: auto; display: block; }
+
+h1, h2, h3, h4 { font-family: var(--font-head); color: var(--navy); line-height: 1.15; margin: 0 0 0.5em; }
+h1 { font-size: clamp(34px, 4.6vw, 56px); }
+h2 { font-size: clamp(28px, 3.4vw, 42px); }
+h3 { font-size: clamp(21px, 2.4vw, 28px); }
+p  { margin: 0 0 1em; }
+a  { color: var(--navy); text-decoration-color: var(--orange); text-underline-offset: 3px; }
+a:hover { color: var(--orange); }
+
+.container { max-width: var(--container); margin: 0 auto; padding: 0 24px; }
+.eyebrow {
+  font-family: var(--font-body); font-size: 12.5px; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--orange);
+}
+.btn {
+  display: inline-block; font-family: var(--font-body); font-weight: 600;
+  font-size: 15.5px; padding: 14px 28px; border-radius: var(--radius);
+  text-decoration: none; transition: transform .12s ease, box-shadow .12s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn-primary { background: var(--orange); color: var(--white); }
+.btn-ghost   { background: transparent; color: var(--navy); border: 2px solid var(--navy); }
