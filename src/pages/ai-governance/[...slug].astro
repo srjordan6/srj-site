@@ -5,6 +5,7 @@
 //   child:      /ai-governance/<parent>/<slug>/
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { govSchema } from '../../lib/govSchema';
 
 export async function getStaticPaths() {
   const all = await getCollection('governance');
@@ -23,8 +24,10 @@ const childBase = entry.parent ? null : `/ai-governance/${entry.slug}/`;
 
 const title = entry.seo_title || `${entry.title} | SRJ Consulting & Services`;
 const description = entry.meta_description || entry.short;
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+const schema = govSchema(entry, pageUrl);
 ---
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} schema={schema}>
   <article class="gov">
     <header class="gov-hero">
       <div class="container">

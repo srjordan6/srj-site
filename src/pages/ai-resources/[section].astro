@@ -1,0 +1,30 @@
+---
+// Placeholder pages for sections that come online with the pipeline
+// (ai-news, ai-people, ai-events) or at stage 2 (glossary, everything-else).
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export function getStaticPaths() {
+  return [
+    { params: { section: 'ai-glossary' }, props: { title: 'AI Glossary', desc: '522 terms in plain business English.', body: 'The glossary moves here from its current address at stage 2 of the migration, with a permanent redirect. Until then, the live glossary remains at', link: 'https://srjconsultingservices.com/resources/ai-glossary/', linkText: 'srjconsultingservices.com/resources/ai-glossary' } },
+    { params: { section: 'ai-news' }, props: { title: 'AI News', desc: 'Verified governance developments.', body: 'This feed comes online with the autonomous pipeline: every item machine-verified against a primary source before it appears, every entry linking the statute, register notice, or regulator page it came from. No press-sourced claims, ever.' } },
+    { params: { section: 'ai-people' }, props: { title: 'AI People', desc: 'The people who shape AI governance.', body: 'Regulators, officials, and authors, published as verified entities: each person with their role, jurisdiction, and the official record establishing both. Part of the knowledge graph, ring 1.' } },
+    { params: { section: 'ai-events' }, props: { title: 'AI Events', desc: 'Dates with legal consequence.', body: 'Effective dates, comment deadlines, compliance windows, and hearings, each verified against the issuing body. The dates that appear here are the dates the graph can prove.' } },
+    { params: { section: 'everything-else' }, props: { title: 'AI Tools & Everything Else', desc: 'The catalog and the long tail.', body: 'The 320-tool catalog migrates here at stage 2, and this section grows to hold every verified resource that fits nowhere else. Until then, the live catalog remains at', link: 'https://srjconsultingservices.com/ai-governance/ai-tools/', linkText: 'the AI Tools catalog' } },
+  ];
+}
+const { title, desc, body, link, linkText } = Astro.props;
+---
+<BaseLayout title={`${title} | AI Resources | SRJ Consulting & Services`} description={desc}>
+  <section class="hero">
+    <div class="container">
+      <p class="eyebrow"><a href="/ai-resources/">AI Resources</a></p>
+      <h1>{title}</h1>
+      <p class="lede">{body} {link && <a href={link}>{linkText}</a>}{link && '.'}</p>
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  .hero { padding: 100px 0 120px; background: linear-gradient(180deg, var(--cream), var(--white)); }
+  .eyebrow a { color: var(--orange); text-decoration: none; }
+  .lede { max-width: 66ch; font-size: 19px; color: var(--ink-soft); }
+</style>
