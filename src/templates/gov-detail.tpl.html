@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en-US" prefix="og: https://ogp.me/ns#">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="profile" href="https://gmpg.org/xfn/11" />
+
+
+
+<style id="srj-ai-governance-styles">
+.longform { background: #ffffff; padding: 56px 0 72px; }
+.longform .container { max-width: 860px; }
+
+/* -------- Jump-link table of contents (v1.1.0) -------- */
+.srjgov-toc {
+  background: #fafaf6; border: 1px solid #e4e2dc; border-radius: 8px;
+  padding: 22px 26px; margin: 0 0 36px;
+}
+.srjgov-toc-label {
+  font-family: 'Poppins','Inter',sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase; color: #b96000;
+  margin: 0 0 12px !important;
+}
+.srjgov-toc ul { list-style: none; margin: 0; padding: 0; }
+.srjgov-toc li { margin: 0 0 8px; padding: 0; }
+.srjgov-toc li:last-child { margin-bottom: 0; }
+.srjgov-toc a {
+  font-family: 'Poppins','Open Sans',sans-serif; font-size: 14.5px; line-height: 1.45;
+  color: #24185b; text-decoration: none; border-bottom: 1px solid transparent;
+  transition: color .18s ease, border-color .18s ease;
+}
+.srjgov-toc a:hover { color: #ef7c00; border-bottom-color: #ef7c00; }
+
+.srjgov-lede {
+  font-family: 'Poppins','Open Sans',sans-serif; font-size: 18px;
+  line-height: 1.6; color: #3a3a45; margin: 0 0 28px;
+}
+
+.srjgov-detail-body {
+  font-family: 'Poppins','Open Sans',sans-serif;
+  font-size: 17px; line-height: 1.72; color: #3a3a45;
+}
+.srjgov-detail-body p { margin: 0 0 20px; }
+.srjgov-detail-body h2 {
+  font-family: 'Lora','Alike',serif; font-size: 28px; line-height: 1.25;
+  color: #1a1146; margin: 44px 0 18px; letter-spacing: -0.01em;
+  scroll-margin-top: 100px;
+}
+.srjgov-detail-body h2:first-child { margin-top: 0; }
+.srjgov-detail-body h3 {
+  font-family: 'Lora','Alike',serif; font-size: 21px; line-height: 1.3;
+  color: #24185b; margin: 30px 0 12px;
+}
+.srjgov-detail-body strong { color: #1a1146; font-weight: 600; }
+.srjgov-detail-body em { font-style: italic; }
+.srjgov-detail-body a {
+  color: #24185b; text-decoration: underline; text-underline-offset: 2px;
+  text-decoration-color: rgba(36,24,91,0.3);
+  transition: color .18s ease, text-decoration-color .18s ease;
+}
+.srjgov-detail-body a:hover { color: #ef7c00; text-decoration-color: #ef7c00; }
+.srjgov-detail-body ul, .srjgov-detail-body ol { margin: 0 0 22px; padding-left: 24px; }
+.srjgov-detail-body li { margin-bottom: 10px; padding-left: 4px; }
+.srjgov-detail-body ul li::marker { color: #ef7c00; }
+
+.srjgov-tldr {
+  background: #f5f2e9; border-left: 4px solid #ef7c00;
+  border-radius: 0 6px 6px 0; padding: 24px 28px; margin: 0 0 40px;
+}
+.srjgov-tldr-label {
+  font-family: 'Poppins','Inter',sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase; color: #b96000;
+  margin: 0 0 10px !important;
+}
+.srjgov-tldr p:last-child {
+  margin-bottom: 0 !important; font-size: 17px; line-height: 1.65; color: #15151a;
+}
+.srjgov-tldr strong { color: #1a1146; font-weight: 600; }
+
+.srjgov-children-block {
+  margin: 56px 0 0; padding: 32px 0 0; border-top: 1px solid #e4e2dc;
+}
+.srjgov-children-block h2 {
+  font-family: 'Lora','Alike',serif; font-size: 26px; color: #1a1146; margin: 0 0 22px;
+}
+.srjgov-children-list { list-style: none; margin: 0; padding: 0; }
+.srjgov-children-list li {
+  padding: 18px 0; border-bottom: 1px solid #efede7; margin: 0;
+}
+.srjgov-children-list li:last-child { border-bottom: 0; }
+.srjgov-children-list a {
+  display: block; font-family: 'Lora','Alike',serif; font-size: 19px;
+  color: #24185b; text-decoration: none; margin-bottom: 5px;
+  transition: color .18s ease;
+}
+.srjgov-children-list a:hover { color: #ef7c00; }
+.srjgov-child-teaser {
+  display: block; font-family: 'Poppins','Open Sans',sans-serif;
+  font-size: 14.5px; line-height: 1.55; color: #6b6b78;
+}
+
+.srjgov-cta {
+  margin: 56px 0 0; padding: 36px 40px; background: #1a1146;
+  border-radius: 8px; text-align: center;
+}
+.srjgov-cta h2 {
+  font-family: 'Lora','Alike',serif; font-size: 26px; line-height: 1.25;
+  color: #ffffff; margin: 0 0 14px;
+}
+.srjgov-cta p {
+  font-family: 'Poppins','Open Sans',sans-serif; font-size: 15.5px;
+  line-height: 1.6; color: rgba(255,255,255,0.82);
+  margin: 0 auto 24px; max-width: 620px;
+}
+.srjgov-cta-btn {
+  display: inline-block; background: #ef7c00; color: #ffffff !important;
+  font-family: 'Poppins','Open Sans',sans-serif; font-weight: 600; font-size: 15px;
+  letter-spacing: 0.03em; padding: 14px 30px; border-radius: 4px;
+  text-decoration: none !important; border: 2px solid #ef7c00;
+  transition: background .18s ease, color .18s ease, transform .18s ease;
+}
+.srjgov-cta-btn:hover {
+  background: #ffffff; color: #1a1146 !important; border-color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.srjgov-hub-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px; margin: 40px 0 0;
+}
+.srjgov-hub-card {
+  background: #ffffff; border: 1px solid #e4e2dc; border-radius: 8px;
+  padding: 26px 26px 24px;
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.srjgov-hub-card:hover {
+  border-color: #ef7c00; box-shadow: 0 6px 22px rgba(20,20,40,0.08);
+  transform: translateY(-2px);
+}
+.srjgov-hub-card h3 {
+  font-family: 'Lora','Alike',serif; font-size: 20px; line-height: 1.28; margin: 0 0 8px;
+}
+.srjgov-hub-card h3 a { color: #1a1146; text-decoration: none; transition: color .18s ease; }
+.srjgov-hub-card:hover h3 a { color: #ef7c00; }
+.srjgov-hub-card-subtitle {
+  font-family: 'Poppins','Open Sans',sans-serif; font-size: 13px;
+  font-style: italic; color: #6b6b78; margin: 0 0 12px;
+}
+.srjgov-hub-card-short {
+  font-family: 'Poppins','Open Sans',sans-serif; font-size: 14.5px;
+  line-height: 1.6; color: #3a3a45; margin: 0;
+}
+
+@media (max-width: 860px) {
+  .longform { padding: 40px 0 56px; }
+  .srjgov-detail-body { font-size: 16px; }
+  .srjgov-detail-body h2 { font-size: 24px; margin: 36px 0 14px; }
+  .srjgov-detail-body h3 { font-size: 19px; }
+  .srjgov-tldr { padding: 20px 22px; margin-bottom: 32px; }
+  .srjgov-toc { padding: 18px 20px; }
+  .srjgov-cta { padding: 28px 24px; }
+  .srjgov-cta h2 { font-size: 22px; }
+  .srjgov-hub-grid { grid-template-columns: 1fr; }
+}
+</style>
+    
+<!-- SRJ AI Governance structured data -->
+
+<style id="srj-gov-quote-styles">
+/* -----------------------------------------------------------------------
+   Research quote block.
+
+   NOTE: the citation line uses <div class="srjgov-cite">, NOT <footer>.
+   The theme styles the bare `footer` element with the navy site-footer
+   background, so a <footer> inside a blockquote rendered navy-on-navy and
+   was invisible. Do not reintroduce <footer> here.
+
+   Colours are !important because Kadence and the theme both set p/blockquote
+   colour at a specificity this block would otherwise lose to.
+   ----------------------------------------------------------------------- */
+.srjgov-detail-body blockquote.srjgov-quote,
+.srjgov-quote {
+  margin: 28px 0 !important;
+  padding: 24px 28px !important;
+  background: #fafaf6 !important;
+  border-left: 4px solid #24185b !important;
+  border-radius: 0 6px 6px 0 !important;
+  color: #1a1146 !important;
+  box-shadow: none !important;
+}
+.srjgov-quote > p {
+  font-family: 'Lora','Alike',serif !important;
+  font-size: 19px !important;
+  line-height: 1.55 !important;
+  color: #1a1146 !important;
+  font-style: italic !important;
+  background: transparent !important;
+  margin: 0 0 14px !important;
+  padding: 0 !important;
+}
+
+/* Citation line. Explicitly reset anything the theme's footer rules might
+   have applied, in case a selector still reaches it. */
+.srjgov-quote .srjgov-cite {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  color: #6b6b78 !important;
+  font-family: 'Poppins','Open Sans',sans-serif !important;
+  font-size: 13.5px !important;
+  line-height: 1.45 !important;
+  font-style: normal !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  display: block !important;
+  width: auto !important;
+}
+.srjgov-quote .srjgov-cite cite {
+  font-style: normal !important;
+  color: #6b6b78 !important;
+  background: transparent !important;
+}
+.srjgov-quote .srjgov-cite a {
+  color: #6b6b78 !important;
+  background: transparent !important;
+  text-decoration: none !important;
+  border-bottom: 1px solid #e4e2dc !important;
+  transition: color .18s ease, border-color .18s ease !important;
+}
+.srjgov-quote .srjgov-cite a:hover {
+  color: #ef7c00 !important;
+  border-bottom-color: #ef7c00 !important;
+}
+.srjgov-quote .srjgov-cite em { font-style: italic !important; }
+
+/* -------- Numbered how-to steps -------- */
+.srjgov-howto {
+  counter-reset: srjstep;
+  list-style: none !important;
+  margin: 28px 0 !important;
+  padding: 0 !important;
+}
+.srjgov-howto li {
+  counter-increment: srjstep;
+  position: relative;
+  padding: 0 0 0 52px !important;
+  margin: 0 0 22px !important;
+  min-height: 36px;
+  list-style: none !important;
+}
+.srjgov-howto li::marker { content: none !important; }
+.srjgov-howto li::before {
+  content: counter(srjstep);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #ef7c00;
+  color: #ffffff;
+  font-family: 'Poppins','Open Sans',sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.srjgov-howto li strong { color: #1a1146; font-weight: 600; }
+
+/* -------- CTA: force the light-on-navy colours -------- --------------------
+   The CTA paragraph was rendering dark navy text on the navy CTA panel. The
+   theme sets paragraph colour at a specificity that was beating the plain
+   .srjgov-cta p rule, so these are !important.
+   ----------------------------------------------------------------------- */
+.srjgov-cta { background: #1a1146 !important; }
+.srjgov-cta h2 { color: #ffffff !important; }
+.srjgov-cta p,
+.srjgov-cta p * {
+  color: rgba(255,255,255,0.86) !important;
+}
+.srjgov-cta a.srjgov-cta-btn,
+.srjgov-cta a.srjgov-cta-btn * {
+  color: #ffffff !important;
+  background: #ef7c00 !important;
+}
+.srjgov-cta a.srjgov-cta-btn:hover,
+.srjgov-cta a.srjgov-cta-btn:hover * {
+  color: #1a1146 !important;
+  background: #ffffff !important;
+}
+
+@media (max-width: 860px) {
+  .srjgov-quote { padding: 20px 22px !important; }
+  .srjgov-quote > p { font-size: 17px !important; }
+  .srjgov-howto li { padding-left: 44px !important; }
+  .srjgov-howto li::before { width: 30px; height: 30px; font-size: 14px; }
+}
+</style>
+    
+<!-- srj-search-ui-inline block begin -->
+<style id="srj-search-ui-inline">
+.announce .announce-right { display: inline-flex !important; align-items: center !important; gap: 18px !important; }
+.announce .announce-search {
+  display: inline-flex !important; align-items: center !important; gap: 6px !important;
+  background: transparent !important; border: 1px solid rgba(255,255,255,0.28) !important;
+  border-radius: 4px !important; padding: 5px 10px !important; color: #ffffff !important;
+  font-family: 'Poppins', 'Open Sans', sans-serif !important; font-size: 13px !important;
+  line-height: 1 !important; cursor: pointer !important;
+  transition: background .15s ease, border-color .15s ease !important;
+  box-shadow: none !important; text-transform: none !important; letter-spacing: 0 !important;
+  min-width: 0 !important; height: auto !important;
+}
+.announce .announce-search:hover, .announce .announce-search:focus-visible {
+  background: rgba(255,255,255,0.14) !important; border-color: rgba(255,255,255,0.45) !important;
+  outline: none !important;
+}
+.announce .announce-search[aria-expanded="true"] {
+  background: #F07800 !important; border-color: #F07800 !important; color: #ffffff !important;
+}
+.announce .announce-search svg { display: block !important; width: 14px !important; height: 14px !important; }
+.announce .announce-search .announce-search-label { display: inline-block !important; font: inherit !important; color: inherit !important; }
+@media (max-width: 720px) { .announce .announce-search.hide-mobile { display: none !important; } }
+
+.srj-search-panel {
+  position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important;
+  background: #ffffff !important; border-bottom: 1px solid #e4e2dc !important;
+  padding: 22px 0 !important; transform: translateY(-100%) !important;
+  transition: transform .28s ease !important; z-index: 9990 !important;
+  box-shadow: 0 6px 22px rgba(20,20,40,0.08) !important; visibility: hidden;
+}
+.srj-search-panel.is-open { transform: translateY(0) !important; visibility: visible; }
+.srj-search-panel .srj-search-form { display: flex !important; align-items: center !important; gap: 10px !important; margin: 0 !important; }
+.srj-search-panel input[type="search"] {
+  flex: 1 1 auto !important; border: 1px solid #e4e2dc !important; border-radius: 6px !important;
+  padding: 12px 16px !important; font-family: 'Poppins', 'Open Sans', sans-serif !important;
+  font-size: 16px !important; color: #15151a !important; background: #f5f2e9 !important;
+  outline: none !important; box-shadow: none !important; height: auto !important;
+}
+.srj-search-panel input[type="search"]:focus { border-color: #F07800 !important; background: #ffffff !important; }
+.srj-search-panel .srj-search-submit {
+  border: none !important; background: #201868 !important; color: #ffffff !important;
+  padding: 12px 22px !important; border-radius: 6px !important;
+  font-family: 'Poppins', 'Open Sans', sans-serif !important; font-weight: 600 !important;
+  font-size: 15px !important; line-height: 1.2 !important; cursor: pointer !important;
+  transition: background .18s ease !important; box-shadow: none !important;
+  text-transform: none !important; letter-spacing: 0 !important;
+  min-width: 0 !important; height: auto !important;
+}
+.srj-search-panel .srj-search-submit:hover { background: #F07800 !important; }
+.srj-search-panel .srj-search-close {
+  border: none !important; background: transparent !important; color: #6b6b78 !important;
+  font-size: 28px !important; line-height: 1 !important; cursor: pointer !important;
+  padding: 6px 10px !important; box-shadow: none !important; height: auto !important; min-width: 0 !important;
+}
+.srj-search-panel .srj-search-close:hover { color: #F07800 !important; }
+
+.srj-search-toggle-mobile {
+  display: none !important; position: fixed !important; bottom: 20px !important; right: 20px !important;
+  width: 48px !important; height: 48px !important; border-radius: 50% !important;
+  border: 1px solid #e4e2dc !important; background: #ffffff !important; color: #201868 !important;
+  align-items: center !important; justify-content: center !important; cursor: pointer !important;
+  z-index: 9989 !important; box-shadow: 0 4px 14px rgba(20,20,40,0.18) !important; padding: 0 !important;
+}
+.srj-search-toggle-mobile:hover, .srj-search-toggle-mobile:focus-visible {
+  background: #F07800 !important; color: #ffffff !important; border-color: #F07800 !important; outline: none !important;
+}
+.srj-search-toggle-mobile svg { display: block !important; }
+@media (max-width: 980px) { .srj-search-toggle-mobile { display: inline-flex !important; } }
+
+.srj-search-page { background: #fafaf6; }
+.srj-search-hero { padding: 64px 0 32px; background: #ffffff; border-bottom: 1px solid #e4e2dc; }
+.srj-search-title { font-family: 'Lora', 'Alike', serif; color: #1a1146; font-size: 34px; line-height: 1.2; margin: 6px 0 22px; }
+.srj-search-form-hero { display: flex; gap: 10px; max-width: 640px; }
+.srj-search-form-hero input[type="search"] { flex: 1 1 auto; border: 1px solid #e4e2dc; border-radius: 6px; padding: 12px 16px; font-family: 'Poppins', 'Open Sans', sans-serif; font-size: 16px; background: #f5f2e9; }
+.srj-search-form-hero input[type="search"]:focus { border-color: #F07800; background: #ffffff; outline: none; }
+.srj-search-form-hero button { border: none; background: #201868; color: #fff; padding: 12px 22px; border-radius: 6px; font-family: 'Poppins', 'Open Sans', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; }
+.srj-search-form-hero button:hover { background: #F07800; }
+.srj-search-results { padding: 40px 0 80px; }
+.srj-search-list { list-style: none; padding: 0; margin: 0; }
+.srj-search-item { border-bottom: 1px solid #e4e2dc; padding: 22px 0; }
+.srj-search-item:last-child { border-bottom: 0; }
+.srj-search-item-link { display: block; text-decoration: none; color: inherit; }
+.srj-search-item-link:hover .srj-search-item-title { color: #F07800; }
+.srj-search-item-title { font-family: 'Lora', 'Alike', serif; color: #201868; font-size: 22px; line-height: 1.25; margin: 0 0 4px; transition: color .18s ease; }
+.srj-search-item-url { font-family: 'Poppins', 'Open Sans', sans-serif; font-size: 13px; color: #6b6b78; margin: 0 0 8px; word-break: break-all; }
+.srj-search-item-excerpt { font-size: 15px; color: #3a3a45; margin: 0; line-height: 1.55; }
+.srj-search-item-excerpt strong, .srj-search-item-excerpt em.rlv_highlight, .srj-search-item-excerpt .rlv_highlight { color: #F07800; font-weight: 700; font-style: normal; background: transparent; }
+.srj-search-pager { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 40px; font-family: 'Poppins', 'Open Sans', sans-serif; }
+.srj-search-pager .page-numbers { display: inline-block; padding: 8px 14px; border: 1px solid #e4e2dc; border-radius: 4px; color: #201868; text-decoration: none; font-size: 14px; background: #fff; }
+.srj-search-pager .page-numbers:hover { background: #201868; color: #fff; border-color: #201868; }
+.srj-search-pager .page-numbers.current { background: #F07800; color: #fff; border-color: #F07800; font-weight: 600; }
+.srj-search-empty { padding: 40px 0 80px; font-family: 'Poppins', 'Open Sans', sans-serif; color: #3a3a45; }
+.srj-search-empty p { font-size: 16px; margin: 0 0 18px; }
+.srj-search-hub-list { list-style: none; padding: 0; margin: 0; }
+.srj-search-hub-list li { padding: 8px 0; border-bottom: 1px solid #e4e2dc; }
+.srj-search-hub-list li:last-child { border-bottom: 0; }
+.srj-search-hub-list a { color: #201868; text-decoration: none; font-weight: 600; font-size: 16px; }
+.srj-search-hub-list a:hover { color: #F07800; }
+
+.screen-reader-text { position: absolute !important; clip: rect(1px, 1px, 1px, 1px); clip-path: inset(50%); height: 1px; width: 1px; overflow: hidden; white-space: nowrap; }
+
+.relevanssi-live-search-results { border: 1px solid #e4e2dc; border-radius: 6px; box-shadow: 0 6px 22px rgba(20,20,40,0.14); background: #fff; margin-top: 6px; font-family: 'Poppins', 'Open Sans', sans-serif; }
+.relevanssi-live-search-results .rlv-item, .relevanssi-live-search-results a { padding: 10px 14px; border-bottom: 1px solid #efede7; color: #201868; text-decoration: none; font-size: 14px; display: block; }
+.relevanssi-live-search-results .rlv-item:last-child, .relevanssi-live-search-results a:last-child { border-bottom: 0; }
+.relevanssi-live-search-results .rlv-item:hover, .relevanssi-live-search-results a:hover { background: #f5f2e9; color: #F07800; }
+</style>
+    
+<!-- srj-search-ui-inline block end -->
+<style id="srj-ai-governance-styles">
+.longform { background: #ffffff; padding: 56px 0 72px; }
+.longform .container { max-width: 860px; }
+
+.srjgov-toc {
+  background: #fafaf6; border: 1px solid #e4e2dc; border-radius: 8px;
+  padding: 22px 26px; margin: 0 0 36px;
+}
+.srjgov-toc-label {
+  font-family: 'Poppins','Inter',sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase; color: #b96000;
+  margin: 0 0 12px !important;
+}
+.srjgov-toc ul { list-style: none; margin: 0; padding: 0; }
+.srjgov-toc li { margin: 0 0 8px; padding: 0; }
+.srjgov-toc li:last-child { margin-bottom: 0; }
+.srjgov-toc a {
+  font-family: 'Poppins','Open Sans',sans-serif; font-size: 14.5px; line-height: 1.45;
+  color: #24185b; text-decoration: none; border-bottom: 1px solid transparent;
+  transition: color .18s ease, border-color .18s ease;
+}
+.srjgov-toc a:hover { color: #ef7c00; border-bottom-color: #ef7c00; }
+
+.srjgov-lede {
+  font-family: 'Poppins','Open Sans',sans-serif; font-size: 18px;
+  line-height: 1.6; color: #3a3a45; margin: 0 0 28px;
+}
+
+.srjgov-detail-body {
+  font-family: 'Poppins','Open Sans',sans-serif;
+  font-size: 17px; line-height: 1.72; color: #3a3a45;
+}
+.srjgov-detail-body p { margin: 0 0 20px; }
+.srjgov-detail-body h2 {
+  font-family: 'Lora','Alike',serif; font-size: 28px; line-height: 1.25;
+  color: #1a1146; margin: 44px 0 18px; letter-spacing: -0.01em;
+  scroll-margin-top: 100px;
+}
+.srjgov-detail-body h3 {
+  font-family: 'Lora','Alike',serif; font-size: 21px; line-height: 1.3;
+  color: #24185b; margin: 30px 0 12px;
+}
+.srjgov-detail-body strong { color: #1a1146; font-weight: 600; }
+.srjgov-detail-body em { font-style: italic; }
+.srjgov-detail-body a {
+  color: #24185b; text-decoration: underline; text-underline-offset: 2px;
+  text-decoration-color: rgba(36,24,91,0.3);
+  transition: color .18s ease, text-decoration-color .18s ease;
+}
+.srjgov-detail-body a:hover { color: #ef7c00; text-decoration-color: #ef7c00; }
+.srjgov-detail-body ul, .srjgov-detail-body ol { margin: 0 0 22px; padding-left: 24px; }
+.srjgov-detail-body li { margin-bottom: 10px; padding-left: 4px; }
+.srjgov-detail-body ul li::marker { color: #ef7c00; }
+
+.srjgov-tldr {
+  background: #f5f2e9; border-left: 4px solid #ef7c00;
+  border-radius: 0 6px 6px 0; padding: 24px 28px; margin: 0 0 40px;
+}
+.srjgov-tldr-label {
+  font-family: 'Poppins','Inter',sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase; color: #b96000;
+  margin: 0 0 10px !important;
+}
+.srjgov-tldr p:last-child {
+  margin-bottom: 0 !important; font-size: 17px; line-height: 1.65; color: #15151a;
+}
+.srjgov-tldr strong { color: #1a1146; font-weight: 600; }
+
+.srjgov-children-block { margin: 56px 0 0; padding: 32px 0 0; border-top: 1px solid #e4e2dc; }
+.srjgov-children-block h2 { font-family: 'Lora','Alike',serif; font-size: 26px; color: #1a1146; margin: 0 0 22px; }
+.srjgov-children-list { list-style: none; margin: 0; padding: 0; }
+.srjgov-children-list li { padding: 18px 0; border-bottom: 1px solid #efede7; margin: 0; }
+.srjgov-children-list li:last-child { border-bottom: 0; }
+.srjgov-children-list a {
+  display: block; font-family: 'Lora','Alike',serif; font-size: 19px;
+  color: #24185b; text-decoration: none; margin-bottom: 5px; transition: color .18s ease;
+}
+.srjgov-children-list a:hover { color: #ef7c00; }
+.srjgov-child-teaser {
+  display: block; font-family: 'Poppins','Open Sans',sans-serif;
+  font-size: 14.5px; line-height: 1.55; color: #6b6b78;
+}
+
+.srjgov-cta {
+  margin: 56px 0 0; padding: 36px 40px; background: #1a1146;
+  border-radius: 8px; text-align: center;
+}
+.srjgov-cta h2 {
+  font-family: 'Lora','Alike',serif; font-size: 26px; line-height: 1.25;
+  color: #ffffff; margin: 0 0 14px;
+}
+.srjgov-cta p {
+  font-family: 'Poppins','Open Sans',sans-serif; font-size: 15.5px;
+  line-height: 1.6; color: rgba(255,255,255,0.82); margin: 0 auto 24px; max-width: 620px;
+}
+.srjgov-cta-btn {
+  display: inline-block; background: #ef7c00; color: #ffffff !important;
+  font-family: 'Poppins','Open Sans',sans-serif; font-weight: 600; font-size: 15px;
+  letter-spacing: 0.03em; padding: 14px 30px; border-radius: 4px;
+  text-decoration: none !important; border: 2px solid #ef7c00;
+  transition: background .18s ease, color .18s ease, transform .18s ease;
+}
+.srjgov-cta-btn:hover {
+  background: #ffffff; color: #1a1146 !important; border-color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.srjgov-hub-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px; margin: 40px 0 0;
+}
+.srjgov-hub-card {
+  background: #ffffff; border: 1px solid #e4e2dc; border-radius: 8px;
+  padding: 26px 26px 24px;
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.srjgov-hub-card:hover {
+  border-color: #ef7c00; box-shadow: 0 6px 22px rgba(20,20,40,0.08); transform: translateY(-2px);
+}
+.srjgov-hub-card h3 { font-family: 'Lora','Alike',serif; font-size: 20px; line-height: 1.28; margin: 0 0 8px; }
+.srjgov-hub-card h3 a { color: #1a1146; text-decoration: none; transition: color .18s ease; }
+.srjgov-hub-card:hover h3 a { color: #ef7c00; }
+.srjgov-hub-card-subtitle {
+  font-family: 'Poppins','Open Sans',sans-serif; font-size: 13px;
+  font-style: italic; color: #6b6b78; margin: 0 0 12px;
+}
+.srjgov-hub-card-short {
+  font-family: 'Poppins','Open Sans',sans-serif; font-size: 14.5px;
+  line-height: 1.6; color: #3a3a45; margin: 0;
+}
+
+@media (max-width: 860px) {
+  .longform { padding: 40px 0 56px; }
+  .srjgov-detail-body { font-size: 16px; }
+  .srjgov-detail-body h2 { font-size: 24px; margin: 36px 0 14px; }
+  .srjgov-detail-body h3 { font-size: 19px; }
+  .srjgov-tldr { padding: 20px 22px; margin-bottom: 32px; }
+  .srjgov-toc { padding: 18px 20px; }
+  .srjgov-cta { padding: 28px 24px; }
+  .srjgov-cta h2 { font-size: 22px; }
+  .srjgov-hub-grid { grid-template-columns: 1fr; }
+}
+</style>
+    
+<!-- Search Engine Optimization by Rank Math PRO - https://rankmath.com/ -->
+<title>{{TITLE}}</title>
+<meta name="description" content="{{DESC}}"/>
+<meta name="robots" content="follow, index, max-snippet:-1, max-video-preview:-1, max-image-preview:large"/>
+<link rel="canonical" href="{{URL}}" />
+<meta property="og:locale" content="en_US" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="{{TITLE}}" />
+<meta property="og:description" content="{{DESC}}" />
+<meta property="og:url" content="{{URL}}" />
+<meta property="og:site_name" content="SRJ Consulting &amp; Services LLC" />
+<meta property="og:updated_time" content="2026-07-14T15:03:16+00:00" />
+<meta property="og:image" content="https://srjconsultingservices.com/wp-content/uploads/srj-og-card-v3.png" />
+<meta property="og:image:secure_url" content="https://srjconsultingservices.com/wp-content/uploads/srj-og-card-v3.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="SRJ Consulting &amp; Services, operator-led AI advisory practice in Frisco, Texas, founded by Stephen R. Jordan. The Hidden Cost of Unmanaged AI." />
+<meta property="og:image:type" content="image/png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Colorado AI Act Explained: SB 24-205 for Executives" />
+<meta name="twitter:description" content="The Colorado AI Act is the first comprehensive U.S. state AI law. Learn what SB 24-205 requires from developers and deployers of high-risk AI." />
+<meta name="twitter:image" content="https://srjconsultingservices.com/wp-content/uploads/srj-og-card-v3.png" />
+<meta name="twitter:label1" content="Time to read" />
+<meta name="twitter:data1" content="10 minutes" />
+
+<!-- /Rank Math WordPress SEO plugin -->
+
+<link rel='dns-prefetch' href='//cdn.trustedsite.com' />
+<link rel='dns-prefetch' href='//www.statcounter.com' />
+<link rel='dns-prefetch' href='//fonts.googleapis.com' />
+			<script>document.documentElement.classList.remove( 'no-js' );</script>
+			    
+    <style id='wp-img-auto-sizes-contain-inline-css'>
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<style id='wp-block-library-inline-css'>
+:root{--wp-block-synced-color:#7a00df;--wp-block-synced-color--rgb:122,0,223;--wp-bound-block-color:var(--wp-block-synced-color);--wp-editor-canvas-background:#ddd;--wp-admin-theme-color:#007cba;--wp-admin-theme-color--rgb:0,124,186;--wp-admin-theme-color-darker-10:#006ba1;--wp-admin-theme-color-darker-10--rgb:0,107,160.5;--wp-admin-theme-color-darker-20:#005a87;--wp-admin-theme-color-darker-20--rgb:0,90,135;--wp-admin-border-width-focus:2px}@media (min-resolution:192dpi){:root{--wp-admin-border-width-focus:1.5px}}.wp-element-button{cursor:pointer}:root .has-very-light-gray-background-color{background-color:#eee}:root .has-very-dark-gray-background-color{background-color:#313131}:root .has-very-light-gray-color{color:#eee}:root .has-very-dark-gray-color{color:#313131}:root .has-vivid-green-cyan-to-vivid-cyan-blue-gradient-background{background:linear-gradient(135deg,#00d084,#0693e3)}:root .has-purple-crush-gradient-background{background:linear-gradient(135deg,#34e2e4,#4721fb 50%,#ab1dfe)}:root .has-hazy-dawn-gradient-background{background:linear-gradient(135deg,#faaca8,#dad0ec)}:root .has-subdued-olive-gradient-background{background:linear-gradient(135deg,#fafae1,#67a671)}:root .has-atomic-cream-gradient-background{background:linear-gradient(135deg,#fdd79a,#004a59)}:root .has-nightshade-gradient-background{background:linear-gradient(135deg,#330968,#31cdcf)}:root .has-midnight-gradient-background{background:linear-gradient(135deg,#020381,#2874fc)}:root{--wp--preset--font-size--normal:16px;--wp--preset--font-size--huge:42px}.has-regular-font-size{font-size:1em}.has-larger-font-size{font-size:2.625em}.has-normal-font-size{font-size:var(--wp--preset--font-size--normal)}.has-huge-font-size{font-size:var(--wp--preset--font-size--huge)}.has-text-align-center{text-align:center}.has-text-align-left{text-align:left}.has-text-align-right{text-align:right}.has-fit-text{white-space:nowrap!important}#end-resizable-editor-section{display:none}.aligncenter{clear:both}.items-justified-left{justify-content:flex-start}.items-justified-center{justify-content:center}.items-justified-right{justify-content:flex-end}.items-justified-space-between{justify-content:space-between}.screen-reader-text{border:0;clip-path:inset(50%);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;word-wrap:normal!important}.screen-reader-text:focus{background-color:#ddd;clip-path:none;color:#444;display:block;font-size:1em;height:auto;left:5px;line-height:normal;padding:15px 23px 14px;text-decoration:none;top:5px;width:auto;z-index:100000}html :where(.has-border-color){border-style:solid}html :where([style*=border-top-color]){border-top-style:solid}html :where([style*=border-right-color]){border-right-style:solid}html :where([style*=border-bottom-color]){border-bottom-style:solid}html :where([style*=border-left-color]){border-left-style:solid}html :where([style*=border-width]){border-style:solid}html :where([style*=border-top-width]){border-top-style:solid}html :where([style*=border-right-width]){border-right-style:solid}html :where([style*=border-bottom-width]){border-bottom-style:solid}html :where([style*=border-left-width]){border-left-style:solid}html :where(img[class*=wp-image-]){height:auto;max-width:100%}:where(figure){margin:0 0 1em}html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:var(--wp-admin--admin-bar--height,0px)}@media screen and (max-width:600px){html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:0px}}
+
+/*# sourceURL=wp-block-library-inline-css */
+</style>
+<style id='classic-theme-styles-inline-css'>
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+<style id='site-designer-shared-pattern-classes-inline-css'>
+/* Dark cover/section overlay + on-dark text. */
+body .wp-site-blocks .is-style-overlay-dark .wp-block-cover__background { background-color: var(--wp--preset--color--base-3); color: var(--wp--preset--color--contrast-3); }
+.wp-block-cover.is-style-overlay-dark .wp-block-cover__background.has-background-dim { opacity: 0.8 !important; }
+:is(.wp-block-designsetgo-section, .wp-block-designsetgo-scroll-slides).is-style-overlay-dark { --dsgo-overlay-color: var(--wp--preset--color--base-3); --dsgo-overlay-opacity: 0.8; color: var(--wp--preset--color--contrast-3); }
+.wp-block-group.has-background.is-style-overlay-dark { box-shadow: inset 0 0 0 9999px color-mix(in srgb, var(--wp--preset--color--base-3) 80%, transparent); }
+body .wp-site-blocks .is-style-overlay-dark, body .wp-site-blocks .is-style-on-dark { --dsgo-text-color: var(--wp--preset--color--contrast-3); color: var(--wp--preset--color--contrast-3) !important; }
+body .wp-site-blocks .is-style-overlay-dark :is(h1,h2,h3,h4,h5,h6,p,li,blockquote,cite), body .wp-site-blocks .is-style-on-dark :is(h1,h2,h3,h4,h5,h6,p,li,blockquote,cite) { color: var(--wp--preset--color--contrast-3) !important; }
+
+/* Solid dark section background + light text. */
+.is-style-bg-dark { background-color: var(--wp--preset--color--contrast); color: var(--wp--preset--color--base); }
+.is-style-bg-dark a { color: var(--wp--preset--color--base); }
+/*# sourceURL=site-designer-shared-pattern-classes-inline-css */
+</style>
+<style id='global-styles-inline-css'>
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--color--theme-palette-1: var(--global-palette1);--wp--preset--color--theme-palette-2: var(--global-palette2);--wp--preset--color--theme-palette-3: var(--global-palette3);--wp--preset--color--theme-palette-4: var(--global-palette4);--wp--preset--color--theme-palette-5: var(--global-palette5);--wp--preset--color--theme-palette-6: var(--global-palette6);--wp--preset--color--theme-palette-7: var(--global-palette7);--wp--preset--color--theme-palette-8: var(--global-palette8);--wp--preset--color--theme-palette-9: var(--global-palette9);--wp--preset--color--theme-palette-10: var(--global-palette10);--wp--preset--color--theme-palette-11: var(--global-palette11);--wp--preset--color--theme-palette-12: var(--global-palette12);--wp--preset--color--theme-palette-13: var(--global-palette13);--wp--preset--color--theme-palette-14: var(--global-palette14);--wp--preset--color--theme-palette-15: var(--global-palette15);--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: var(--global-font-size-small);--wp--preset--font-size--medium: var(--global-font-size-medium);--wp--preset--font-size--large: var(--global-font-size-large);--wp--preset--font-size--x-large: 42px;--wp--preset--font-size--larger: var(--global-font-size-larger);--wp--preset--font-size--xxlarge: var(--global-font-size-xxlarge);--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel='stylesheet' id='srj-google-fonts-css' href='https://fonts.googleapis.com/css2?family=Alike&#038;family=Open+Sans:wght@300;400;500;600;700&#038;family=Inter:wght@400;500;600&#038;family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600;1,700&#038;family=Poppins:wght@300;400;500;600;700&#038;display=swap' media='all' />
+<link rel='stylesheet' id='parent-style-css' href='https://srjconsultingservices.com/wp-content/themes/kadence/style.css?ver=1.6.9' media='all' />
+<link rel='stylesheet' id='srj-style-css' href='https://srjconsultingservices.com/wp-content/themes/srj-consulting/assets/css/style.css?ver=1.6.9' media='all' />
+<link rel='stylesheet' id='kadence-global-css' href='https://srjconsultingservices.com/wp-content/themes/kadence/assets/css/global.min.css?ver=1.5.2' media='all' />
+<style id='kadence-global-inline-css'>
+/* Kadence Base CSS */
+:root{--global-palette1:#2B6CB0;--global-palette2:#215387;--global-palette3:#1A202C;--global-palette4:#2D3748;--global-palette5:#4A5568;--global-palette6:#718096;--global-palette7:#EDF2F7;--global-palette8:#F7FAFC;--global-palette9:#ffffff;--global-palette10:oklch(from var(--global-palette1) calc(l + 0.10 * (1 - l)) calc(c * 1.00) calc(h + 180) / 100%);--global-palette11:#13612e;--global-palette12:#1159af;--global-palette13:#b82105;--global-palette14:#f7630c;--global-palette15:#f5a524;--global-palette9rgb:255, 255, 255;--global-palette-highlight:var(--global-palette1);--global-palette-highlight-alt:var(--global-palette2);--global-palette-highlight-alt2:var(--global-palette9);--global-palette-btn-bg:var(--global-palette1);--global-palette-btn-bg-hover:var(--global-palette2);--global-palette-btn:var(--global-palette9);--global-palette-btn-hover:var(--global-palette9);--global-palette-btn-sec-bg:var(--global-palette7);--global-palette-btn-sec-bg-hover:var(--global-palette2);--global-palette-btn-sec:var(--global-palette3);--global-palette-btn-sec-hover:var(--global-palette9);--global-body-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";--global-heading-font-family:inherit;--global-primary-nav-font-family:inherit;--global-fallback-font:sans-serif;--global-display-fallback-font:sans-serif;--global-content-width:1290px;--global-content-wide-width:calc(1290px + 230px);--global-content-narrow-width:842px;--global-content-edge-padding:1.5rem;--global-content-boxed-padding:2rem;--global-calc-content-width:calc(1290px - var(--global-content-edge-padding) - var(--global-content-edge-padding) );--wp--style--global--content-size:var(--global-calc-content-width);}.wp-site-blocks{--global-vw:calc( 100vw - ( 0.5 * var(--scrollbar-offset)));}body{background:var(--global-palette8);}body, input, select, optgroup, textarea{font-weight:400;font-size:17px;line-height:1.6;font-family:var(--global-body-font-family);color:var(--global-palette4);}.content-bg, body.content-style-unboxed .site{background:var(--global-palette9);}h1,h2,h3,h4,h5,h6{font-family:var(--global-heading-font-family);}h1{font-weight:700;font-size:32px;line-height:1.5;color:var(--global-palette3);}h2{font-weight:700;font-size:28px;line-height:1.5;color:var(--global-palette3);}h3{font-weight:700;font-size:24px;line-height:1.5;color:var(--global-palette3);}h4{font-weight:700;font-size:22px;line-height:1.5;color:var(--global-palette4);}h5{font-weight:700;font-size:20px;line-height:1.5;color:var(--global-palette4);}h6{font-weight:700;font-size:18px;line-height:1.5;color:var(--global-palette5);}.entry-hero .kadence-breadcrumbs{max-width:1290px;}.site-container, .site-header-row-layout-contained, .site-footer-row-layout-contained, .entry-hero-layout-contained, .comments-area, .alignfull > .wp-block-cover__inner-container, .alignwide > .wp-block-cover__inner-container{max-width:var(--global-content-width);}.content-width-narrow .content-container.site-container, .content-width-narrow .hero-container.site-container{max-width:var(--global-content-narrow-width);}@media all and (min-width: 1520px){.wp-site-blocks .content-container  .alignwide{margin-left:-115px;margin-right:-115px;width:unset;max-width:unset;}}@media all and (min-width: 1102px){.content-width-narrow .wp-site-blocks .content-container .alignwide{margin-left:-130px;margin-right:-130px;width:unset;max-width:unset;}}.content-style-boxed .wp-site-blocks .entry-content .alignwide{margin-left:calc( -1 * var( --global-content-boxed-padding ) );margin-right:calc( -1 * var( --global-content-boxed-padding ) );}.content-area{margin-top:5rem;margin-bottom:5rem;}@media all and (max-width: 1024px){.content-area{margin-top:3rem;margin-bottom:3rem;}}@media all and (max-width: 767px){.content-area{margin-top:2rem;margin-bottom:2rem;}}@media all and (max-width: 1024px){:root{--global-content-boxed-padding:2rem;}}@media all and (max-width: 767px){:root{--global-content-boxed-padding:1.5rem;}}.entry-content-wrap{padding:2rem;}@media all and (max-width: 1024px){.entry-content-wrap{padding:2rem;}}@media all and (max-width: 767px){.entry-content-wrap{padding:1.5rem;}}.entry.single-entry{box-shadow:0px 15px 15px -10px rgba(0,0,0,0.05);}.entry.loop-entry{box-shadow:0px 15px 15px -10px rgba(0,0,0,0.05);}.loop-entry .entry-content-wrap{padding:2rem;}@media all and (max-width: 1024px){.loop-entry .entry-content-wrap{padding:2rem;}}@media all and (max-width: 767px){.loop-entry .entry-content-wrap{padding:1.5rem;}}button, .button, .wp-block-button__link, input[type="button"], input[type="reset"], input[type="submit"], .fl-button, .elementor-button-wrapper .elementor-button, .wc-block-components-checkout-place-order-button, .wc-block-cart__submit{box-shadow:0px 0px 0px -7px rgba(0,0,0,0);}button:hover, button:focus, button:active, .button:hover, .button:focus, .button:active, .wp-block-button__link:hover, .wp-block-button__link:focus, .wp-block-button__link:active, input[type="button"]:hover, input[type="button"]:focus, input[type="button"]:active, input[type="reset"]:hover, input[type="reset"]:focus, input[type="reset"]:active, input[type="submit"]:hover, input[type="submit"]:focus, input[type="submit"]:active, .elementor-button-wrapper .elementor-button:hover, .elementor-button-wrapper .elementor-button:focus, .elementor-button-wrapper .elementor-button:active, .wc-block-cart__submit:hover{box-shadow:0px 15px 25px -7px rgba(0,0,0,0.1);}.kb-button.kb-btn-global-outline.kb-btn-global-inherit{padding-top:calc(px - 2px);padding-right:calc(px - 2px);padding-bottom:calc(px - 2px);padding-left:calc(px - 2px);}@media all and (min-width: 1025px){.transparent-header .entry-hero .entry-hero-container-inner{padding-top:80px;}}@media all and (max-width: 1024px){.mobile-transparent-header .entry-hero .entry-hero-container-inner{padding-top:80px;}}@media all and (max-width: 767px){.mobile-transparent-header .entry-hero .entry-hero-container-inner{padding-top:80px;}}.entry-hero.page-hero-section .entry-header{min-height:200px;}
+/* Kadence Header CSS */
+@media all and (max-width: 1024px){.mobile-transparent-header #masthead{position:absolute;left:0px;right:0px;z-index:100;}.kadence-scrollbar-fixer.mobile-transparent-header #masthead{right:var(--scrollbar-offset,0);}.mobile-transparent-header #masthead, .mobile-transparent-header .site-top-header-wrap .site-header-row-container-inner, .mobile-transparent-header .site-main-header-wrap .site-header-row-container-inner, .mobile-transparent-header .site-bottom-header-wrap .site-header-row-container-inner{background:transparent;}.site-header-row-tablet-layout-fullwidth, .site-header-row-tablet-layout-standard{padding:0px;}}@media all and (min-width: 1025px){.transparent-header #masthead{position:absolute;left:0px;right:0px;z-index:100;}.transparent-header.kadence-scrollbar-fixer #masthead{right:var(--scrollbar-offset,0);}.transparent-header #masthead, .transparent-header .site-top-header-wrap .site-header-row-container-inner, .transparent-header .site-main-header-wrap .site-header-row-container-inner, .transparent-header .site-bottom-header-wrap .site-header-row-container-inner{background:transparent;}}.site-branding{padding:0px 0px 0px 0px;}.site-branding .site-title{font-weight:700;font-size:26px;line-height:1.2;color:var(--global-palette3);}#masthead, #masthead .kadence-sticky-header.item-is-fixed:not(.item-at-start):not(.site-header-row-container):not(.site-main-header-wrap), #masthead .kadence-sticky-header.item-is-fixed:not(.item-at-start) > .site-header-row-container-inner{background:#ffffff;}.site-main-header-inner-wrap{min-height:80px;}.header-navigation[class*="header-navigation-style-underline"] .header-menu-container.primary-menu-container>ul>li>a:after{width:calc( 100% - 1.2em);}.main-navigation .primary-menu-container > ul > li.menu-item > a{padding-left:calc(1.2em / 2);padding-right:calc(1.2em / 2);padding-top:0.6em;padding-bottom:0.6em;color:var(--global-palette5);}.main-navigation .primary-menu-container > ul > li.menu-item .dropdown-nav-special-toggle{right:calc(1.2em / 2);}.main-navigation .primary-menu-container > ul > li.menu-item > a:hover{color:var(--global-palette-highlight);}.main-navigation .primary-menu-container > ul > li.menu-item.current-menu-item > a{color:var(--global-palette3);}.header-navigation .header-menu-container ul ul.sub-menu, .header-navigation .header-menu-container ul ul.submenu{background:var(--global-palette3);box-shadow:0px 2px 13px 0px rgba(0,0,0,0.1);}.header-navigation .header-menu-container ul ul li.menu-item, .header-menu-container ul.menu > li.kadence-menu-mega-enabled > ul > li.menu-item > a{border-bottom:1px solid rgba(255,255,255,0.1);border-radius:0px 0px 0px 0px;}.header-navigation .header-menu-container ul ul li.menu-item > a{width:200px;padding-top:1em;padding-bottom:1em;color:var(--global-palette8);font-size:12px;}.header-navigation .header-menu-container ul ul li.menu-item > a:hover{color:var(--global-palette9);background:var(--global-palette4);border-radius:0px 0px 0px 0px;}.header-navigation .header-menu-container ul ul li.menu-item.current-menu-item > a{color:var(--global-palette9);background:var(--global-palette4);border-radius:0px 0px 0px 0px;}.mobile-toggle-open-container .menu-toggle-open, .mobile-toggle-open-container .menu-toggle-open:focus{color:var(--global-palette5);padding:0.4em 0.6em 0.4em 0.6em;font-size:14px;}.mobile-toggle-open-container .menu-toggle-open.menu-toggle-style-bordered{border:1px solid currentColor;}.mobile-toggle-open-container .menu-toggle-open .menu-toggle-icon{font-size:20px;}.mobile-toggle-open-container .menu-toggle-open:hover, .mobile-toggle-open-container .menu-toggle-open:focus-visible{color:var(--global-palette-highlight);}.mobile-navigation ul li{font-size:14px;}.mobile-navigation ul li a{padding-top:1em;padding-bottom:1em;}.mobile-navigation ul li > a, .mobile-navigation ul li.menu-item-has-children > .drawer-nav-drop-wrap{color:var(--global-palette8);}.mobile-navigation ul li.current-menu-item > a, .mobile-navigation ul li.current-menu-item.menu-item-has-children > .drawer-nav-drop-wrap{color:var(--global-palette-highlight);}.mobile-navigation ul li.menu-item-has-children .drawer-nav-drop-wrap, .mobile-navigation ul li:not(.menu-item-has-children) a{border-bottom:1px solid rgba(255,255,255,0.1);}.mobile-navigation:not(.drawer-navigation-parent-toggle-true) ul li.menu-item-has-children .drawer-nav-drop-wrap button{border-left:1px solid rgba(255,255,255,0.1);}#mobile-drawer .drawer-header .drawer-toggle{padding:0.6em 0.15em 0.6em 0.15em;font-size:24px;}
+/* Kadence Footer CSS */
+.site-bottom-footer-inner-wrap{padding-top:30px;padding-bottom:30px;grid-column-gap:30px;}.site-bottom-footer-inner-wrap .widget{margin-bottom:30px;}.site-bottom-footer-inner-wrap .site-footer-section:not(:last-child):after{right:calc(-30px / 2);}
+/*# sourceURL=kadence-global-inline-css */
+</style>
+<link rel='stylesheet' id='kadence-header-css' href='https://srjconsultingservices.com/wp-content/themes/kadence/assets/css/header.min.css?ver=1.5.2' media='all' />
+<link rel='stylesheet' id='kadence-content-css' href='https://srjconsultingservices.com/wp-content/themes/kadence/assets/css/content.min.css?ver=1.5.2' media='all' />
+<link rel='stylesheet' id='kadence-footer-css' href='https://srjconsultingservices.com/wp-content/themes/kadence/assets/css/footer.min.css?ver=1.5.2' media='all' />
+<link rel='stylesheet' id='kadence-rankmath-css' href='https://srjconsultingservices.com/wp-content/themes/kadence/assets/css/rankmath.min.css?ver=1.5.2' media='all' />
+<script id="statcounter-js-js-before">
+var sc_project=13170872;
+var sc_security="d3cb9c8b";
+var sc_invisible=1;
+
+//# sourceURL=statcounter-js-js-before
+</script>
+
+
+
+<link rel="https://api.w.org/" href="https://srjconsultingservices.com/wp-json/" />			<style>.cmplz-hidden {
+					display: none !important;
+				}</style>
+				
+
+	<noscript><div class="statcounter"><a title="web analytics" href="https://statcounter.com/"><img class="statcounter" src="https://c.statcounter.com/13170872/0/d3cb9c8b/1/" alt="web analytics" /></a></div></noscript>
+	<link rel="icon" href="https://srjconsultingservices.com/wp-content/uploads/cropped-SRJ-Consulting-Services-Website-Logo-32x32.jpg" sizes="32x32" />
+<link rel="icon" href="https://srjconsultingservices.com/wp-content/uploads/cropped-SRJ-Consulting-Services-Website-Logo-192x192.jpg" sizes="192x192" />
+<link rel="apple-touch-icon" href="https://srjconsultingservices.com/wp-content/uploads/cropped-SRJ-Consulting-Services-Website-Logo-180x180.jpg" />
+<meta name="msapplication-TileImage" content="https://srjconsultingservices.com/wp-content/uploads/cropped-SRJ-Consulting-Services-Website-Logo-270x270.jpg" />
+<style id="wp-site-designer-contrast-fallback"> body .wp-site-blocks .wp-block-designsetgo-section.has-white-background-color:not(.has-text-color){background-color:var(--wp--preset--color--white);color:var(--wp--preset--color--contrast);--dsgo-text-color:var(--wp--preset--color--contrast);} body .wp-site-blocks .wp-block-designsetgo-section.has-black-background-color:not(.has-text-color){background-color:var(--wp--preset--color--black);color:var(--wp--preset--color--contrast);--dsgo-text-color:var(--wp--preset--color--contrast);} body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color) h1:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color) h2:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color) h3:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color) h4:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color) h5:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color) h6:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color) p:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color) a:where(:not(.wp-element-button)):not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color) .wp-element-caption:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)){color:var(--dsgo-text-color,inherit) !important;} body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color).has-text-color{--dsgo-text-color:initial;} body .wp-site-blocks .wp-block-group.has-white-background-color:not(.has-text-color){background-color:var(--wp--preset--color--white);color:var(--wp--preset--color--contrast);--dsgo-text-color:var(--wp--preset--color--contrast);} body .wp-site-blocks .wp-block-group.has-black-background-color:not(.has-text-color){background-color:var(--wp--preset--color--black);color:var(--wp--preset--color--contrast);--dsgo-text-color:var(--wp--preset--color--contrast);} body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color) h1:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color) h2:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color) h3:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color) h4:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color) h5:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color) h6:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color) p:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color) a:where(:not(.wp-element-button)):not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color) .wp-element-caption:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)){color:var(--dsgo-text-color,inherit) !important;} body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color).has-text-color{--dsgo-text-color:initial;} body .wp-site-blocks .wp-block-column.has-white-background-color:not(.has-text-color){background-color:var(--wp--preset--color--white);color:var(--wp--preset--color--contrast);--dsgo-text-color:var(--wp--preset--color--contrast);} body .wp-site-blocks .wp-block-column.has-black-background-color:not(.has-text-color){background-color:var(--wp--preset--color--black);color:var(--wp--preset--color--contrast);--dsgo-text-color:var(--wp--preset--color--contrast);} body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color) h1:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color) h2:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color) h3:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color) h4:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color) h5:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color) h6:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color) p:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color) a:where(:not(.wp-element-button)):not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color) .wp-element-caption:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)){color:var(--dsgo-text-color,inherit) !important;} body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color).has-text-color{--dsgo-text-color:initial;} .wp-block-group:not(:is(.has-white-background-color,.has-black-background-color)),.wp-block-column:not(:is(.has-white-background-color,.has-black-background-color)),.wp-block-columns:not(:is(.has-white-background-color,.has-black-background-color)){--dsgo-text-color:initial;} :is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover:not(.has-text-color){color:var(--wp--preset--color--contrast-3) !important;--dsgo-text-color:var(--wp--preset--color--contrast-3);} body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) h1:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) h2:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) h3:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) h4:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) h5:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) h6:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) p:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) a:where(:not(.wp-element-button)):not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) .wp-element-caption:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)){color:var(--dsgo-text-color,inherit) !important;} body .wp-site-blocks :is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column):is(:is(.has-white-background-color,.has-black-background-color),[data-dsgo-inline-bg]) .wp-block-button:is([class*="is-style-outline"],[class*="is-style-secondary"]) .wp-element-button{color:var(--dsgo-text-color,inherit) !important;border-color:currentColor !important;}body .wp-site-blocks :is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column):is(:is(.has-white-background-color,.has-black-background-color),[data-dsgo-inline-bg]) .wp-block-button:is([class*="is-style-outline"],[class*="is-style-secondary"]) .wp-element-button:hover{opacity:0.75;} body .wp-site-blocks [data-dsgo-inline-bg] h1:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] h2:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] h3:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] h4:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] h5:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] h6:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] p:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] a:where(:not(.wp-element-button)):not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] .wp-element-caption:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)){color:var(--dsgo-text-color,inherit) !important;} :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)),.has-background:is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)),.has-text-color:is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)){background-color:var(--wp--preset--color--accent-5);color:var(--wp--preset--color--contrast);} body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) h1:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) h2:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) h3:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) h4:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) h5:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) h6:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) p:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) a:where(:not(.wp-element-button)):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) .wp-element-caption:where(:not(.elementor *):not([data-elementor-type] *)){color:var(--wp--preset--color--contrast);} :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)),.has-background:is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)),.has-text-color:is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)){background-color:var(--wp--preset--color--accent-2);color:var(--wp--preset--color--contrast);} body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) h1:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) h2:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) h3:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) h4:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) h5:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) h6:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) p:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) a:where(:not(.wp-element-button)):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) .wp-element-caption:where(:not(.elementor *):not([data-elementor-type] *)){color:var(--wp--preset--color--contrast);} :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)),.has-background:is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)),.has-text-color:is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)){background-color:var(--wp--preset--color--accent-1);color:var(--wp--preset--color--contrast);} body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) h1:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) h2:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) h3:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) h4:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) h5:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) h6:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) p:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) a:where(:not(.wp-element-button)):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) .wp-element-caption:where(:not(.elementor *):not([data-elementor-type] *)){color:var(--wp--preset--color--contrast);} :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)),.has-background:is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)),.has-text-color:is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)){background-color:var(--wp--preset--color--accent-3);color:var(--wp--preset--color--accent-2);} body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) h1:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) h2:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) h3:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) h4:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) h5:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) h6:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) p:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) a:where(:not(.wp-element-button)):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) .wp-element-caption:where(:not(.elementor *):not([data-elementor-type] *)){color:var(--wp--preset--color--accent-2);} :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)),.has-background:is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)),.has-text-color:is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)){background-color:var(--wp--preset--color--contrast);color:var(--wp--preset--color--base);} body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) h1:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) h2:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) h3:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) h4:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) h5:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) h6:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) p:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) a:where(:not(.wp-element-button)):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) .wp-element-caption:where(:not(.elementor *):not([data-elementor-type] *)){color:var(--wp--preset--color--base);}   body .wp-site-blocks input:not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="image"]):not([type="hidden"]),body .wp-site-blocks textarea,body .wp-site-blocks select{background-color:var(--wp--preset--color--base);color:var(--wp--preset--color--contrast);border:1px solid color-mix(in srgb, var(--wp--preset--color--contrast) 30%, transparent);} .wp-site-blocks input[type="submit"]:not(.wp-element-button),.wp-site-blocks button[type="submit"]:not(.wp-element-button){background-color:var(--wp--preset--color--accent-2);color:var(--wp--preset--color--base);border-width:0;padding:12px 30px;font-family:inherit;font-size:var(--wp--preset--font-size--medium, 1rem);line-height:inherit;cursor:pointer;}</style>
+		<style id="wp-custom-css">
+			/* Insights (Latest Posts) titles - brand color. Added 2026-05-29 */
+.srj-latest-insights .wp-block-latest-posts__post-title{color:var(--navy)!important;-webkit-text-fill-color:var(--navy)!important}
+.srj-latest-insights .wp-block-latest-posts__post-title:hover{color:var(--orange)!important;-webkit-text-fill-color:var(--orange)!important}
+
+/* SRJ-INSIGHTS-DESIGN v1 */
+body.home{background-color:#ffffff!important}
+.srj-latest-insights{margin-top:6px!important}
+.srj-latest-insights li{border-top:1px solid var(--line);padding:22px 0!important;margin:0!important}
+.srj-latest-insights li:first-child{border-top:none}
+.srj-latest-insights .wp-block-latest-posts__post-title{font-family:'Lora',Georgia,serif!important;font-size:22px!important;line-height:1.32!important;font-weight:600!important;letter-spacing:-.01em;color:var(--navy)!important;-webkit-text-fill-color:var(--navy)!important;text-decoration:none!important;display:inline-block;transition:color .2s ease}
+.srj-latest-insights .wp-block-latest-posts__post-title:hover{color:var(--orange)!important;-webkit-text-fill-color:var(--orange)!important}
+.srj-latest-insights .wp-block-latest-posts__post-date{display:block;margin-top:8px;font-family:'Poppins',sans-serif!important;font-size:11.5px!important;font-weight:600!important;letter-spacing:.14em;text-transform:uppercase;color:var(--orange)!important}
+@media(max-width:600px){.srj-latest-insights .wp-block-latest-posts__post-title{font-size:19px!important}}
+.srj-latest-insights::before{content:"Recent Insights";display:block;width:fit-content;font-family:'Poppins',sans-serif;font-size:15px;font-weight:600;color:#201868;border-bottom:2px solid #F07800;padding-bottom:2px;margin:0 auto 24px}		</style>
+				<style id="site-designer-logo-constraints">
+			.wp-block-site-logo img {
+				max-width: 180px;
+				max-height: 80px;
+				width: auto !important;
+				height: auto !important;
+				object-fit: contain;
+			}
+		</style>
+		{{JSONLD}}
+</head>
+
+<body data-rsssl=1 data-cmplz=1 class="wp-singular page-template page-template-page-ai-governance-detail page-template-page-ai-governance-detail-php page page-id-521 page-child parent-pageid-510 wp-embed-responsive wp-theme-kadence wp-child-theme-srj-consulting footer-on-bottom hide-focus-outline link-style-standard content-title-style-above content-width-normal content-style-boxed content-vertical-padding-show non-transparent-header mobile-non-transparent-header">
+
+    <div class="announce">
+      <div class="container row">
+        <div class="announce-left">
+          <span class="loc">Frisco, TX</span>
+          <a href="tel:+14154137772"><span class="pip">&#9679;</span> (415) 413-7772</a>
+          <a href="mailto:info@srjconsultingservices.com" class="hide-mobile">info@srjconsultingservices.com</a>
+        </div>
+        <div class="announce-right">
+          <button type="button" class="announce-search hide-mobile" id="srj-search-toggle"
+                  aria-label="Search the site" aria-expanded="false" aria-controls="srj-site-search-panel">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+              <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+              <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span class="announce-search-label">Search</span>
+          </button>
+          <a href="https://srjconsultingservices.com/schedule-consultation/" target="_blank" rel="noopener">Schedule a Free AI Consultation <span class="arrow">&rarr;</span></a>
+        </div>
+      </div>
+    </div>
+        <header class="nav">
+      <div class="container nav-inner">
+        <a href="https://srjconsultingservices.com/" class="logo" style="text-decoration:none">
+          <div class="logo-mark">SRJ Consulting<span class="amp">&amp;</span>Services</div>
+          <div class="logo-tag">The Operating Discipline for AI Library&trade;</div>
+        </a>
+
+                <nav class="primary">
+          <ul>
+            <li><a href="https://srjconsultingservices.com/about/">About</a></li>
+            <li><a href="https://srjconsultingservices.com/services/">Services</a></li>
+            <li><a href="https://srjconsultingservices.com/applications/">Applications</a></li>
+            <li><a href="https://srjconsultingservices.com/industries/">Industries</a></li>
+            <li><a href="https://srjconsultingservices.com/books/">Books</a></li>
+            <li><a href="https://srjconsultingservices.com/resources/">Resources</a></li>
+            <li><a href="https://srjconsultingservices.com/faq/">FAQ</a></li>
+            <li><a href="https://srjconsultingservices.com/contact/">Contact</a></li>
+          </ul>
+        </nav>
+
+                <button class="srj-nav-toggle" id="srj-nav-toggle" type="button"
+                aria-label="Open menu" aria-expanded="false" aria-controls="srj-mobile-panel">
+          <span class="srj-nav-toggle-bars" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </span>
+        </button>
+      </div>
+    </header>
+
+        <div class="srj-mobile-scrim" id="srj-mobile-scrim"></div>
+    <nav class="srj-mobile-panel" id="srj-mobile-panel" aria-label="Mobile navigation" aria-hidden="true">
+      <div class="srj-mobile-panel-head">
+        <span class="srj-mobile-panel-label">Menu</span>
+        <button class="srj-mobile-close" id="srj-mobile-close" type="button" aria-label="Close menu">&#215;</button>
+      </div>
+      <ul class="srj-mobile-links">
+        <li><a href="https://srjconsultingservices.com/about/">About</a></li>
+        <li><a href="https://srjconsultingservices.com/services/">Services</a></li>
+        <li><a href="https://srjconsultingservices.com/applications/">Applications</a></li>
+        <li><a href="https://srjconsultingservices.com/industries/">Industries</a></li>
+        <li><a href="https://srjconsultingservices.com/books/">Books</a></li>
+        <li><a href="https://srjconsultingservices.com/resources/">Resources</a></li>
+        <li><a href="https://srjconsultingservices.com/faq/">FAQ</a></li>
+        <li><a href="https://srjconsultingservices.com/contact/">Contact</a></li>
+      </ul>
+      <a href="https://srjconsultingservices.com/schedule-consultation/" target="_blank" rel="noopener" class="srj-mobile-cta">Schedule a Free AI Consultation</a>
+    </nav>
+
+        <script>
+    (function () {
+      var toggle = document.getElementById('srj-nav-toggle');
+      var panel  = document.getElementById('srj-mobile-panel');
+      var scrim  = document.getElementById('srj-mobile-scrim');
+      var closeBtn = document.getElementById('srj-mobile-close');
+      if ( ! toggle || ! panel || ! scrim ) { return; }
+
+      function setOpen( open ) {
+        panel.classList.toggle('is-open', open);
+        scrim.classList.toggle('is-open', open);
+        toggle.classList.toggle('is-open', open);
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+        panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+        document.body.classList.toggle('srj-menu-open', open);
+      }
+
+      // Hamburger toggles the panel.
+      toggle.addEventListener('click', function () {
+        setOpen( ! panel.classList.contains('is-open') );
+      });
+
+      // Tapping the scrim closes it.
+      scrim.addEventListener('click', function () { setOpen(false); });
+
+      // The dedicated close (X) button inside the panel.
+      if ( closeBtn ) {
+        closeBtn.addEventListener('click', function () { setOpen(false); });
+      }
+
+      // Tapping any link inside the panel closes it.
+      panel.addEventListener('click', function (e) {
+        if ( e.target.closest('a') ) { setOpen(false); }
+      });
+
+      // Escape closes it.
+      document.addEventListener('keydown', function (e) {
+        if ( e.key === 'Escape' && panel.classList.contains('is-open') ) { setOpen(false); }
+      });
+
+      // Reset if the viewport grows back to desktop while open.
+      window.addEventListener('resize', function () {
+        if ( window.innerWidth > 980 && panel.classList.contains('is-open') ) { setOpen(false); }
+      });
+    })();
+    </script>
+    
+<div class="srj-search-panel" id="srj-site-search-panel" aria-hidden="true" role="search">
+  <div class="container">
+    <form method="get" class="srj-search-form" action="https://srjconsultingservices.com/">
+      <label for="srj-site-search-input" class="screen-reader-text">Search</label>
+      <input
+        type="search"
+        id="srj-site-search-input"
+        name="s"
+        value=""
+        placeholder="Search books, services, AI governance topics, insights..."
+        autocomplete="off"
+      />
+      <button type="submit" class="srj-search-submit">Search</button>
+      <button type="button" class="srj-search-close" id="srj-search-close" aria-label="Close search">&times;</button>
+    </form>
+  </div>
+</div>
+
+<button type="button" class="srj-search-toggle-mobile" id="srj-search-toggle-mobile"
+        aria-label="Search the site" aria-expanded="false" aria-controls="srj-site-search-panel">
+  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+    <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
+    <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+</button>
+
+<script>
+(function () {
+  // Toggle button in the announce bar (desktop) and mobile fallback.
+  var toggleA = document.getElementById('srj-search-toggle');
+  var toggleB = document.getElementById('srj-search-toggle-mobile');
+  var panel   = document.getElementById('srj-site-search-panel');
+  var input   = document.getElementById('srj-site-search-input');
+  var closeBtn = document.getElementById('srj-search-close');
+
+  if ( ! panel || ! input ) { return; }
+
+  function setOpen( open ) {
+    panel.classList.toggle('is-open', open);
+    panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+    if ( toggleA ) { toggleA.setAttribute('aria-expanded', open ? 'true' : 'false'); }
+    if ( toggleB ) { toggleB.setAttribute('aria-expanded', open ? 'true' : 'false'); }
+    if ( open ) {
+      setTimeout( function () { input.focus(); input.select(); }, 60 );
+    }
+  }
+
+  function bindToggle( btn ) {
+    if ( ! btn ) { return; }
+    btn.addEventListener('click', function ( e ) {
+      e.preventDefault();
+      setOpen( ! panel.classList.contains('is-open') );
+    });
+  }
+  bindToggle( toggleA );
+  bindToggle( toggleB );
+
+  if ( closeBtn ) {
+    closeBtn.addEventListener('click', function () { setOpen(false); });
+  }
+
+  // Escape closes the panel.
+  document.addEventListener('keydown', function (e) {
+    if ( e.key === 'Escape' && panel.classList.contains('is-open') ) { setOpen(false); }
+  });
+
+  // Click outside the panel closes it (excluding the two toggles).
+  document.addEventListener('click', function (e) {
+    if ( ! panel.classList.contains('is-open') ) { return; }
+    if ( panel.contains(e.target) ) { return; }
+    if ( toggleA && toggleA.contains(e.target) ) { return; }
+    if ( toggleB && toggleB.contains(e.target) ) { return; }
+    setOpen(false);
+  });
+})();
+</script>
+
+    <section class="page-hero">
+      <div class="container">
+                <style>
+          .breadcrumbs { margin: 0 0 18px; }
+          .breadcrumbs ol {
+            list-style: none; margin: 0; padding: 0;
+            display: flex; flex-wrap: wrap; align-items: center;
+            font-family: 'Poppins', sans-serif; font-size: 13px; line-height: 1.4;
+          }
+          .breadcrumbs li { display: flex; align-items: center; }
+          .breadcrumbs li:not(:last-child)::after {
+            content: '/'; margin: 0 8px; color: #7A8A9E;
+          }
+          .breadcrumbs a { color: #7A8A9E; text-decoration: none; transition: color .15s ease; }
+          .breadcrumbs a:hover { color: #F07800; }
+          .breadcrumbs span[aria-current] { color: #201868; font-weight: 600; }
+        </style>
+        {{BREADCRUMBS}}        {{LABEL}}<h1>{{H1}}</h1>
+              </div>
+    </section>
+    
+<section class="longform">
+  <div class="container">
+
+          {{SUBTITLE}}
+    
+          <div class="srjgov-detail-body">
+{{BODY}}
+{{CHILDREN}}
+</div>
+<div class="srjgov-cta">
+      <h2>Ready to see where you stand?</h2>
+      <p>The AI Business Enablement Audit&trade; measures your organization against every framework in this library, including {{KW}}, and delivers a defensible governance dossier. Start or finish your audit below.</p>
+      <a class="srjgov-cta-btn" href="https://aiauditforcompanies.com/startaiaudit/" target="_blank" rel="noopener">Start or finish your AI Audit &rarr;</a>
+    </div>
+
+  </div>
+</section>
+
+
+<footer>
+  <div class="container">
+
+    <!-- Newsletter signup band - sitewide CTA for The AI Operating System(TM) -->
+    <div class="footer-newsletter">
+      <div class="footer-newsletter-text">
+        <div class="footer-newsletter-eyebrow">The AI Operating System&trade;</div>
+        <h4 class="footer-newsletter-headline">Get operating discipline for AI, every other Tuesday.</h4>
+        <p class="footer-newsletter-sub">Biweekly framework analysis, new templates, and field notes from active client engagements. Free, no software pitches, unsubscribe anytime.</p>
+      </div>
+      <div class="footer-newsletter-action">
+        <a href="https://srj-consulting-services.beehiiv.com" target="_blank" rel="noopener noreferrer" class="footer-newsletter-btn">Subscribe Free <span class="arrow">&rarr;</span></a>
+        <a href="https://srjconsultingservices.com/newsletter/" class="footer-newsletter-learn">Learn more about the newsletter</a>
+      </div>
+    </div>
+
+    <div class="footer-grid">
+      <div>
+        <div class="logo-mark">SRJ Consulting<span class="amp">&amp;</span>Services</div>
+        <p class="footer-about">Operator-led AI advisory for executives accountable for AI outcomes. Governance, performance, and security frameworks built from three decades of senior leadership at Citi, Intel, McAfee, and Optiv.</p>
+
+        <div class="footer-social" aria-label="Connect with SRJ Consulting">
+          <a class="icon-linkedin" href="https://www.linkedin.com/in/stephenrjordan/" target="_blank" rel="noopener noreferrer" aria-label="Stephen R. Jordan on LinkedIn" title="Stephen R. Jordan on LinkedIn">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+          <a class="icon-linkedin" href="https://www.linkedin.com/company/srjconsultingandservices/" target="_blank" rel="noopener noreferrer" aria-label="SRJ Consulting on LinkedIn" title="SRJ Consulting on LinkedIn">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+          <a class="icon-youtube" href="https://www.youtube.com/@srjconsvcs" target="_blank" rel="noopener noreferrer" aria-label="SRJ Consulting on YouTube" title="SRJ Consulting on YouTube">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          </a>
+          <a class="icon-google" href="https://maps.app.goo.gl/gPJgc2nvcHRdtvJM7" target="_blank" rel="noopener noreferrer" aria-label="SRJ Consulting on Google" title="SRJ Consulting on Google">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <h5><a href="https://srjconsultingservices.com/services/" style="color:inherit;text-decoration:none">Services</a></h5>
+        <ul>
+          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/services/business-services/">AI Business Services</a></li>
+          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/services/risk-governance-security/">AI Risk Governance &amp; Security</a></li>
+        </ul>
+        <h5 style="margin-top:24px"><a href="https://srjconsultingservices.com/applications/" style="color:inherit;text-decoration:none">Applications</a></h5>
+        <ul>
+          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/ai-audit/">AI Audit</a></li>
+          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/applications/outcomestar/">Outcomestar</a></li>
+        </ul>
+        <h5 style="margin-top:24px"><a href="https://srjconsultingservices.com/industries/" style="color:inherit;text-decoration:none">Industries</a></h5>
+        <h5 style="margin-top:24px"><a href="https://srjconsultingservices.com/books/" style="color:inherit;text-decoration:none">Books</a></h5>
+        <ul>
+          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/books/ai-business-services/">AI Business Services</a></li>
+          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/books/ai-risk-governance-security/">AI Risk Governance &amp; Security</a></li>
+        </ul>
+        <h5 style="margin-top:24px"><a href="https://srjconsultingservices.com/resources/" style="color:inherit;text-decoration:none">Resources</a></h5>
+        <ul>
+          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/ai-governance/">AI Governance Library</a></li>
+          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/ai-governance/ai-tools/">AI Tools Catalog</a></li>
+          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/resources/ai-glossary/">AI Glossary</a></li>
+          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/insights/">Insights</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h5>Firm</h5>
+        <ul>
+          <li><a href="https://srjconsultingservices.com/about/">About Stephen R. Jordan</a></li>
+          <li><a href="https://srjconsultingservices.com/newsletter/">Newsletter</a></li>
+          <li><a href="https://srjconsultingservices.com/faq/">FAQ</a></li>
+          <li><a href="https://srjconsultingservices.com/press/">Press &amp; Media Kit</a></li>
+          <li><a href="https://srjconsultingservices.com/contact/">Contact</a></li>
+        </ul>
+        <h5 style="margin-top:30px">Client Resources</h5>
+        <ul>
+          <li><a href="https://srjconsultingservices.com/client-upload/">Secure File Upload</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h5>Contact</h5>
+        <div class="footer-contact-item">
+          <strong>Phone</strong>
+          <a href="tel:+14154137772" class="footer-phone-link">(415) 413-7772</a>
+        </div>
+        <div class="footer-contact-item">
+          <strong>Email</strong>
+          <a href="mailto:info@srjconsultingservices.com">info@srjconsultingservices.com</a>
+        </div>
+        <div class="footer-contact-item">
+          <strong>Office</strong>
+                    13054 Cinderella Lane<br>
+          Frisco, TX 75035-5194<br>United States        </div>
+        <a href="https://srjconsultingservices.com/schedule-consultation/" target="_blank" rel="noopener" class="footer-schedule-btn">Schedule a Free AI Consultation <span class="arrow">&rarr;</span></a>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; 2026 SRJ Consulting &amp; Services LLC. All rights reserved.</div>
+      <div>
+        <a href="https://srjconsultingservices.com/privacy/">Privacy</a> &nbsp;&middot;&nbsp;
+        <a href="https://srjconsultingservices.com/terms/">Terms</a> &nbsp;&middot;&nbsp;
+        <a href="https://srjconsultingservices.com/disclaimer/">Disclaimer</a> &nbsp;&middot;&nbsp;
+        <a href="https://srjconsultingservices.com/contact/">Contact</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Floating sticky CTA (hides near footer, hidden on mobile) -->
+<style>
+  /* Hide floating CTA on mobile devices, where it overlaps body content.
+     Desktop visitors still get the persistent CTA. */
+  @media (max-width: 768px) {
+    .floating-cta { display: none !important; }
+  }
+
+  /* Footer social icons - brand colors */
+  .footer-social {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .footer-social a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: #ffffff;
+  }
+  .footer-social a.icon-linkedin {
+    background: #0A66C2;
+  }
+  .footer-social a.icon-youtube {
+    background: #FF0000;
+  }
+  .footer-social a.icon-google {
+    background: #ffffff;
+    border: 1px solid #dadce0;
+  }
+  .footer-social a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+  }
+  .footer-social a svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+  }
+
+  /* ============================================
+     Firm column nested sub-item (v1.2.6)
+     Used for "AI Audit" nested under "Applications"
+     and Explore column nested items (v1.2.9)
+     ============================================ */
+  .footer-firm-sub {
+    padding-left: 18px;
+    position: relative;
+    font-size: 0.92em;
+  }
+  .footer-firm-sub::before {
+    content: "\21B3"; /* downwards arrow with tip rightwards */
+    position: absolute;
+    left: 2px;
+    top: 0;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.95em;
+    line-height: inherit;
+  }
+  .footer-firm-sub a {
+    opacity: 0.85;
+  }
+  .footer-firm-sub a:hover {
+    opacity: 1;
+  }
+
+  /* ============================================
+     Footer Newsletter Signup Band (v1.2.3)
+     The AI Operating System(TM) sitewide CTA
+     ============================================ */
+  .footer-newsletter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 48px;
+    padding: 36px 0 36px;
+    margin-bottom: 36px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .footer-newsletter-text {
+    flex: 1;
+    max-width: 640px;
+  }
+  .footer-newsletter-eyebrow {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 2.4px;
+    text-transform: uppercase;
+    color: #F07800;
+    margin-bottom: 10px;
+  }
+  .footer-newsletter-headline {
+    font-family: 'Lora', Georgia, serif;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 1.25;
+    color: #ffffff;
+    margin: 0 0 10px;
+    letter-spacing: -0.3px;
+  }
+  .footer-newsletter-sub {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.78);
+    margin: 0;
+    max-width: 600px;
+  }
+  .footer-newsletter-action {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .footer-newsletter-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #F07800;
+    color: #ffffff !important;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.4px;
+    padding: 14px 28px;
+    border-radius: 4px;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+    border: 2px solid #F07800;
+    white-space: nowrap;
+  }
+  .footer-newsletter-btn:hover {
+    background: #ffffff;
+    color: #201868 !important;
+    border-color: #ffffff;
+    transform: translateY(-1px);
+  }
+  .footer-newsletter-btn .arrow {
+    margin-left: 8px;
+    transition: transform 0.2s ease;
+  }
+  .footer-newsletter-btn:hover .arrow {
+    transform: translateX(2px);
+  }
+  .footer-newsletter-learn {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.65) !important;
+    text-decoration: none;
+    letter-spacing: 0.3px;
+    transition: color 0.2s ease;
+  }
+  .footer-newsletter-learn:hover {
+    color: #F07800 !important;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .footer-newsletter {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 24px;
+      padding: 28px 0;
+    }
+    .footer-newsletter-action {
+      align-items: flex-start;
+      width: 100%;
+    }
+    .footer-newsletter-btn {
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .footer-newsletter-headline {
+      font-size: 20px;
+    }
+  }
+</style>
+<div class="floating-cta" id="floatingCta">
+  <a href="https://srjconsultingservices.com/schedule-consultation/" target="_blank" rel="noopener">
+    Schedule a Free AI Consultation <span class="arrow">&rarr;</span>
+  </a>
+</div>
+
+			<script>document.documentElement.style.setProperty('--scrollbar-offset', window.innerWidth - document.documentElement.clientWidth + 'px' );</script>
+			<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/srj-consulting/*","/wp-content/themes/kadence/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+
+<!-- Consent Management powered by Complianz | GDPR/CCPA Cookie Consent https://wordpress.org/plugins/complianz-gdpr -->
+<div id="cmplz-cookiebanner-container"><div id="cmplz-cookiebanner-1-optout" class="cmplz-cookiebanner cmplz-hidden banner-1 banner-a optout cmplz-bottom-right cmplz-categories-type-view-preferences" aria-modal="true" data-nosnippet="true" role="dialog" aria-live="polite" aria-labelledby="cmplz-header-1-optout" aria-describedby="cmplz-message-1-optout">
+	<div class="cmplz-header">
+		<div class="cmplz-logo"></div>
+		<div class="cmplz-title" id="cmplz-header-1-optout">Manage Consent</div>
+		<div class="cmplz-close" tabindex="0" role="button" aria-label="Close dialog">
+			<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" class="svg-inline--fa fa-times fa-w-11" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>
+		</div>
+	</div>
+
+	<div class="cmplz-divider cmplz-divider-header"></div>
+	<div class="cmplz-body">
+		<div class="cmplz-message" id="cmplz-message-1-optout">To provide the best experiences, we use technologies like cookies to store and/or access device information. Consenting to these technologies will allow us to process data such as browsing behavior or unique IDs on this site. Not consenting or withdrawing consent, may adversely affect certain features and functions.</div>
+		<!-- categories start -->
+		<div class="cmplz-categories">
+			<div class="cmplz-category cmplz-functional">
+				<div class="cmplz-category-header">
+					<span class="cmplz-category-title" id="cmplz-title-functional-1-optout">Functional</span>
+					<span class='cmplz-always-active'>
+						<span class="cmplz-banner-checkbox">
+							<input type="checkbox"
+									id="cmplz-functional-optout"
+									data-category="cmplz_functional"
+									class="cmplz-consent-checkbox cmplz-functional"
+									size="40"
+									value="1"/>
+							<label class="cmplz-label" for="cmplz-functional-optout"><span class="screen-reader-text">Functional</span></label>
+						</span>
+						Always active					</span>
+					<button class="cmplz-category-toggle"
+							aria-expanded="false"
+							aria-controls="cmplz-desc-functional-1-optout"
+							aria-labelledby="cmplz-title-functional-1-optout">
+						<span class="cmplz-icon cmplz-open">
+							<svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" height="18"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"/></svg>
+						</span>
+					</button>
+				</div>
+				<div class="cmplz-description" id="cmplz-desc-functional-1-optout" hidden>
+					<span class="cmplz-description-functional">The technical storage or access is strictly necessary for the legitimate purpose of enabling the use of a specific service explicitly requested by the subscriber or user, or for the sole purpose of carrying out the transmission of a communication over an electronic communications network.</span>
+				</div>
+			</div>
+
+			<div class="cmplz-category cmplz-preferences">
+				<div class="cmplz-category-header">
+					<span class="cmplz-category-title" id="cmplz-title-preferences-1-optout">Preferences</span>
+					<span class="cmplz-banner-checkbox">
+						<input type="checkbox"
+								id="cmplz-preferences-optout"
+								data-category="cmplz_preferences"
+								class="cmplz-consent-checkbox cmplz-preferences"
+								size="40"
+								value="1"/>
+						<label class="cmplz-label" for="cmplz-preferences-optout"><span class="screen-reader-text">Preferences</span></label>
+					</span>
+					<button class="cmplz-category-toggle"
+							aria-expanded="false"
+							aria-controls="cmplz-desc-preferences-1-optout"
+							aria-labelledby="cmplz-title-preferences-1-optout">
+						<span class="cmplz-icon cmplz-open">
+							<svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" height="18"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"/></svg>
+						</span>
+					</button>
+				</div>
+				<div class="cmplz-description" id="cmplz-desc-preferences-1-optout" hidden>
+					<span class="cmplz-description-preferences">The technical storage or access is necessary for the legitimate purpose of storing preferences that are not requested by the subscriber or user.</span>
+				</div>
+			</div>
+
+			<div class="cmplz-category cmplz-statistics">
+				<div class="cmplz-category-header">
+					<span class="cmplz-category-title" id="cmplz-title-statistics-1-optout">Statistics</span>
+					<span class="cmplz-banner-checkbox">
+						<input type="checkbox"
+								id="cmplz-statistics-optout"
+								data-category="cmplz_statistics"
+								class="cmplz-consent-checkbox cmplz-statistics"
+								size="40"
+								value="1"/>
+						<label class="cmplz-label" for="cmplz-statistics-optout"><span class="screen-reader-text">Statistics</span></label>
+					</span>
+					<button class="cmplz-category-toggle"
+							aria-expanded="false"
+							aria-controls="cmplz-desc-statistics-1-optout"
+							aria-labelledby="cmplz-title-statistics-1-optout">
+						<span class="cmplz-icon cmplz-open">
+							<svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" height="18"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"/></svg>
+						</span>
+					</button>
+				</div>
+				<div class="cmplz-description" id="cmplz-desc-statistics-1-optout" hidden>
+					<span class="cmplz-description-statistics">The technical storage or access that is used exclusively for statistical purposes.</span>
+					<span class="cmplz-description-statistics-anonymous">The technical storage or access that is used exclusively for anonymous statistical purposes. Without a subpoena, voluntary compliance on the part of your Internet Service Provider, or additional records from a third party, information stored or retrieved for this purpose alone cannot usually be used to identify you.</span>
+				</div>
+			</div>
+
+			<div class="cmplz-category cmplz-marketing">
+				<div class="cmplz-category-header">
+					<span class="cmplz-category-title" id="cmplz-title-marketing-1-optout">Marketing</span>
+					<span class="cmplz-banner-checkbox">
+						<input type="checkbox"
+								id="cmplz-marketing-optout"
+								data-category="cmplz_marketing"
+								class="cmplz-consent-checkbox cmplz-marketing"
+								size="40"
+								value="1"/>
+						<label class="cmplz-label" for="cmplz-marketing-optout"><span class="screen-reader-text">Marketing</span></label>
+					</span>
+					<button class="cmplz-category-toggle"
+							aria-expanded="false"
+							aria-controls="cmplz-desc-marketing-1-optout"
+							aria-labelledby="cmplz-title-marketing-1-optout">
+						<span class="cmplz-icon cmplz-open">
+							<svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" height="18"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"/></svg>
+						</span>
+					</button>
+				</div>
+				<div class="cmplz-description" id="cmplz-desc-marketing-1-optout" hidden>
+					<span class="cmplz-description-marketing">The technical storage or access is required to create user profiles to send advertising, or to track the user on a website or across several websites for similar marketing purposes.</span>
+				</div>
+			</div>
+		</div><!-- categories end -->
+			</div>
+
+	<div class="cmplz-links cmplz-information">
+		<ul>
+			<li><a class="cmplz-link cmplz-manage-options cookie-statement" href="#" data-relative_url="#cmplz-manage-consent-container">Manage options</a></li>
+			<li><a class="cmplz-link cmplz-manage-third-parties cookie-statement" href="#" data-relative_url="#cmplz-cookies-overview">Manage services</a></li>
+			<li><a class="cmplz-link cmplz-manage-vendors tcf cookie-statement" href="#" data-relative_url="#cmplz-tcf-wrapper">Manage {vendor_count} vendors</a></li>
+			<li><a class="cmplz-link cmplz-external cmplz-read-more-purposes tcf" target="_blank" rel="noopener noreferrer nofollow" href="https://cookiedatabase.org/tcf/purposes/" aria-label="Read more about TCF purposes on Cookie Database">Read more about these purposes</a></li>
+		</ul>
+			</div>
+
+	<div class="cmplz-divider cmplz-footer"></div>
+
+	<div class="cmplz-buttons">
+		<button class="cmplz-btn cmplz-accept">Accept</button>
+		<button class="cmplz-btn cmplz-deny">Deny</button>
+		<button class="cmplz-btn cmplz-view-preferences">View preferences</button>
+		<button class="cmplz-btn cmplz-save-preferences">Save preferences</button>
+		<a class="cmplz-btn cmplz-manage-options tcf cookie-statement" href="#" data-relative_url="#cmplz-manage-consent-container">View preferences</a>
+			</div>
+
+
+	<div class="cmplz-documents cmplz-links">
+		<ul>
+			<li><a class="cmplz-link cookie-statement" href="#" data-relative_url="">{title}</a></li>
+			<li><a class="cmplz-link privacy-statement" href="#" data-relative_url="">{title}</a></li>
+			<li><a class="cmplz-link impressum" href="#" data-relative_url="">{title}</a></li>
+		</ul>
+			</div>
+</div>
+</div>
+					<div id="cmplz-manage-consent" data-nosnippet="true"><button class="cmplz-btn cmplz-hidden cmplz-manage-consent manage-consent-1" aria-haspopup="dialog" aria-controls="cmplz-cookiebanner-1-optout">Manage consent</button>
+
+</div>		<style type="text/css">
+			.relevanssi-live-search-results {
+				opacity: 0;
+				transition: opacity .25s ease-in-out;
+				-moz-transition: opacity .25s ease-in-out;
+				-webkit-transition: opacity .25s ease-in-out;
+				height: 0;
+				overflow: hidden;
+				z-index: 9999995; /* Exceed SearchWP Modal Search Form overlay. */
+				position: absolute;
+				display: none;
+			}
+
+			.relevanssi-live-search-results-showing {
+				display: block;
+				opacity: 1;
+				height: auto;
+				overflow: auto;
+			}
+
+			.relevanssi-live-search-no-results, .relevanssi-live-search-didyoumean {
+				padding: 0 1em;
+			}
+		</style>
+		
+
+<script id="kadence-navigation-js-extra">
+var kadenceConfig = {"screenReader":{"expand":"Child menu","expandOf":"Child menu of","collapse":"Child menu","collapseOf":"Child menu of"},"breakPoints":{"desktop":"1024","tablet":768},"scrollOffset":"0"};
+//# sourceURL=kadence-navigation-js-extra
+</script>
+
+
+
+
+
+    <script type="text/javascript">
+    _linkedin_partner_id = "9681908";
+    window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
+    window._linkedin_data_partner_ids.push(_linkedin_partner_id);
+    </script>
+    <script type="text/javascript">
+    (function(l) {
+      if (!l){window.lintrk = function(a,b){window.lintrk.q.push([a,b])}; window.lintrk.q=[]}
+      var s = document.getElementsByTagName("script")[0];
+      var b = document.createElement("script");
+      b.type = "text/javascript"; b.async = true;
+      b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
+      s.parentNode.insertBefore(b, s);
+    })(window.lintrk);
+    </script>
+    		<script>'undefined'=== typeof _trfq || (window._trfq = []);'undefined'=== typeof _trfd && (window._trfd=[]),
+                _trfd.push({'tccl.baseHost':'secureserver.net'}),
+                _trfd.push({'ap':'wpaas_v2'},
+                    {'server':'de31524669e3'},
+                    {'pod':'c17-prod-p3-us-west-2'},
+                                        {'xid':'46226597'},
+                    {'wp':'6.9.5'},
+                    {'php':'8.3.32'},
+                    {'loggedin':'0'},
+                    {'cdn':'1'},
+                    {'builder':''},
+                    {'theme':'kadence'},
+                    {'wds':'0'},
+                    {'wp_alloptions_count':'367'},
+                    {'wp_alloptions_bytes':'149937'},
+                    {'gdl_coming_soon_page':'0'}
+                    , {'appid':'1166339'}                 );
+            var trafficScript = document.createElement('script'); trafficScript.src = 'https://img1.wsimg.com/signals/js/clients/scc-c2/scc-c2.min.js'; window.document.head.appendChild(trafficScript);</script>
+		<script>window.addEventListener('click', function (elem) { var _elem$target, _elem$target$dataset, _window, _window$_trfq; return (elem === null || elem === void 0 ? void 0 : (_elem$target = elem.target) === null || _elem$target === void 0 ? void 0 : (_elem$target$dataset = _elem$target.dataset) === null || _elem$target$dataset === void 0 ? void 0 : _elem$target$dataset.eid) && ((_window = window) === null || _window === void 0 ? void 0 : (_window$_trfq = _window._trfq) === null || _window$_trfq === void 0 ? void 0 : _window$_trfq.push(["cmdLogEvent", "click", elem.target.dataset.eid]));});</script>
+		
+		</body>
+</html>

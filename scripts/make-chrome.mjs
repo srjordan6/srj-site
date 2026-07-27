@@ -73,11 +73,15 @@ async function buildHub() {
   // the last capture becomes the baseline. Only the JSON-LD slot is added
   // (sanitize strips all ld+json; the renderer re-injects breadcrumbs+org).
   let t = sanitize(await get('https://srjconsultingservices.com/ai-governance/'));
+  if (!t.includes('srjgov-dir')) throw new Error('hub markers not found (challenge page?)');
   t = t.replace('</head>', '{{JSONLD}}\n</head>');
   writeFileSync('src/templates/gov-hub.tpl.html', t);
   console.log('hub template (verbatim):', t.length, 'bytes');
 }
 
 mkdirSync('src/templates', { recursive: true });
-await buildDetail();
-await buildHub();
+// The fetch is a best-effort refresh: Sucuri may block the CI container's
+// requests, so committed templates are the fallback. A failed fetch keeps
+// the last committed capture and the build proceeds.
+try { await buildDetail(); } catch (e) { console.warn('detail template refresh failed, using committed copy:', e.message); }
+try { await buildHub(); } catch (e) { console.warn('hub template refresh failed, using committed copy:', e.message); }
