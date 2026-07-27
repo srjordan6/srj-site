@@ -1,12 +1,15 @@
 // Shared renderer for the transplanted WP chrome.
-import { readFileSync } from 'node:fs';
+// Templates are imported as raw strings at build time (Vite ?raw), because
+// the Cloudflare adapter forbids node:fs in bundled code.
+import detailTpl from '../../templates/gov-detail.tpl.html?raw';
+import hubTpl from '../../templates/gov-hub.tpl.html?raw';
 import { govSchema } from '../../lib/govSchema';
 
 const SITE = 'https://srjconsultingservices.com';
 const esc = (s: string) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 export function detailHtml(entry: any, bySlug: Record<string, any>): string {
-  const tpl = readFileSync('src/templates/gov-detail.tpl.html', 'utf8');
+  const tpl = detailTpl;
   const path = entry.parent ? `/ai-governance/${entry.parent}/${entry.slug}/` : `/ai-governance/${entry.slug}/`;
   const url = SITE + path;
   const parent = entry.parent ? bySlug[entry.parent] : null;
@@ -46,7 +49,7 @@ export function detailHtml(entry: any, bySlug: Record<string, any>): string {
 }
 
 export function hubHtml(): string {
-  const tpl = readFileSync('src/templates/gov-hub.tpl.html', 'utf8');
+  const tpl = hubTpl;
   const org = { '@context': 'https://schema.org', '@type': 'Organization', '@id': SITE + '/#organization',
     name: 'SRJ Consulting & Services LLC', url: SITE + '/',
     founder: { '@type': 'Person', name: 'Stephen R. Jordan', url: SITE + '/about/' } };

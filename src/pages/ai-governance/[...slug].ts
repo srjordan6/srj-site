@@ -5,6 +5,9 @@ import { getCollection } from 'astro:content';
 import type { APIRoute } from 'astro';
 import { detailHtml, hubHtml } from './render';
 
+// Hybrid output: endpoints must opt into static generation explicitly.
+export const prerender = true;
+
 export async function getStaticPaths() {
   const all = await getCollection('governance');
   const bySlug = Object.fromEntries(all.map((e) => [e.data.slug, e.data]));
