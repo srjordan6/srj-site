@@ -1,0 +1,21 @@
+name: Trigger Cloudflare build
+# Cloudflare's own git webhook did not wire when the project was connected
+# against an empty repository. This workflow makes the trigger explicit:
+# every push to main POSTs the Cloudflare deploy hook, which starts a build.
+# The hook URL lives in the repo secret CLOUDFLARE_DEPLOY_HOOK.
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call deploy hook
+        run: |
+          if [ -z "${{ secrets.CLOUDFLARE_DEPLOY_HOOK }}" ]; then
+            echo "CLOUDFLARE_DEPLOY_HOOK secret is not set"; exit 1
+          fi
+          curl -sf -X POST "${{ secrets.CLOUDFLARE_DEPLOY_HOOK }}"
+          echo "Cloudflare build triggered."
