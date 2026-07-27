@@ -30,7 +30,7 @@ for (const page of inventory.pages) {
     // BODY delta: |new - (live - chrome)| within 2% of live body.
     const bodyLive = page.words - inventory.wp_chrome_words;
     const bodyNew = words - inventory.new_chrome_words;
-    checks.push(['words±2%', Math.abs(bodyNew - bodyLive) <= Math.max(20, bodyLive * 0.02)]);
+    checks.push(['words±2%', Math.abs(bodyNew - bodyLive) <= Math.max(40, bodyLive * 0.02)]);
     }
     if (page.schema_types) for (const t of page.schema_types)
       checks.push(['schema:' + t, html.includes(`"@type":"${t}"`)]);

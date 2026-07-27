@@ -1,0 +1,58 @@
+// Shared renderer for the transplanted WP chrome.
+import { readFileSync } from 'node:fs';
+import { govSchema } from '../../lib/govSchema';
+
+const SITE = 'https://srjconsultingservices.com';
+const esc = (s: string) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+export function detailHtml(entry: any, bySlug: Record<string, any>): string {
+  const tpl = readFileSync('src/templates/gov-detail.tpl.html', 'utf8');
+  const path = entry.parent ? `/ai-governance/${entry.parent}/${entry.slug}/` : `/ai-governance/${entry.slug}/`;
+  const url = SITE + path;
+  const parent = entry.parent ? bySlug[entry.parent] : null;
+
+  // breadcrumbs html + ld
+  const crumbs: [string, string | null][] = [['Home', SITE + '/'], ['AI Governance', SITE + '/ai-governance/']];
+  if (parent) crumbs.push([parent.title, `${SITE}/ai-governance/${parent.slug}/`]);
+  crumbs.push([entry.title, null]);
+  const bcHtml = '<nav class="breadcrumbs" aria-label="Breadcrumb"><ol>' +
+    crumbs.map(([n, h]) => h ? `<li><a href="${h}">${esc(n)}</a></li>` : `<li><span aria-current="page">${esc(n)}</span></li>`).join('') +
+    '</ol></nav>';
+  const bcLd = { '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: crumbs.map(([n, h], i) => ({ '@type': 'ListItem', position: i + 1, name: n, ...(h ? { item: h } : {}) })) };
+
+  // children block (parents only), live markup shape
+  const kids = (entry.children || []).map((s: string) => bySlug[s]).filter(Boolean);
+  const children = kids.length
+    ? '<ul class="srjgov-children-list">\n' + kids.map((k: any) =>
+        `<li><a href="${url}${k.slug}/">${esc(k.title)}</a><span class="srjgov-child-teaser">${esc(k.short)}</span></li>`).join('\n') + '\n</ul>'
+    : '';
+
+  const ld = [bcLd, ...govSchema(entry, url)]
+    .map((o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`).join('\n');
+
+  return tpl
+    .replaceAll('{{TITLE}}', esc(entry.seo_title || entry.title))
+    .replaceAll('{{DESC}}', esc(entry.meta_description || entry.short))
+    .replaceAll('{{URL}}', url)
+    .replace('{{JSONLD}}', ld)
+    .replace('{{BREADCRUMBS}}', bcHtml)
+    .replace('{{LABEL}}', `<div class="label">${esc(parent ? parent.title : 'AI Governance')}</div>`)
+    .replace('{{H1}}', esc(entry.title))
+    .replace('{{SUBTITLE}}', `<p style="font-family:Poppins,sans-serif;font-size:18px;font-style:italic;color:#7A8A9E;margin:0 0 32px;max-width:760px;">${esc(entry.subtitle)}</p>`)
+    .replace('{{BODY}}', entry.body_html)
+    .replace('{{CHILDREN}}', children)
+    .replaceAll('{{KW}}', esc(entry.focus_keyword || entry.title));
+}
+
+export function hubHtml(): string {
+  const tpl = readFileSync('src/templates/gov-hub.tpl.html', 'utf8');
+  const org = { '@context': 'https://schema.org', '@type': 'Organization', '@id': SITE + '/#organization',
+    name: 'SRJ Consulting & Services LLC', url: SITE + '/',
+    founder: { '@type': 'Person', name: 'Stephen R. Jordan', url: SITE + '/about/' } };
+  const bc = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: SITE + '/' },
+    { '@type': 'ListItem', position: 2, name: 'AI Governance' }] };
+  const ld = [org, bc].map((o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`).join('\n');
+  return tpl.replace('{{JSONLD}}', ld);
+}
