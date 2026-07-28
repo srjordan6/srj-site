@@ -1,0 +1,63 @@
+---
+// Daily briefing: what's happening in the world of AI.
+// Data: news/news.json v2 (clustered top stories), published daily by the
+// pipeline. Tolerates absence and the v1 flat shape until the first v2 run.
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+const mods = import.meta.glob('../../../content/news/news.json', { eager: true });
+const news: any = Object.values(mods)[0]?.default ?? null;
+const stories = news?.stories ?? [];
+const big = news?.big_picture ?? [];
+---
+<BaseLayout title="What's happening in the world of AI | SRJ Consulting & Services" description="Daily AI briefing: the top stories in AI, ranked by breadth of global coverage, each with sources. Refreshed every morning by the SRJ pipeline.">
+  <section class="hero">
+    <div class="container">
+      <p class="eyebrow"><a href="/ai-resources/">AI Resources</a></p>
+      <h1>What&rsquo;s happening in the world of AI</h1>
+      {news && <p class="dateline">Daily briefing · {news.date} · refreshed {new Date(news.generated).toUTCString().slice(0, 22)} UTC · {stories.length} top stories</p>}
+    </div>
+  </section>
+  {big.length > 0 && (
+    <section class="bigwrap">
+      <div class="container">
+        <div class="big">
+          <p class="box-label">The big picture</p>
+          <ul>{big.map((h: string) => (<li>{h}</li>))}</ul>
+        </div>
+      </div>
+    </section>
+  )}
+  <section class="stories">
+    <div class="container">
+      {stories.length === 0 && <p class="empty">Today's briefing publishes with the pipeline's next morning run.</p>}
+      {stories.map((s: any, i: number) => (
+        <a class="story" href={`/ai-resources/ai-news/${s.Slug}/`}>
+          <span class="rank">{i + 1}</span>
+          <span class="stext">
+            <span class="head">{s.Headline}</span>
+            <span class="meta"><strong>{s.DomainCount}</strong> outlets · {s.ArticleCount} articles · {s.Domains.slice(0, 4).join(', ')}{s.Domains.length > 4 ? '…' : ''}</span>
+          </span>
+        </a>
+      ))}
+      <p class="note">Stories rank by breadth of coverage across global outlets, discovered by the SRJ pipeline from worldwide news in the past 24 hours. Coverage is a lead, never fact evidence: claims enter the reference library only after verification against primary sources.</p>
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  .hero { padding: 100px 0 44px; background: linear-gradient(180deg, var(--cream), var(--white)); }
+  .eyebrow a { color: var(--orange); text-decoration: none; }
+  .dateline { color: var(--gray); font-size: 14px; letter-spacing: .04em; }
+  .bigwrap { padding: 8px 0 6px; }
+  .big { border: 1px solid #e6e4de; border-left: 4px solid var(--orange); border-radius: 10px; background: #fafaf6; padding: 22px 26px; max-width: 860px; }
+  .box-label { font-family: Poppins, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--orange); margin: 0 0 10px; }
+  .big ul { margin: 0; padding-left: 20px; }
+  .big li { margin: 0 0 8px; line-height: 1.55; font-size: 15.5px; color: #2c2c44; }
+  .stories { padding: 26px 0 110px; }
+  .story { display: flex; gap: 18px; align-items: flex-start; max-width: 860px; padding: 18px 6px; border-bottom: 1px solid #e8e6e0; text-decoration: none; }
+  .story:hover .head { color: var(--orange); }
+  .rank { font-family: Lora, serif; font-size: 26px; color: var(--orange); font-weight: 700; min-width: 34px; line-height: 1.1; }
+  .head { display: block; font-family: Lora, serif; font-size: 20px; color: var(--navy); line-height: 1.35; margin-bottom: 5px; }
+  .meta { display: block; font-size: 13.5px; color: var(--gray); }
+  .meta strong { color: var(--navy); }
+  .empty, .note { color: var(--gray); font-style: italic; font-size: 14px; max-width: 70ch; }
+  .note { margin-top: 34px; }
+</style>
