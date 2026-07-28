@@ -7,11 +7,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const sections = [
   { href: '/ai-governance/', title: 'AI Governance Reference Library', desc: 'Laws, regulations, standards, and enforcement, maintained against primary sources. The flagship: 60+ pages, 82,000+ words.', live: true, flagship: true },
-  { href: '/ai-resources/ai-glossary/', title: 'AI Glossary', desc: '522 terms across governance, security, and operations, defined in plain business English.', live: false, note: 'Moves here from /resources/ai-glossary/ at stage 2.' },
+  { href: '/ai-resources/ai-glossary/', title: 'AI Glossary', desc: '522 terms across governance, security, and operations, defined in plain business English.', live: true, note: 'Each term with a worked example and, where citable, its origin.' },
   { href: '/ai-resources/ai-news/', title: 'AI News', desc: 'What\u2019s happening in the world of AI: the day\u2019s top stories ranked by breadth of global coverage, each with its own page and sources.', live: true, note: 'Refreshed every morning by the pipeline.' },
   { href: '/ai-resources/ai-people/', title: 'AI Movers and Shakers', desc: 'The movers and shakers in the world of AI: verified one-page profiles with legacy, achievements, timelines, and primary sources.', live: true, note: 'Profiles added as they are verified.' },
-  { href: '/ai-resources/ai-events/', title: 'AI News Events', desc: 'Deadlines, effective dates, comment windows, and hearings, the dates that carry legal consequence.', live: false, note: 'Graph ring 1.' },
-  { href: '/ai-resources/ai-tools/', title: 'AI Tools', desc: 'The 320-tool catalog: vendors, categories, and verified official URLs for the AI tools market.', live: false, note: 'Catalog migrates at stage 2.' },
+  // Replaced the AI News Events card, which duplicated AI News: both promised
+  // "what happened recently" and a reader could not tell which to click. Sources
+  // is the opposite of news and the better companion to it, the primary-document
+  // layer that news coverage is explicitly NOT admissible against.
+  { href: '/ai-governance/sources/', title: 'Sources', desc: 'The primary documents behind the library: statutes, regulator publications, and standards, linked to the actual text rather than an issuing body\u2019s homepage.', live: true, note: 'Press is inadmissible as evidence here.' },
+  { href: '/ai-resources/ai-tools/', title: 'AI Tools', desc: 'The 320-tool catalog: vendors, categories, home jurisdictions, and verified official URLs for the AI tools market.', live: true, note: 'Per-tool profiles added as they are verified.' },
   { href: '/ai-resources/everything-else/', title: 'Everything Else', desc: 'Every verified resource that fits nowhere else, collected widely, published only when verified.', live: false, note: 'Grows with the platform.' },
 ];
 ---
