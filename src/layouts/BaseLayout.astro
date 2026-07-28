@@ -6,6 +6,9 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import '../styles/tokens.css';
+// Shared with the governance render path, which never passes through this
+// layout. See src/lib/entityGraph.ts.
+import { entityNodes, webPageNode } from '../lib/entityGraph';
 
 interface Props {
   title: string;
@@ -17,58 +20,13 @@ interface Props {
 const { title, description, canonical, schema = [], ogImage } = Astro.props;
 const canonicalUrl = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
 
-// Entity graph, reproduced from the production Rank Math output node for node.
-// The migration schema-parity gate requires the emitted @type set per URL to be
-// a superset of production's, and the July 28 parity crawl showed 64 of 64
-// governance pages missing Place, PostalAddress, GeoCoordinates, ImageObject,
-// and WebSite because the shell emitted Organization alone. @id values are the
-// production ones so downstream references keep resolving after cutover.
-const SITE = 'https://srjconsultingservices.com';
-const ORG_NAME = 'SRJ Consulting & Services LLC';
-
+// Entity graph, shared with the governance render path via src/lib/entityGraph.ts.
+// Keeping it in one module is deliberate: the July 28 parity crawl found all 67
+// governance URLs missing Place, PostalAddress, GeoCoordinates, ImageObject,
+// and WebSite precisely because those pages never render through this layout.
 const orgGraph = {
   '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'Organization',
-      '@id': `${SITE}/#organization`,
-      name: ORG_NAME,
-      url: `${SITE}/`,
-      logo: { '@id': `${SITE}/#logo` },
-      image: { '@id': `${SITE}/#logo` },
-      location: { '@id': `${SITE}/#place` },
-      founder: { '@type': 'Person', name: 'Stephen R. Jordan', url: `${SITE}/about/` },
-    },
-    {
-      '@type': 'Place',
-      '@id': `${SITE}/#place`,
-      geo: { '@type': 'GeoCoordinates', latitude: '33.189778366864', longitude: '-96.764620919976' },
-      address: {
-        '@type': 'PostalAddress',
-        streetAddress: '13054 Cinderella Lane',
-        addressLocality: 'Frisco',
-        addressRegion: 'TX',
-        postalCode: '75035',
-        addressCountry: 'US',
-      },
-    },
-    {
-      '@type': 'ImageObject',
-      '@id': `${SITE}/#logo`,
-      url: `${SITE}/wp-content/uploads/SRJ-Consulting-Services-Medium.jpg`,
-      contentUrl: `${SITE}/wp-content/uploads/SRJ-Consulting-Services-Medium.jpg`,
-      caption: ORG_NAME,
-      inLanguage: 'en-US',
-    },
-    {
-      '@type': 'WebSite',
-      '@id': `${SITE}/#website`,
-      url: `${SITE}/`,
-      name: ORG_NAME,
-      publisher: { '@id': `${SITE}/#organization` },
-      inLanguage: 'en-US',
-    },
-  ],
+  '@graph': [...entityNodes(), webPageNode(canonicalUrl, title, description)],
 };
 ---
 <!doctype html>

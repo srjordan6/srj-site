@@ -1,7 +1,16 @@
 // Port of srj-ai-governance-schema.php (v1.1.0) to the static build.
 // Emits the identical graph: Article (+ScholarlyArticle citations),
 // HowTo (from the config's howto key), FAQPage (parsed from the body's
-// "Frequently asked questions" H3/P pairs). BaseLayout owns Organization.
+// "Frequently asked questions" H3/P pairs), plus the site-wide entity nodes.
+//
+// The entity nodes are NOT inherited from BaseLayout. Governance pages render
+// through src/pages/ai-governance/[...slug].ts and templates/gov-*.tpl.html,
+// which never touch BaseLayout, so anything emitted only there is absent here.
+// That is exactly what the July 28, 2026 parity crawl found: all 67 governance
+// URLs were missing Place, PostalAddress, GeoCoordinates, ImageObject, and
+// WebSite against production. Both render paths now import the same module.
+
+import { entityNodes, webPageNode } from './entityGraph';
 
 const strip = (h: string) => h.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
   .replace(/&amp;/g, '&').replace(/&#8217;|&rsquo;/g, "\u2019").replace(/&#8220;|&ldquo;/g, "\u201C")
@@ -51,6 +60,13 @@ export function govSchema(entry: any, url: string): object[] {
 
   const faq = extractFaq(entry.body_html || '');
   if (faq.length) graph.push({ '@type': 'FAQPage', '@id': url + '#faq', mainEntity: faq });
+
+  // Site-wide entity nodes and the per-URL WebPage node, matching production.
+  // desc is '' when the entry carries no meta_description, and webPageNode
+  // drops the property in that case rather than emitting an empty string,
+  // which is what production does on its ten description-less pages.
+  graph.push(...entityNodes());
+  graph.push(webPageNode(url, title, desc || null));
 
   return [{ '@context': 'https://schema.org', '@graph': graph }];
 }
