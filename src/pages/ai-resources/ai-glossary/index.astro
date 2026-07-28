@@ -1,26 +1,34 @@
 ---
 // AI Glossary, migrated from WordPress page-ai-glossary.php (v1.2.0).
 //
-// Lives at /ai-resources/ai-glossary/, the new hub namespace. The old
-// WordPress URL /resources/ai-glossary/ 301s here from public/_redirects, so
-// no external link or citation breaks. Content is a 1:1 carry of production:
-// 522 terms, 12 categories, same lead paragraph, same controls, same CTA.
+// The 522 definitions are a 1:1 carry of production. Everything around them is
+// new, and new content is held to the full SEO and AEO standard rather than to
+// parity, so this page adds what the WordPress original never had: a direct
+// answer block, breadcrumbs, a real FAQ, and typed structured data.
 //
-// Structure verified against the live page on July 28, 2026: category anchors
-// slugify with the ampersand spelled out, term anchors are id="term-{slug}".
+// The AEO decision that matters here is DefinedTermSet. A glossary rendered as
+// 522 headings is, to an answer engine, an unlabelled wall of text: it can see
+// the words but not that each one is a definition, so it either quotes the page
+// vaguely or skips it. Typed as a DefinedTermSet of DefinedTerm nodes, each with
+// a stable @id pointing at its own anchor, a single definition can be lifted and
+// attributed. That is the difference between being read and being cited.
+//
+// Lives at /ai-resources/ai-glossary/. The WordPress URL /resources/ai-glossary/
+// 301s here from astro.config.mjs, so no citation breaks.
 //
 // Ordering is reproduced, not guessed: categories sort case-insensitively by
-// name, terms sort case-insensitively within a category. That is what the live
-// page emits. Note this differs from the AI Tools catalog, whose categories
-// sort in byte order; the two came from different plugins.
+// name, terms sort case-insensitively within a category, which is what the live
+// page emits. Note this differs from the AI Tools catalog, whose categories sort
+// in byte order; the two came from different plugins.
 //
-// Navigation is two-layer and deliberate, carried over from the WordPress
-// template: category links jump, the A-Z bar FILTERS rather than jumps
-// (a letter appears under many categories, so a jump would land arbitrarily),
-// and the search box filters on term text. All three are progressive
-// enhancement: with JavaScript off every term is still present and readable.
+// Navigation is two-layer and deliberate, carried from the WordPress template:
+// category links jump, the A-Z bar FILTERS rather than jumps (a letter appears
+// under many categories, so a jump would land arbitrarily), and the search box
+// filters on term text. All three are progressive enhancement: with JavaScript
+// off every term is still present and readable.
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import data from '../../../content/resources/glossary.json';
+import { definedTermSet, faqPage, collectionPage } from '../../../lib/pageSchema';
 
 const slugify = (s) =>
   s.replace(/&/g, ' and ').replace(/[^\w\s-]/g, '').trim().toLowerCase().replace(/[\s_-]+/g, '-');
@@ -38,37 +46,99 @@ const letters = [...new Set(data.terms.map((t) => t.term.charAt(0).toUpperCase()
   .filter((c) => /[A-Z]/.test(c))
   .sort();
 
+// Counts render from the data, never hard-coded. The WordPress AI Tools page
+// hard-coded 317 and was still saying it after the table reached 320.
 const total = data.terms.length;
+const catCount = grouped.length;
+const withExample = data.terms.filter((t) => t.example).length;
 
-// Production emits no Rank Math title or description for this URL, confirmed
-// via /wp-json/rankmath/v1/getHead. Both strings below are new and are pending
-// Stephen's approval. The page is moving to a new URL regardless, so a fresh
-// canonical title is required either way.
-const title = 'AI Glossary: 522 AI Terms Defined for Executives | SRJ';
+const url = 'https://srjconsultingservices.com/ai-resources/ai-glossary/';
+const title = `AI Glossary: ${total} AI Terms Defined for Executives | SRJ`;
 const description =
-  'Plain-English definitions of 522 AI terms across 12 categories, each with a ' +
-  'worked example and, where citable, its origin. Written for executives, not engineers.';
+  `${total} AI terms defined in plain English across ${catCount} categories, each with a ` +
+  `worked example and, where citable, its origin. Written for executives, not engineers.`;
+
+const faqs = [
+  {
+    q: `How many AI terms does this glossary define?`,
+    a: `This glossary defines ${total} AI terms across ${catCount} categories, covering foundations, ` +
+       `models and architectures, agents, AI security and assurance, governance and policy, ` +
+       `infrastructure, benchmarks, and the slang that shows up in vendor pitches. ` +
+       `${withExample} of the ${total} entries carry a worked example alongside the definition.`,
+  },
+  {
+    q: `Who is this AI glossary written for?`,
+    a: `Executives, directors, and other non-technical decision makers who have to read AI vendor ` +
+       `pitches, board papers, and regulation without a machine learning background. Each entry is ` +
+       `written so it can be read once and understood, rather than assuming prior knowledge of the ` +
+       `surrounding field.`,
+  },
+  {
+    q: `What does each glossary entry contain?`,
+    a: `A plain-English definition, a worked example showing the term in a real business context, ` +
+       `and, where a term has a citable origin such as a specific paper, standard, or regulation, ` +
+       `that origin. Where no origin is verifiable, the field is left empty rather than filled with ` +
+       `a guess.`,
+  },
+  {
+    q: `Can I link to or cite a single definition?`,
+    a: `Yes. Every term has its own stable anchor on the page, so a single definition can be linked ` +
+       `directly and cited without pointing at the whole glossary.`,
+  },
+  {
+    q: `How does this glossary relate to the AI Governance Reference Library?`,
+    a: `The glossary defines the vocabulary. The AI Governance Reference Library covers the ` +
+       `frameworks, statutes, and regulator guidance those words appear in, verified against ` +
+       `primary sources. Knowing what a term means is the first step; knowing which obligation it ` +
+       `triggers is the second.`,
+  },
+];
+
+const schema = [
+  collectionPage({ url, name: 'AI Glossary', description }),
+  definedTermSet({
+    url,
+    name: 'SRJ AI Glossary',
+    description,
+    terms: data.terms.map((t) => ({
+      term: t.term, slug: t.slug, category: t.category, definition: t.definition,
+    })),
+  }),
+  faqPage(url, faqs),
+];
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} schema={schema} crumbName="AI Glossary">
   <section class="hero">
     <div class="container">
-      <p class="eyebrow"><a href="/ai-resources/">AI Resources</a></p>
       <h1>AI Glossary</h1>
+      <p class="srjgl-lead">
+        Plain-English definitions for the vocabulary that shows up in AI vendor pitches,
+        board papers, and regulation. <strong>{total} terms</strong> across {catCount}
+        categories, written so a non-technical executive can read a sentence once and know
+        what was meant.
+      </p>
     </div>
   </section>
 
   <section class="longform">
     <div class="container">
-      <p class="srjgl-lead">
-        Plain-English definitions for the vocabulary that shows up in AI vendor pitches,
-        board papers, and regulation. <strong>{total} terms</strong> across {grouped.length}
-        categories, written so a non-technical executive can read a sentence once and know
-        what was meant.
-      </p>
+      {/* AEO: one self-contained paragraph that answers the page's question with
+          no surrounding context needed. This is the unit an answer engine lifts. */}
+      <div class="answer">
+        <p class="answer-label">In short</p>
+        <p>
+          An AI glossary is a reference that defines the vocabulary of artificial intelligence
+          in ordinary language, so that people who have to make decisions about AI can read a
+          contract, a vendor pitch, or a regulation without a technical background. This one
+          defines {total} terms across {catCount} categories, and each entry gives a definition,
+          a worked example, and, where one can be verified, the term&rsquo;s origin.
+        </p>
+      </div>
 
       <div class="srjgl-controls">
         <div class="srjgl-search-wrap">
+          <label class="sr-only" for="srjgl-search">Search the glossary</label>
           <input
             type="search"
             id="srjgl-search"
@@ -92,7 +162,7 @@ const description =
         </div>
       </div>
 
-      <p class="srjgl-status" id="srjgl-status"></p>
+      <p class="srjgl-status" id="srjgl-status" role="status" aria-live="polite"></p>
 
       {grouped.map((g) => (
         <div class="srjgl-group" id={g.anchor} data-group>
@@ -124,13 +194,25 @@ const description =
         </div>
       ))}
 
+      <section class="faq" aria-labelledby="faq-h">
+        <h2 id="faq-h">Frequently asked questions</h2>
+        <div class="srjgl-group-rule"></div>
+        {faqs.map((f) => (
+          <div class="faq-item">
+            <h3>{f.q}</h3>
+            <p>{f.a}</p>
+          </div>
+        ))}
+      </section>
+
       <div class="srjgl-cta">
         <h2>Knowing the words is not the same as governing the tools</h2>
         <p>
           The AI Business Enablement Audit&trade; measures your organization against every
-          framework in the reference library and delivers a defensible governance dossier.
+          framework in the <a href="/ai-governance/">AI Governance Reference Library</a> and
+          delivers a defensible governance dossier.
         </p>
-        <a href="https://aiauditforcompanies.com/startaiaudit/" target="_blank" rel="noopener">
+        <a class="btn" href="https://aiauditforcompanies.com/startaiaudit/" target="_blank" rel="noopener">
           Start or finish your AI Audit &rarr;
         </a>
       </div>
@@ -139,12 +221,16 @@ const description =
 </BaseLayout>
 
 <style>
-  .hero { padding: 90px 0 40px; background: linear-gradient(180deg, var(--cream), var(--white)); }
-  .eyebrow a { color: var(--orange); text-decoration: none; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .hero { padding: 64px 0 34px; background: linear-gradient(180deg, var(--cream), var(--white)); }
   .longform { padding: 0 0 100px; }
 
-  .srjgl-lead { max-width: 780px; margin: 0 auto 36px; font-size: 18px; line-height: 1.7; color: #1A1A2E; font-family: Poppins, sans-serif; text-align: center; }
+  .srjgl-lead { max-width: 780px; margin: 0 auto 8px; font-size: 18px; line-height: 1.7; color: #1A1A2E; font-family: Poppins, sans-serif; text-align: center; }
   .srjgl-lead strong { color: #201868; }
+
+  .answer { max-width: 780px; margin: 26px auto 34px; background: #FFF6EC; border: 1px solid #F0D6B0; border-radius: 6px; padding: 22px 26px; }
+  .answer p { font-family: Poppins, sans-serif; font-size: 16px; line-height: 1.7; color: #2C2C2A; margin: 0; }
+  .answer-label { font-size: 11px !important; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #F07800; margin: 0 0 8px !important; }
 
   .srjgl-controls { max-width: 900px; margin: 0 auto 40px; }
   .srjgl-search-wrap { text-align: center; margin: 0 0 22px; }
@@ -162,14 +248,14 @@ const description =
 
   .srjgl-status { text-align: center; font-family: Poppins, sans-serif; font-size: 14px; color: #7A8A9E; margin: 0 0 30px; }
 
-  .srjgl-group { margin: 0 0 48px; scroll-margin-top: 90px; }
-  .srjgl-group h2 { font-family: Lora, serif; font-size: 26px; color: #201868; margin: 0 0 4px; font-weight: 600; }
+  .srjgl-group, .faq { margin: 0 0 48px; scroll-margin-top: 90px; }
+  .srjgl-group h2, .faq h2 { font-family: Lora, serif; font-size: 26px; color: #201868; margin: 0 0 4px; font-weight: 600; }
   .srjgl-group-rule { width: 56px; height: 3px; background: #F07800; margin: 0 0 22px; }
 
-  .srjgl-term { padding: 18px 0 18px 22px; border-bottom: 1px solid #EDEBE5; scroll-margin-top: 90px; }
-  .srjgl-term:last-child { border-bottom: none; }
-  .srjgl-term h3 { font-family: Lora, serif; font-size: 20px; font-weight: 700; color: #201868; margin: 0 0 7px -22px; letter-spacing: 0.01em; }
-  .srjgl-term p { font-family: Poppins, sans-serif; font-size: 15px; line-height: 1.7; color: #2C2C2A; margin: 0; }
+  .srjgl-term, .faq-item { padding: 18px 0 18px 22px; border-bottom: 1px solid #EDEBE5; scroll-margin-top: 90px; }
+  .srjgl-term:last-child, .faq-item:last-child { border-bottom: none; }
+  .srjgl-term h3, .faq-item h3 { font-family: Lora, serif; font-size: 20px; font-weight: 700; color: #201868; margin: 0 0 7px -22px; letter-spacing: 0.01em; }
+  .srjgl-term p, .faq-item p { font-family: Poppins, sans-serif; font-size: 15px; line-height: 1.7; color: #2C2C2A; margin: 0; }
   .srjgl-term p::before { content: "1"; color: #F07800; font-weight: 600; font-size: 14px; margin-right: 9px; font-family: Lora, serif; }
   .srjgl-term .srjgl-eg { display: block; margin-top: 6px; font-size: 14px; line-height: 1.6; color: #5F5E5A; }
   .srjgl-term .srjgl-eg em { color: #5F5E5A; font-style: italic; }
@@ -181,8 +267,9 @@ const description =
   .srjgl-cta { background: #201868; color: #fff; padding: 48px 32px; border-radius: 6px; margin: 16px 0 0; text-align: center; font-family: Poppins, sans-serif; }
   .srjgl-cta h2 { color: #fff; font-family: Lora, serif; margin: 0 0 12px; font-size: 28px; font-weight: 600; }
   .srjgl-cta p { color: #FFF6EC; font-size: 17px; line-height: 1.6; margin: 0 auto 24px; max-width: 640px; }
-  .srjgl-cta a { display: inline-block; background: #F07800; color: #fff; padding: 16px 36px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 16px; }
-  .srjgl-cta a:hover { background: #C86400; }
+  .srjgl-cta p a { color: #FFF6EC; }
+  .srjgl-cta .btn { display: inline-block; background: #F07800; color: #fff; padding: 16px 36px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 16px; }
+  .srjgl-cta .btn:hover { background: #C86400; }
   @media (max-width: 640px) { .srjgl-cta { padding: 36px 24px; } .srjgl-cta h2 { font-size: 24px; } }
 </style>
 

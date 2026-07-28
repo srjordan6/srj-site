@@ -1,22 +1,29 @@
 ---
 // AI Tools, the 320-tool catalog, at /ai-resources/ai-tools/.
 //
-// This is one of the three sections the migration is allowed to improve on
-// rather than mirror: AI People, AI Tools here, and AI News Events. It is NOT
-// a copy of the WordPress page at /ai-governance/ai-tools/, which stays in the
-// governance library at 317 tools with no vendor links, matching production
-// exactly. This section is the tools market view: the full 320-row dataset
-// from the live wp_srj_ai_tools table, including the three July 24 additions
-// the WordPress static fallback never picked up, and a verified official URL
-// on every tool that has one.
+// One of the three sections the migration is allowed to build rather than
+// mirror, so it is held to the full SEO and AEO standard instead of to parity.
+// It is NOT a copy of the WordPress page at /ai-governance/ai-tools/, which
+// stays in the governance library at 317 tools with no vendor links, matching
+// production exactly. This is the tools market view: the full 320-row dataset
+// from the live wp_srj_ai_tools table, including the three July 24 additions the
+// WordPress static fallback never picked up, with a verified official URL on
+// every tool that has one.
 //
-// Category ordering reproduces the WordPress catalog: byte order, which is
-// what PHP ksort emits, so ERP sorts before Education and HR before
-// Healthcare. Tools sort case-insensitively within a category, matching the
-// MySQL _ci collation. Anchors match the governance page so any existing
-// deep link into a category still lands.
+// The AEO decision here is ItemList. A catalog rendered as bullets is, to an
+// answer engine, prose that happens to contain product names. Typed as an
+// ItemList with positions and per-item descriptions, a single tool can be
+// lifted and attributed, and the set is legible as a catalog of a known size
+// rather than an article that mentions tools.
+//
+// Category ordering reproduces the WordPress catalog: byte order, which is what
+// PHP ksort emits, so ERP sorts before Education and HR before Healthcare.
+// Tools sort case-insensitively within a category, matching the MySQL _ci
+// collation. Anchors match the governance page so any existing deep link into a
+// category still lands.
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import data from '../../../content/resources/tools.json';
+import { itemList, faqPage, collectionPage } from '../../../lib/pageSchema';
 
 const anchor = (s) =>
   s.replace(/&/g, ' and ').replace(/[^\w\s-]/g, '').trim().toLowerCase().replace(/[\s_-]+/g, '-');
@@ -31,28 +38,82 @@ const grouped = categories.map((name) => ({
     .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())),
 }));
 
+// Counts render from the data, never hard-coded. The WordPress page hard-coded
+// 317 in four places and was still saying it after the table reached 320.
 const total = data.tools.length;
+const catCount = grouped.length;
 const linked = data.tools.filter((t) => t.url).length;
-const jurisdictions = new Set(data.tools.map((t) => t.jurisdiction)).size;
+const jurisdictions = [...new Set(data.tools.map((t) => t.jurisdiction))];
 
+const url = 'https://srjconsultingservices.com/ai-resources/ai-tools/';
 const title = `AI Tools Catalog: ${total} Tools by Category and Vendor | SRJ`;
 const description =
-  `The AI tools market in one catalog: ${total} tools across ${grouped.length} categories, ` +
-  `each with vendor, home jurisdiction, official link, and the governance flag it raises.`;
+  `The AI tools market in one catalog: ${total} tools across ${catCount} categories, each ` +
+  `with its vendor, home jurisdiction, official link, and the governance flag it raises.`;
+
+const faqs = [
+  {
+    q: `How many AI tools are in this catalog?`,
+    a: `The catalog lists ${total} AI tools across ${catCount} categories, from chat and general ` +
+       `large language models through coding, security, healthcare, and governance platforms. ` +
+       `${linked} of the ${total} carry a verified link to the vendor's official site.`,
+  },
+  {
+    q: `Why does the catalog list each vendor's home jurisdiction?`,
+    a: `Jurisdiction is a governance fact, not trivia. Where a vendor is based determines which ` +
+       `data-transfer, privacy, and cross-border rules apply before any business data reaches the ` +
+       `tool. Two tools that look identical in features can carry very different obligations once ` +
+       `the vendor's home country is taken into account. The catalog spans ` +
+       `${jurisdictions.length} jurisdictions.`,
+  },
+  {
+    q: `Does inclusion in this catalog mean SRJ recommends the tool?`,
+    a: `No. This is a reference catalog, not an endorsement list. Presence here means only that a ` +
+       `tool is common enough in the field that it belongs on an inventory checklist. It is not a ` +
+       `security review, a due-diligence result, or a recommendation to buy.`,
+  },
+  {
+    q: `What should an organization actually do with a list like this?`,
+    a: `Use it to build an AI tool inventory: which of these are already in use, by whom, on what ` +
+       `data, under whose contract. Most organizations discover the inventory is longer than they ` +
+       `expected, because individual teams adopt tools without central visibility. The inventory ` +
+       `is the input every AI governance framework assumes you already have.`,
+  },
+  {
+    q: `How does this catalog relate to the AI Governance Reference Library?`,
+    a: `The catalog tells you what exists in the market. The AI Governance Reference Library covers ` +
+       `the frameworks, statutes, and regulator guidance that determine how those tools may be used, ` +
+       `each verified against primary sources.`,
+  },
+];
+
+const schema = [
+  collectionPage({ url, name: 'AI Tools Catalog', description }),
+  itemList({
+    url,
+    name: 'AI Tools Catalog',
+    description,
+    items: data.tools.map((t) => ({
+      name: t.name,
+      url: t.url || undefined,
+      description: `${t.category}. ${t.vendor}, ${t.jurisdiction}. ${t.note}.`,
+    })),
+  }),
+  faqPage(url, faqs),
+];
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} schema={schema} crumbName="AI Tools">
   <section class="hero">
     <div class="container">
-      <p class="eyebrow"><a href="/ai-resources/">AI Resources</a></p>
       <h1>AI Tools</h1>
       <p class="lede">
-        The AI tools market, catalogued. {total} tools across {grouped.length} categories,
-        each with its vendor, the vendor's home jurisdiction, an official link, and the
+        The AI tools market, catalogued. {total} tools across {catCount} categories,
+        each with its vendor, the vendor&rsquo;s home jurisdiction, an official link, and the
         governance question it raises.
       </p>
       <p class="stamp">
-        {total} tools · {grouped.length} categories · {jurisdictions} jurisdictions ·
+        {total} tools · {catCount} categories · {jurisdictions.length} jurisdictions ·
         {linked} with a verified official URL
       </p>
     </div>
@@ -60,13 +121,27 @@ const description =
 
   <section class="body">
     <div class="container">
+      {/* AEO: one self-contained paragraph that answers the page's question with
+          no surrounding context needed. This is the unit an answer engine lifts. */}
+      <div class="answer">
+        <p class="answer-label">In short</p>
+        <p>
+          An AI tool inventory is the list of AI systems an organization actually uses, with
+          enough detail attached to govern them. This catalog is the reference side of that
+          work: {total} AI tools across {catCount} categories, each recorded with its vendor,
+          the vendor&rsquo;s home jurisdiction, an official link, and what the tool does. It is
+          a checklist to inventory against, not a recommendation to buy.
+        </p>
+      </div>
+
       <p class="note">
         Jurisdiction is listed because it is a governance fact: it determines which
         data-transfer, privacy, and cross-border rules apply before business data touches
         a tool. This is a reference catalog, not an endorsement list. Presence here means
         a tool is common enough in the field that it belongs on an inventory checklist,
         nothing more. For the governance discipline an inventory feeds into, see the
-        <a href="/ai-governance/">AI Governance Reference Library</a>.
+        <a href="/ai-governance/">AI Governance Reference Library</a>, and for the
+        vocabulary, the <a href="/ai-resources/ai-glossary/">AI Glossary</a>.
       </p>
 
       <nav class="cats" aria-label="Categories">
@@ -97,6 +172,17 @@ const description =
         </div>
       ))}
 
+      <section class="faq" aria-labelledby="faq-h">
+        <h2 id="faq-h">Frequently asked questions</h2>
+        <div class="rule"></div>
+        {faqs.map((f) => (
+          <div class="faq-item">
+            <h3>{f.q}</h3>
+            <p>{f.a}</p>
+          </div>
+        ))}
+      </section>
+
       <div class="cta">
         <h2>You cannot govern what you have not listed</h2>
         <p>
@@ -104,7 +190,7 @@ const description =
           organization against every framework in the reference library, and delivers a
           defensible governance dossier.
         </p>
-        <a href="https://aiauditforcompanies.com/startaiaudit/" target="_blank" rel="noopener">
+        <a class="btn" href="https://aiauditforcompanies.com/startaiaudit/" target="_blank" rel="noopener">
           Start or finish your AI Audit &rarr;
         </a>
       </div>
@@ -113,12 +199,16 @@ const description =
 </BaseLayout>
 
 <style>
-  .hero { padding: 90px 0 40px; background: linear-gradient(180deg, var(--cream), var(--white)); }
-  .eyebrow a { color: var(--orange); text-decoration: none; }
+  .hero { padding: 64px 0 34px; background: linear-gradient(180deg, var(--cream), var(--white)); }
   .lede { max-width: 66ch; font-size: 19px; color: var(--ink-soft); }
   .stamp { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--orange); font-weight: 600; }
 
   .body { padding: 0 0 100px; }
+
+  .answer { max-width: 780px; margin: 6px 0 30px; background: #FFF6EC; border: 1px solid #F0D6B0; border-radius: 6px; padding: 22px 26px; }
+  .answer p { font-family: Poppins, sans-serif; font-size: 16px; line-height: 1.7; color: #2C2C2A; margin: 0; }
+  .answer-label { font-size: 11px !important; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #F07800; margin: 0 0 8px !important; }
+
   .note { max-width: 74ch; font-family: Poppins, sans-serif; font-size: 15px; line-height: 1.7; color: #2C2C2A; }
   .note a { color: #201868; }
 
@@ -126,8 +216,8 @@ const description =
   .cats a { font-family: Poppins, sans-serif; font-size: 13px; color: #201868; text-decoration: none; padding: 5px 10px; border-radius: 3px; background: #F6F5F1; }
   .cats a:hover { background: #FFF6EC; color: #F07800; }
 
-  .group { margin: 0 0 46px; scroll-margin-top: 90px; }
-  .group h2 { font-family: Lora, serif; font-size: 26px; color: #201868; margin: 0 0 4px; font-weight: 600; }
+  .group, .faq { margin: 0 0 46px; scroll-margin-top: 90px; }
+  .group h2, .faq h2 { font-family: Lora, serif; font-size: 26px; color: #201868; margin: 0 0 4px; font-weight: 600; }
   .rule { width: 56px; height: 3px; background: #F07800; margin: 0 0 20px; }
 
   .group ul { list-style: none; margin: 0; padding: 0; }
@@ -139,10 +229,15 @@ const description =
   .vendor { display: inline; margin-left: 8px; font-size: 13px; color: #7A8A9E; }
   .note-inline { display: block; margin-top: 4px; font-size: 14px; line-height: 1.6; color: #5F5E5A; }
 
+  .faq-item { padding: 18px 0; border-bottom: 1px solid #EDEBE5; }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-item h3 { font-family: Lora, serif; font-size: 20px; font-weight: 700; color: #201868; margin: 0 0 7px; }
+  .faq-item p { font-family: Poppins, sans-serif; font-size: 15px; line-height: 1.7; color: #2C2C2A; margin: 0; max-width: 74ch; }
+
   .cta { background: #201868; color: #fff; padding: 48px 32px; border-radius: 6px; margin: 16px 0 0; text-align: center; font-family: Poppins, sans-serif; }
   .cta h2 { color: #fff; font-family: Lora, serif; margin: 0 0 12px; font-size: 28px; font-weight: 600; }
   .cta p { color: #FFF6EC; font-size: 17px; line-height: 1.6; margin: 0 auto 24px; max-width: 640px; }
-  .cta a { display: inline-block; background: #F07800; color: #fff; padding: 16px 36px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 16px; }
-  .cta a:hover { background: #C86400; }
+  .cta .btn { display: inline-block; background: #F07800; color: #fff; padding: 16px 36px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 16px; }
+  .cta .btn:hover { background: #C86400; }
   @media (max-width: 640px) { .cta { padding: 36px 24px; } .cta h2 { font-size: 24px; } }
 </style>
