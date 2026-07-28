@@ -2,8 +2,12 @@
 // AI People hub: the movers and shakers, one verified profile each.
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 const mods = import.meta.glob('../../../content/people/*.json', { eager: true });
-const people = Object.values(mods).map((m: any) => m.default ?? m)
-  .sort((a: any, b: any) => a.name.localeCompare(b.name));
+const all = Object.entries(mods).filter(([k]) => !k.endsWith('roster.json')).map(([, m]: any) => m.default ?? m);
+const people = all.sort((a: any, b: any) => a.name.localeCompare(b.name));
+const rosterMod: any = Object.entries(mods).find(([k]) => k.endsWith('roster.json'))?.[1];
+const roster = rosterMod ? (rosterMod.default ?? rosterMod) : null;
+const profiled = new Set(people.map((p: any) => p.name));
+const rosterRows = roster ? roster.people.filter((r: any) => !profiled.has(r.name)) : [];
 ---
 <BaseLayout title="AI People | AI Resources | SRJ Consulting & Services" description="The movers and shakers in the world of AI. Verified one-page profiles: legacy, achievements, timelines, and primary sources.">
   <section class="hero">
@@ -26,6 +30,17 @@ const people = Object.values(mods).map((m: any) => m.default ?? m)
         ))}
       </div>
       <p class="note">Every profile is compiled against the primary sources listed on its page. Profiles are added as they are verified.</p>
+      {rosterRows.length > 0 && (
+        <div class="roster">
+          <h2>The wider roster</h2>
+          <p class="rnote">Movers and shakers on our radar, awaiting full verified profiles. Names, titles, and organizations as published in the <a href={roster.source.url} rel="noopener" target="_blank">{roster.source.name}</a> (retrieved {roster.retrieved}).</p>
+          <ul class="rlist">
+            {rosterRows.map((r: any) => (
+              <li><strong>{r.name}</strong> · {r.title} · <span class="org">{r.org}</span></li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   </section>
 </BaseLayout>
@@ -41,4 +56,13 @@ const people = Object.values(mods).map((m: any) => m.default ?? m)
   .moniker { color: var(--orange); font-weight: 600; font-size: 14px; margin: 0 0 10px; }
   .span, .fields { font-size: 13.5px; color: var(--gray); margin: 0 0 4px; }
   .note { margin-top: 34px; font-size: 14px; color: var(--gray); font-style: italic; }
+  .roster { margin-top: 56px; border-top: 2px solid var(--navy); padding-top: 30px; }
+  .roster h2 { font-family: Lora, serif; color: var(--navy); font-size: 26px; margin: 0 0 8px; }
+  .rnote { font-size: 14px; color: var(--gray); max-width: 76ch; margin: 0 0 20px; }
+  .rnote a { color: var(--navy); }
+  .rlist { list-style: none; margin: 0; padding: 0; columns: 2; column-gap: 44px; }
+  @media (max-width: 800px) { .rlist { columns: 1; } }
+  .rlist li { padding: 8px 0; border-bottom: 1px solid #eceae4; font-size: 14.5px; line-height: 1.5; break-inside: avoid; }
+  .rlist li strong { color: var(--navy); }
+  .rlist .org { color: var(--gray); }
 </style>
