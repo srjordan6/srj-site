@@ -4,12 +4,21 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 export async function getStaticPaths() {
   const mods = import.meta.glob('../../../content/people/*.json', { eager: true });
-  return Object.values(mods).map((m: any) => m.default ?? m)
-    .filter((p: any) => p.slug)
-    .map((p: any) => ({ params: { person: p.slug }, props: { p } }));
+  const entries = Object.entries(mods);
+  const full = entries.filter(([k]) => !k.endsWith('roster.json')).map(([, m]: any) => m.default ?? m);
+  const rosterMod: any = entries.find(([k]) => k.endsWith('roster.json'))?.[1];
+  const roster = rosterMod ? (rosterMod.default ?? rosterMod) : { people: [] };
+  const slugify = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const have = new Set(full.map((p: any) => p.name));
+  const stubs = roster.people.filter((r: any) => !have.has(r.name)).map((r: any) => ({
+    slug: slugify(r.name), name: r.name, moniker: r.title, org: r.org, stub: true,
+  }));
+  return [...full, ...stubs].map((p: any) => ({ params: { person: p.slug }, props: { p } }));
 }
 const { p } = Astro.props;
-const desc = `${p.name}, ${p.moniker}: legacy, key achievements, timeline, signature quote, and primary sources.`;
+const desc = p.stub
+  ? `${p.name}, ${p.moniker}, ${p.org}. Full verified profile in progress.`
+  : `${p.name}, ${p.moniker}: legacy, key achievements, timeline, signature quote, and primary sources.`;
 ---
 <BaseLayout title={`${p.name} – ${p.moniker} | AI People | SRJ Consulting & Services`} description={desc}>
   <section class="hero">
@@ -17,11 +26,19 @@ const desc = `${p.name}, ${p.moniker}: legacy, key achievements, timeline, signa
       <p class="eyebrow"><a href="/ai-resources/ai-people/">AI People</a></p>
       <h1>{p.name}</h1>
       <p class="moniker">{p.moniker}</p>
-      <p class="span">{p.born}&ndash;{p.died ?? 'Present'} · {p.nationality} · {p.fields.join(' · ')}</p>
+      {p.stub
+        ? <p class="span">{p.org}</p>
+        : <p class="span">{p.born}&ndash;{p.died ?? 'Present'} · {p.nationality} · {p.fields.join(' · ')}</p>}
     </div>
   </section>
   <section class="body">
     <div class="container cols">
+      {p.stub ? (
+      <div class="main">
+        <h2>Profile in progress</h2>
+        <p class="hook">This profile is being researched by the SRJ pipeline. The legacy summary, achievements, timeline, signature quote, and sources publish here once each detail is verified against primary sources. Nothing appears on this page before it is verified.</p>
+      </div>
+      ) : (
       <div class="main">
         <h2>Legacy &amp; significance</h2>
         <p class="hook">{p.hook}</p>
@@ -53,6 +70,8 @@ const desc = `${p.name}, ${p.moniker}: legacy, key achievements, timeline, signa
           {p.sources.secondary.map((s: any) => (<li><a href={s.url} rel="noopener" target="_blank">{s.name}</a></li>))}
         </ul>
       </div>
+      )}
+      {!p.stub && (
       <aside class="side">
         <div class="facts">
           <p class="box-label">Quick facts</p>
@@ -64,6 +83,7 @@ const desc = `${p.name}, ${p.moniker}: legacy, key achievements, timeline, signa
           <p class="qctx">{p.quote.context}</p>
         </div>
       </aside>
+      )}
     </div>
   </section>
 </BaseLayout>
