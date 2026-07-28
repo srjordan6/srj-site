@@ -115,15 +115,29 @@ const memberJur = [...new Set(members.map((m) => m.jurisdiction))];
 
 const allCats = [...new Set(((catalog as any).tools ?? []).map((t: any) => t.category))].sort() as string[];
 
-const catTitle = `${catName}: ${members.length} Tools Compared | SRJ`.slice(0, 62);
-const catDesc =
-  `All ${members.length} ${catName.toLowerCase()} tools in the SRJ catalog, each with its vendor, ` +
-  `home jurisdiction, and the governance question it raises` +
-  (myBoards.length ? `, plus live model rankings from ${lbSource}.` : `.`);
+// Titles and descriptions are generated, so they are checked against the SEO
+// limits for every category rather than eyeballed on one. Three category names
+// are long enough that the full title form overruns 60 characters, so those
+// fall back to a short form instead of being truncated mid-word.
+//
+// catName is never lowercased. "Chat & General LLMs".toLowerCase() yields
+// "chat & general llms", which turns an acronym into a typo on 42 pages.
+const catFullTitle = `${catName}: ${members.length} Tools Compared | SRJ`;
+const catTitle = catFullTitle.length <= 60 ? catFullTitle : `${catName} Tools | SRJ`;
+
+const catDescBase =
+  `All ${members.length} ${catName} tools with vendor, jurisdiction, and the governance ` +
+  `question each raises`;
+const catDescShortTail = `, on the SRJ AI tool inventory checklist.`;
+const catDesc = myBoards.length
+  ? `${catDescBase}, plus live model rankings refreshed daily.`
+  : (catDescBase + catDescShortTail).length >= 140
+    ? catDescBase + catDescShortTail
+    : `${catDescBase}, on the SRJ inventory checklist for AI governance and audit work.`;
 
 const catFaqs = kind !== 'category' ? [] : [
   {
-    q: `How many ${catName.toLowerCase()} tools are there?`,
+    q: `How many ${catName} tools are there?`,
     a: `This catalog lists ${members.length} tools in the ${catName} category, from ` +
        `${memberVendors.length} vendors across ${memberJur.length} jurisdictions. ` +
        `${memberProfiled} carry a full SRJ profile; the rest link to the vendor's own product page.`,
@@ -266,7 +280,7 @@ const fmt = (n: number) => Math.round(n).toLocaleString('en-US');
       <p class="vendor">AI Tools</p>
       <h1>{catName}</h1>
       <p class="tagline">
-        Every {catName.toLowerCase()} tool in the catalog, with its vendor, home jurisdiction,
+        Every {catName} tool in the catalog, with its vendor, home jurisdiction,
         and the governance question it raises.
       </p>
       <p class="stamp">
@@ -363,7 +377,7 @@ const fmt = (n: number) => Math.round(n).toLocaleString('en-US');
       )}
 
       <section class="listing">
-        <h2>All {members.length} {catName.toLowerCase()} tools</h2>
+        <h2>All {members.length} {catName} tools</h2>
         <div class="rule"></div>
         <ul class="tools">
           {members.map((m) => (
