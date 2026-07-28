@@ -1,0 +1,148 @@
+---
+// AI Tools, the 320-tool catalog, at /ai-resources/ai-tools/.
+//
+// This is one of the three sections the migration is allowed to improve on
+// rather than mirror: AI People, AI Tools here, and AI News Events. It is NOT
+// a copy of the WordPress page at /ai-governance/ai-tools/, which stays in the
+// governance library at 317 tools with no vendor links, matching production
+// exactly. This section is the tools market view: the full 320-row dataset
+// from the live wp_srj_ai_tools table, including the three July 24 additions
+// the WordPress static fallback never picked up, and a verified official URL
+// on every tool that has one.
+//
+// Category ordering reproduces the WordPress catalog: byte order, which is
+// what PHP ksort emits, so ERP sorts before Education and HR before
+// Healthcare. Tools sort case-insensitively within a category, matching the
+// MySQL _ci collation. Anchors match the governance page so any existing
+// deep link into a category still lands.
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import data from '../../../content/resources/tools.json';
+
+const anchor = (s) =>
+  s.replace(/&/g, ' and ').replace(/[^\w\s-]/g, '').trim().toLowerCase().replace(/[\s_-]+/g, '-');
+
+// byte order, matching PHP ksort on the grouped array
+const categories = [...new Set(data.tools.map((t) => t.category))].sort();
+const grouped = categories.map((name) => ({
+  name,
+  anchor: anchor(name),
+  tools: data.tools
+    .filter((t) => t.category === name)
+    .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())),
+}));
+
+const total = data.tools.length;
+const linked = data.tools.filter((t) => t.url).length;
+const jurisdictions = new Set(data.tools.map((t) => t.jurisdiction)).size;
+
+const title = `AI Tools Catalog: ${total} Tools by Category and Vendor | SRJ`;
+const description =
+  `The AI tools market in one catalog: ${total} tools across ${grouped.length} categories, ` +
+  `each with vendor, home jurisdiction, official link, and the governance flag it raises.`;
+---
+
+<BaseLayout title={title} description={description}>
+  <section class="hero">
+    <div class="container">
+      <p class="eyebrow"><a href="/ai-resources/">AI Resources</a></p>
+      <h1>AI Tools</h1>
+      <p class="lede">
+        The AI tools market, catalogued. {total} tools across {grouped.length} categories,
+        each with its vendor, the vendor's home jurisdiction, an official link, and the
+        governance question it raises.
+      </p>
+      <p class="stamp">
+        {total} tools · {grouped.length} categories · {jurisdictions} jurisdictions ·
+        {linked} with a verified official URL
+      </p>
+    </div>
+  </section>
+
+  <section class="body">
+    <div class="container">
+      <p class="note">
+        Jurisdiction is listed because it is a governance fact: it determines which
+        data-transfer, privacy, and cross-border rules apply before business data touches
+        a tool. This is a reference catalog, not an endorsement list. Presence here means
+        a tool is common enough in the field that it belongs on an inventory checklist,
+        nothing more. For the governance discipline an inventory feeds into, see the
+        <a href="/ai-governance/">AI Governance Reference Library</a>.
+      </p>
+
+      <nav class="cats" aria-label="Categories">
+        {grouped.map((g) => (
+          <a href={`#${g.anchor}`}>{g.name} ({g.tools.length})</a>
+        ))}
+      </nav>
+
+      {grouped.map((g) => (
+        <div class="group" id={g.anchor}>
+          <h2>{g.name}</h2>
+          <div class="rule"></div>
+          <ul>
+            {g.tools.map((t) => (
+              <li>
+                <span class="tool">
+                  {t.url ? (
+                    <a href={t.url} rel="noopener" target="_blank">{t.name}</a>
+                  ) : (
+                    t.name
+                  )}
+                </span>
+                <span class="vendor">{t.vendor}, {t.jurisdiction}</span>
+                <span class="note-inline">{t.note}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+
+      <div class="cta">
+        <h2>You cannot govern what you have not listed</h2>
+        <p>
+          The AI Business Enablement Audit&trade; builds the inventory, measures your
+          organization against every framework in the reference library, and delivers a
+          defensible governance dossier.
+        </p>
+        <a href="https://aiauditforcompanies.com/startaiaudit/" target="_blank" rel="noopener">
+          Start or finish your AI Audit &rarr;
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero { padding: 90px 0 40px; background: linear-gradient(180deg, var(--cream), var(--white)); }
+  .eyebrow a { color: var(--orange); text-decoration: none; }
+  .lede { max-width: 66ch; font-size: 19px; color: var(--ink-soft); }
+  .stamp { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--orange); font-weight: 600; }
+
+  .body { padding: 0 0 100px; }
+  .note { max-width: 74ch; font-family: Poppins, sans-serif; font-size: 15px; line-height: 1.7; color: #2C2C2A; }
+  .note a { color: #201868; }
+
+  .cats { display: flex; flex-wrap: wrap; gap: 8px; padding: 20px 0 34px; margin: 22px 0 0; border-top: 1px solid #EDEBE5; }
+  .cats a { font-family: Poppins, sans-serif; font-size: 13px; color: #201868; text-decoration: none; padding: 5px 10px; border-radius: 3px; background: #F6F5F1; }
+  .cats a:hover { background: #FFF6EC; color: #F07800; }
+
+  .group { margin: 0 0 46px; scroll-margin-top: 90px; }
+  .group h2 { font-family: Lora, serif; font-size: 26px; color: #201868; margin: 0 0 4px; font-weight: 600; }
+  .rule { width: 56px; height: 3px; background: #F07800; margin: 0 0 20px; }
+
+  .group ul { list-style: none; margin: 0; padding: 0; }
+  .group li { padding: 13px 0; border-bottom: 1px solid #EDEBE5; font-family: Poppins, sans-serif; }
+  .group li:last-child { border-bottom: none; }
+  .tool { font-weight: 600; color: #201868; font-size: 16px; }
+  .tool a { color: #201868; text-decoration: none; border-bottom: 1px solid #E4E2DC; }
+  .tool a:hover { color: #F07800; border-bottom-color: #F07800; }
+  .vendor { display: inline; margin-left: 8px; font-size: 13px; color: #7A8A9E; }
+  .note-inline { display: block; margin-top: 4px; font-size: 14px; line-height: 1.6; color: #5F5E5A; }
+
+  .cta { background: #201868; color: #fff; padding: 48px 32px; border-radius: 6px; margin: 16px 0 0; text-align: center; font-family: Poppins, sans-serif; }
+  .cta h2 { color: #fff; font-family: Lora, serif; margin: 0 0 12px; font-size: 28px; font-weight: 600; }
+  .cta p { color: #FFF6EC; font-size: 17px; line-height: 1.6; margin: 0 auto 24px; max-width: 640px; }
+  .cta a { display: inline-block; background: #F07800; color: #fff; padding: 16px 36px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 16px; }
+  .cta a:hover { background: #C86400; }
+  @media (max-width: 640px) { .cta { padding: 36px 24px; } .cta h2 { font-size: 24px; } }
+</style>

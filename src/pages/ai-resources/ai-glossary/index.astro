@@ -1,10 +1,13 @@
 ---
 // AI Glossary, migrated from WordPress page-ai-glossary.php (v1.2.0).
 //
-// Served at the production path /resources/ai-glossary/ so migration gate 1
-// (URL parity) holds. Structure verified against the live page on July 28,
-// 2026: 522 terms, 12 categories, category anchors slugified with "&" spelled
-// out, term anchors id="term-{slug}".
+// Lives at /ai-resources/ai-glossary/, the new hub namespace. The old
+// WordPress URL /resources/ai-glossary/ 301s here from public/_redirects, so
+// no external link or citation breaks. Content is a 1:1 carry of production:
+// 522 terms, 12 categories, same lead paragraph, same controls, same CTA.
+//
+// Structure verified against the live page on July 28, 2026: category anchors
+// slugify with the ampersand spelled out, term anchors are id="term-{slug}".
 //
 // Ordering is reproduced, not guessed: categories sort case-insensitively by
 // name, terms sort case-insensitively within a category. That is what the live
@@ -37,9 +40,10 @@ const letters = [...new Set(data.terms.map((t) => t.term.charAt(0).toUpperCase()
 
 const total = data.terms.length;
 
-// Production emits no Rank Math title or description for this URL: it is one of
-// the ten gap pages the migration fills rather than copies. Both strings below
-// are new and are pending Stephen's approval before cutover.
+// Production emits no Rank Math title or description for this URL, confirmed
+// via /wp-json/rankmath/v1/getHead. Both strings below are new and are pending
+// Stephen's approval. The page is moving to a new URL regardless, so a fresh
+// canonical title is required either way.
 const title = 'AI Glossary: 522 AI Terms Defined for Executives | SRJ';
 const description =
   'Plain-English definitions of 522 AI terms across 12 categories, each with a ' +
@@ -49,7 +53,7 @@ const description =
 <BaseLayout title={title} description={description}>
   <section class="hero">
     <div class="container">
-      <p class="eyebrow"><a href="/resources/">Resources</a></p>
+      <p class="eyebrow"><a href="/ai-resources/">AI Resources</a></p>
       <h1>AI Glossary</h1>
     </div>
   </section>

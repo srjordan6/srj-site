@@ -9,8 +9,13 @@
 /ai-governance/sector-rules/ecoa-ai-2/             /ai-governance/sector-rules/ecoa-ai/             301
 /ai-governance/vendor-disclosure/aibom-2/          /ai-governance/vendor-disclosure/aibom/          301
 
-# The AI Resources hub used /ai-resources/ placeholders for the glossary and
-# the tools catalog. Both now render at their production paths, so the hub
-# aliases point there rather than duplicating the page under a second URL.
-/ai-resources/ai-glossary/                         /resources/ai-glossary/                          301
-/ai-resources/ai-tools/                            /ai-governance/ai-tools/                         301
+# The glossary moves from the WordPress /resources/ namespace into the new
+# /ai-resources/ hub. Content is a 1:1 carry, only the URL changes, so the old
+# address 301s rather than retiring. Every external citation and AI-crawler
+# reference to the old URL keeps resolving.
+/resources/ai-glossary/                            /ai-resources/ai-glossary/                       301
+
+# The governance library keeps its own AI Tools reference page at
+# /ai-governance/ai-tools/, unchanged and matching production. The richer
+# 320-tool market catalog is a separate section at /ai-resources/ai-tools/.
+# Neither redirects to the other: they are different pages with different jobs.
