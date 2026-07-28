@@ -161,13 +161,13 @@ const schema = [
 
       <nav class="cats" aria-label="Categories">
         {grouped.map((g) => (
-          <a href={`#${g.anchor}`}>{g.name} ({g.tools.length})</a>
+          <a href={`/ai-resources/ai-tools/${g.anchor}/`}>{g.name} ({g.tools.length})</a>
         ))}
       </nav>
 
       {grouped.map((g) => (
         <div class="group" id={g.anchor}>
-          <h2>{g.name}</h2>
+          <h2><a class="cat-link" href={`/ai-resources/ai-tools/${g.anchor}/`}>{g.name}</a></h2>
           <div class="rule"></div>
           <ul>
             {g.tools.map((t) => (
@@ -236,6 +236,8 @@ const schema = [
 
   .group, .faq { margin: 0 0 46px; scroll-margin-top: 90px; }
   .group h2, .faq h2 { font-family: Lora, serif; font-size: 26px; color: #201868; margin: 0 0 4px; font-weight: 600; }
+  .cat-link { color: #201868; text-decoration: none; border-bottom: 2px solid transparent; }
+  .cat-link:hover { color: #F07800; border-bottom-color: #F07800; }
   .rule { width: 56px; height: 3px; background: #F07800; margin: 0 0 20px; }
 
   .group ul { list-style: none; margin: 0; padding: 0; }
