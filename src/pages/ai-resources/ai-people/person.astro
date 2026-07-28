@@ -1,0 +1,120 @@
+---
+// One-page profile: header + fact box, hook, achievements, timeline,
+// signature quote, sources. Modular sections, sidebar callouts.
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+export async function getStaticPaths() {
+  const mods = import.meta.glob('../../../content/people/*.json', { eager: true });
+  const entries = Object.entries(mods);
+  const full = entries.filter(([k]) => !k.endsWith('roster.json')).map(([, m]: any) => m.default ?? m);
+  const rosterMod: any = entries.find(([k]) => k.endsWith('roster.json'))?.[1];
+  const roster = rosterMod ? (rosterMod.default ?? rosterMod) : { people: [] };
+  const slugify = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const have = new Set(full.map((p: any) => p.name));
+  const stubs = roster.people.filter((r: any) => !have.has(r.name)).map((r: any) => ({
+    slug: slugify(r.name), name: r.name, moniker: r.title, org: r.org, stub: true,
+  }));
+  return [...full, ...stubs].map((p: any) => ({ params: { person: p.slug }, props: { p } }));
+}
+const { p } = Astro.props;
+const desc = p.stub
+  ? `${p.name}, ${p.moniker}, ${p.org}. Full verified profile in progress.`
+  : `${p.name}, ${p.moniker}: legacy, key achievements, timeline, signature quote, and primary sources.`;
+---
+<BaseLayout title={`${p.name} – ${p.moniker} | AI People | SRJ Consulting & Services`} description={desc}>
+  <section class="hero">
+    <div class="container">
+      <p class="eyebrow"><a href="/ai-resources/ai-people/">AI People</a></p>
+      <h1>{p.name}</h1>
+      <p class="moniker">{p.moniker}</p>
+      {p.stub
+        ? <p class="span">{p.org}</p>
+        : <p class="span">{p.born}&ndash;{p.died ?? 'Present'} · {p.nationality} · {p.fields.join(' · ')}</p>}
+    </div>
+  </section>
+  <section class="body">
+    <div class="container cols">
+      {p.stub ? (
+      <div class="main">
+        <h2>Profile in progress</h2>
+        <p class="hook">This profile is being researched by the SRJ pipeline. The legacy summary, achievements, timeline, signature quote, and sources publish here once each detail is verified against primary sources. Nothing appears on this page before it is verified.</p>
+      </div>
+      ) : (
+      <div class="main">
+        <h2>Legacy &amp; significance</h2>
+        <p class="hook">{p.hook}</p>
+
+        <h2>Major achievements &amp; key works</h2>
+        <ul class="ach">
+          {p.achievements.map((a: any) => (
+            <li><strong>{a.title}.</strong> {a.impact}</li>
+          ))}
+        </ul>
+
+        <h2>Pivotal turning points</h2>
+        <table class="tl">
+          <thead><tr><th>Year</th><th>Event</th><th>Impact</th></tr></thead>
+          <tbody>
+            {p.timeline.map((t: any) => (
+              <tr><td>{t.year}</td><td>{t.event}</td><td>{t.impact}</td></tr>
+            ))}
+          </tbody>
+        </table>
+
+        <h2>Sources &amp; further reading</h2>
+        <p class="srclabel">Primary sources</p>
+        <ul class="src">
+          {p.sources.primary.map((s: any) => (<li><a href={s.url} rel="noopener" target="_blank">{s.name}</a></li>))}
+        </ul>
+        <p class="srclabel">Recommended secondary sources</p>
+        <ul class="src">
+          {p.sources.secondary.map((s: any) => (<li><a href={s.url} rel="noopener" target="_blank">{s.name}</a></li>))}
+        </ul>
+      </div>
+      )}
+      {!p.stub && (
+      <aside class="side">
+        <div class="facts">
+          <p class="box-label">Quick facts</p>
+          <ul>{p.quick_facts.map((f: string) => (<li>{f}</li>))}</ul>
+        </div>
+        <div class="quote">
+          <p class="box-label">Signature quote</p>
+          <blockquote>&ldquo;{p.quote.text}&rdquo;</blockquote>
+          <p class="qctx">{p.quote.context}</p>
+        </div>
+      </aside>
+      )}
+    </div>
+  </section>
+</BaseLayout>
+<style>
+  .hero { padding: 96px 0 44px; background: linear-gradient(180deg, var(--cream), var(--white)); }
+  .eyebrow a { color: var(--orange); text-decoration: none; }
+  .moniker { font-family: Lora, serif; font-size: 22px; color: var(--orange); margin: 6px 0 10px; }
+  .span { color: var(--gray); font-size: 15px; }
+  .body { padding: 8px 0 110px; }
+  .cols { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 48px; }
+  @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+  h2 { font-family: Lora, serif; color: var(--navy); font-size: 24px; margin: 38px 0 14px; }
+  .hook { font-size: 18px; line-height: 1.7; color: #33334a; max-width: 62ch; }
+  .ach { list-style: none; padding: 0; margin: 0; }
+  .ach li { padding: 10px 0 10px 18px; border-left: 3px solid var(--orange); margin: 0 0 12px; line-height: 1.6; }
+  .ach strong { color: var(--navy); }
+  .tl { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .tl th { text-align: left; font-family: Poppins, sans-serif; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--orange); border-bottom: 2px solid var(--navy); padding: 8px 10px; }
+  .tl td { border-bottom: 1px solid #e8e6e0; padding: 10px; vertical-align: top; line-height: 1.5; }
+  .tl td:first-child { font-weight: 600; color: var(--navy); white-space: nowrap; }
+  .srclabel { font-family: Poppins, sans-serif; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--orange); font-weight: 700; margin: 18px 0 6px; }
+  .src { margin: 0; padding-left: 18px; }
+  .src li { margin: 0 0 8px; line-height: 1.5; }
+  .src a { color: var(--navy); }
+  .side { display: flex; flex-direction: column; gap: 26px; }
+  .facts, .quote { border: 1px solid #e6e4de; border-radius: 10px; padding: 22px 24px; background: #fafaf6; }
+  .box-label { font-family: Poppins, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--orange); margin: 0 0 12px; }
+  .facts ul { margin: 0; padding-left: 18px; }
+  .facts li { margin: 0 0 10px; font-size: 14.5px; line-height: 1.55; }
+  .quote { background: var(--navy); border-color: var(--navy); }
+  .quote .box-label { color: #ffb266; }
+  blockquote { font-family: Lora, serif; font-size: 19px; line-height: 1.5; color: #fff; margin: 0 0 10px; }
+  .qctx { color: rgba(255,255,255,.75); font-size: 13px; margin: 0; }
+</style>
