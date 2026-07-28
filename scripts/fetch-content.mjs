@@ -8,19 +8,24 @@ const dest = 'src/content/governance';
 const sibling = '../srj-content/governance';
 const newsSibling = '../srj-content/news';
 const peopleSibling = '../srj-content/people';
+// resources/ carries the glossary and tools datasets exported from the
+// WordPress mu-plugin seeds (522 terms, 320 tools) for stage 2.
+const resourcesSibling = '../srj-content/resources';
 
 if (existsSync(sibling)) {
   mkdirSync(dest, { recursive: true });
   cpSync(sibling, dest, { recursive: true });
   if (existsSync(newsSibling)) cpSync(newsSibling, 'src/content/news', { recursive: true });
   if (existsSync(peopleSibling)) cpSync(peopleSibling, 'src/content/people', { recursive: true });
+  if (existsSync(resourcesSibling)) cpSync(resourcesSibling, 'src/content/resources', { recursive: true });
   console.log('content: copied from sibling checkout');
 } else {
   execSync(
     'mkdir -p src/content && curl -sL https://codeload.github.com/srjordan6/srj-content/tar.gz/refs/heads/main -o /tmp/c.tgz' +
     ' && tar -xzf /tmp/c.tgz -C src/content --strip-components=1 srj-content-main/governance' +
     ' && (tar -xzf /tmp/c.tgz -C src/content --strip-components=1 srj-content-main/news 2>/dev/null || true)' +
-    ' && (tar -xzf /tmp/c.tgz -C src/content --strip-components=1 srj-content-main/people 2>/dev/null || true)',
+    ' && (tar -xzf /tmp/c.tgz -C src/content --strip-components=1 srj-content-main/people 2>/dev/null || true)' +
+    ' && (tar -xzf /tmp/c.tgz -C src/content --strip-components=1 srj-content-main/resources 2>/dev/null || true)',
     { stdio: 'inherit' }
   );
   console.log('content: fetched from srj-content@main');

@@ -1,1 +1,16 @@
 # Path-level 301s live here during migration. Target: zero retirements.
+
+# Retired duplicate governance slugs. These three URLs are live and returning
+# 200 on production, so leaving them to 404 after cutover would break URL
+# parity (gate 1) and drop three indexed pages. They are consolidated onto the
+# canonical slug recorded in srj-content/governance/_meta.json retired_duplicates.
+# Verified against the production parity crawl of July 28, 2026.
+/ai-governance/data-management-frameworks/dcam-2/  /ai-governance/data-management-frameworks/dcam/  301
+/ai-governance/sector-rules/ecoa-ai-2/             /ai-governance/sector-rules/ecoa-ai/             301
+/ai-governance/vendor-disclosure/aibom-2/          /ai-governance/vendor-disclosure/aibom/          301
+
+# The AI Resources hub used /ai-resources/ placeholders for the glossary and
+# the tools catalog. Both now render at their production paths, so the hub
+# aliases point there rather than duplicating the page under a second URL.
+/ai-resources/ai-glossary/                         /resources/ai-glossary/                          301
+/ai-resources/ai-tools/                            /ai-governance/ai-tools/                         301

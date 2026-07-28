@@ -1,0 +1,230 @@
+---
+// AI Glossary, migrated from WordPress page-ai-glossary.php (v1.2.0).
+//
+// Served at the production path /resources/ai-glossary/ so migration gate 1
+// (URL parity) holds. Structure verified against the live page on July 28,
+// 2026: 522 terms, 12 categories, category anchors slugified with "&" spelled
+// out, term anchors id="term-{slug}".
+//
+// Ordering is reproduced, not guessed: categories sort case-insensitively by
+// name, terms sort case-insensitively within a category. That is what the live
+// page emits. Note this differs from the AI Tools catalog, whose categories
+// sort in byte order; the two came from different plugins.
+//
+// Navigation is two-layer and deliberate, carried over from the WordPress
+// template: category links jump, the A-Z bar FILTERS rather than jumps
+// (a letter appears under many categories, so a jump would land arbitrarily),
+// and the search box filters on term text. All three are progressive
+// enhancement: with JavaScript off every term is still present and readable.
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import data from '../../../content/resources/glossary.json';
+
+const slugify = (s) =>
+  s.replace(/&/g, ' and ').replace(/[^\w\s-]/g, '').trim().toLowerCase().replace(/[\s_-]+/g, '-');
+
+const ci = (a, b) => a.toLowerCase().localeCompare(b.toLowerCase());
+
+const categories = [...new Set(data.terms.map((t) => t.category))].sort(ci);
+const grouped = categories.map((name) => ({
+  name,
+  anchor: slugify(name),
+  terms: data.terms.filter((t) => t.category === name).sort((a, b) => ci(a.term, b.term)),
+}));
+
+const letters = [...new Set(data.terms.map((t) => t.term.charAt(0).toUpperCase()))]
+  .filter((c) => /[A-Z]/.test(c))
+  .sort();
+
+const total = data.terms.length;
+
+// Production emits no Rank Math title or description for this URL: it is one of
+// the ten gap pages the migration fills rather than copies. Both strings below
+// are new and are pending Stephen's approval before cutover.
+const title = 'AI Glossary: 522 AI Terms Defined for Executives | SRJ';
+const description =
+  'Plain-English definitions of 522 AI terms across 12 categories, each with a ' +
+  'worked example and, where citable, its origin. Written for executives, not engineers.';
+---
+
+<BaseLayout title={title} description={description}>
+  <section class="hero">
+    <div class="container">
+      <p class="eyebrow"><a href="/resources/">Resources</a></p>
+      <h1>AI Glossary</h1>
+    </div>
+  </section>
+
+  <section class="longform">
+    <div class="container">
+      <p class="srjgl-lead">
+        Plain-English definitions for the vocabulary that shows up in AI vendor pitches,
+        board papers, and regulation. <strong>{total} terms</strong> across {grouped.length}
+        categories, written so a non-technical executive can read a sentence once and know
+        what was meant.
+      </p>
+
+      <div class="srjgl-controls">
+        <div class="srjgl-search-wrap">
+          <input
+            type="search"
+            id="srjgl-search"
+            class="srjgl-search"
+            placeholder={`Search ${total} terms…`}
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="srjgl-azbar" id="srjgl-azbar">
+          <button type="button" class="srjgl-az is-active" data-letter="">All</button>
+          {letters.map((l) => (
+            <button type="button" class="srjgl-az" data-letter={l}>{l}</button>
+          ))}
+        </div>
+
+        <div class="srjgl-cats">
+          {grouped.map((g) => (
+            <a href={`#${g.anchor}`}>{g.name} ({g.terms.length})</a>
+          ))}
+        </div>
+      </div>
+
+      <p class="srjgl-status" id="srjgl-status"></p>
+
+      {grouped.map((g) => (
+        <div class="srjgl-group" id={g.anchor} data-group>
+          <h2>{g.name}</h2>
+          <div class="srjgl-group-rule"></div>
+          {g.terms.map((t) => (
+            <div
+              class="srjgl-term"
+              id={`term-${t.slug}`}
+              data-term={t.term.toLowerCase()}
+              data-letter={t.term.charAt(0).toUpperCase()}
+            >
+              <h3>{t.term}</h3>
+              <p>
+                {t.definition}
+                {t.example && (
+                  <span class="srjgl-eg">
+                    <em><span class="srjgl-eg-label">Example: </span>{t.example}</em>
+                  </span>
+                )}
+              </p>
+              {t.origin && (
+                <span class="srjgl-origin">
+                  <span class="srjgl-origin-label">Origin</span>{t.origin}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      ))}
+
+      <div class="srjgl-cta">
+        <h2>Knowing the words is not the same as governing the tools</h2>
+        <p>
+          The AI Business Enablement Audit&trade; measures your organization against every
+          framework in the reference library and delivers a defensible governance dossier.
+        </p>
+        <a href="https://aiauditforcompanies.com/startaiaudit/" target="_blank" rel="noopener">
+          Start or finish your AI Audit &rarr;
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero { padding: 90px 0 40px; background: linear-gradient(180deg, var(--cream), var(--white)); }
+  .eyebrow a { color: var(--orange); text-decoration: none; }
+  .longform { padding: 0 0 100px; }
+
+  .srjgl-lead { max-width: 780px; margin: 0 auto 36px; font-size: 18px; line-height: 1.7; color: #1A1A2E; font-family: Poppins, sans-serif; text-align: center; }
+  .srjgl-lead strong { color: #201868; }
+
+  .srjgl-controls { max-width: 900px; margin: 0 auto 40px; }
+  .srjgl-search-wrap { text-align: center; margin: 0 0 22px; }
+  .srjgl-search { width: 100%; max-width: 460px; padding: 13px 16px; font-family: Poppins, sans-serif; font-size: 15px; border: 1px solid #C9C6BE; border-radius: 4px; color: #1A1A2E; }
+  .srjgl-search:focus { outline: none; border-color: #F07800; box-shadow: 0 0 0 3px rgba(240,120,0,0.14); }
+
+  .srjgl-azbar { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 0 0 20px; }
+  .srjgl-az { font-family: Poppins, sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 0.4px; padding: 7px 11px; border: 1px solid #E4E2DC; border-radius: 3px; background: #fff; color: #201868; cursor: pointer; line-height: 1; }
+  .srjgl-az:hover { border-color: #F07800; color: #F07800; }
+  .srjgl-az.is-active { background: #201868; border-color: #201868; color: #fff; }
+
+  .srjgl-cats { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 18px 0 0; border-top: 1px solid #EDEBE5; }
+  .srjgl-cats a { font-family: Poppins, sans-serif; font-size: 13px; color: #201868; text-decoration: none; padding: 5px 10px; border-radius: 3px; background: #F6F5F1; }
+  .srjgl-cats a:hover { background: #FFF6EC; color: #F07800; }
+
+  .srjgl-status { text-align: center; font-family: Poppins, sans-serif; font-size: 14px; color: #7A8A9E; margin: 0 0 30px; }
+
+  .srjgl-group { margin: 0 0 48px; scroll-margin-top: 90px; }
+  .srjgl-group h2 { font-family: Lora, serif; font-size: 26px; color: #201868; margin: 0 0 4px; font-weight: 600; }
+  .srjgl-group-rule { width: 56px; height: 3px; background: #F07800; margin: 0 0 22px; }
+
+  .srjgl-term { padding: 18px 0 18px 22px; border-bottom: 1px solid #EDEBE5; scroll-margin-top: 90px; }
+  .srjgl-term:last-child { border-bottom: none; }
+  .srjgl-term h3 { font-family: Lora, serif; font-size: 20px; font-weight: 700; color: #201868; margin: 0 0 7px -22px; letter-spacing: 0.01em; }
+  .srjgl-term p { font-family: Poppins, sans-serif; font-size: 15px; line-height: 1.7; color: #2C2C2A; margin: 0; }
+  .srjgl-term p::before { content: "1"; color: #F07800; font-weight: 600; font-size: 14px; margin-right: 9px; font-family: Lora, serif; }
+  .srjgl-term .srjgl-eg { display: block; margin-top: 6px; font-size: 14px; line-height: 1.6; color: #5F5E5A; }
+  .srjgl-term .srjgl-eg em { color: #5F5E5A; font-style: italic; }
+  .srjgl-term .srjgl-eg::before { content: "\2014\00a0"; color: #7A8A9E; }
+  .srjgl-eg-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .srjgl-origin { display: block; margin-top: 5px; font-family: Poppins, sans-serif; font-size: 13px; line-height: 1.5; color: #7A8A9E; }
+  .srjgl-origin .srjgl-origin-label { text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px; color: #201868; font-weight: 600; margin-right: 6px; }
+
+  .srjgl-cta { background: #201868; color: #fff; padding: 48px 32px; border-radius: 6px; margin: 16px 0 0; text-align: center; font-family: Poppins, sans-serif; }
+  .srjgl-cta h2 { color: #fff; font-family: Lora, serif; margin: 0 0 12px; font-size: 28px; font-weight: 600; }
+  .srjgl-cta p { color: #FFF6EC; font-size: 17px; line-height: 1.6; margin: 0 auto 24px; max-width: 640px; }
+  .srjgl-cta a { display: inline-block; background: #F07800; color: #fff; padding: 16px 36px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 16px; }
+  .srjgl-cta a:hover { background: #C86400; }
+  @media (max-width: 640px) { .srjgl-cta { padding: 36px 24px; } .srjgl-cta h2 { font-size: 24px; } }
+</style>
+
+<script is:inline>
+  (function () {
+    var search = document.getElementById('srjgl-search');
+    if (!search) { return; }
+    var azbar = document.getElementById('srjgl-azbar');
+    var status = document.getElementById('srjgl-status');
+    var terms = Array.prototype.slice.call(document.querySelectorAll('.srjgl-term'));
+    var groups = Array.prototype.slice.call(document.querySelectorAll('[data-group]'));
+    var letter = '';
+
+    function apply() {
+      var q = search.value.trim().toLowerCase();
+      var shown = 0;
+
+      terms.forEach(function (el) {
+        var okQ = !q || el.getAttribute('data-term').indexOf(q) !== -1;
+        var okL = !letter || el.getAttribute('data-letter') === letter;
+        var show = okQ && okL;
+        el.style.display = show ? '' : 'none';
+        if (show) { shown++; }
+      });
+
+      groups.forEach(function (g) {
+        var any = g.querySelector('.srjgl-term:not([style*="display: none"])');
+        g.style.display = any ? '' : 'none';
+      });
+
+      if (!q && !letter) {
+        status.textContent = '';
+      } else {
+        status.textContent = shown + (shown === 1 ? ' term' : ' terms') + ' matching';
+      }
+    }
+
+    search.addEventListener('input', apply);
+
+    azbar.addEventListener('click', function (e) {
+      var btn = e.target.closest('.srjgl-az');
+      if (!btn) { return; }
+      letter = btn.getAttribute('data-letter') || '';
+      azbar.querySelectorAll('.srjgl-az').forEach(function (b) { b.classList.remove('is-active'); });
+      btn.classList.add('is-active');
+      apply();
+    });
+  })();
+</script>

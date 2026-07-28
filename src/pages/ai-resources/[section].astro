@@ -9,9 +9,12 @@ const news = Object.values(newsFiles)[0]?.default ?? null;
 
 export function getStaticPaths() {
   return [
-    { params: { section: 'ai-glossary' }, props: { title: 'AI Glossary', desc: '522 terms in plain business English.', body: 'The glossary moves here from its current address at stage 2 of the migration, with a permanent redirect. Until then, the live glossary remains at', link: 'https://srjconsultingservices.com/resources/ai-glossary/', linkText: 'srjconsultingservices.com/resources/ai-glossary' } },
+    // ai-glossary and ai-tools are no longer placeholders. Both now render at
+    // their production paths, /resources/ai-glossary/ and
+    // /ai-governance/ai-tools/, which is what migration gate 1 requires. The
+    // /ai-resources/ aliases 301 to those paths from public/_redirects, so the
+    // hub keeps working without creating a second copy of either page.
     { params: { section: 'ai-events' }, props: { title: 'AI News Events', desc: 'Dates with legal consequence.', body: 'Effective dates, comment deadlines, compliance windows, and hearings, each verified against the issuing body. The dates that appear here are the dates the graph can prove.' } },
-    { params: { section: 'ai-tools' }, props: { title: 'AI Tools', desc: 'The 320-tool catalog.', body: 'The full catalog of AI tools, with vendors, categories, and verified official URLs, migrates here at stage 2. Until then, the live catalog remains at', link: 'https://srjconsultingservices.com/ai-governance/ai-tools/', linkText: 'the AI Tools catalog' } },
     { params: { section: 'everything-else' }, props: { title: 'Everything Else', desc: 'The long tail, verified.', body: 'Every verified resource that fits nowhere else. Collected as widely as possible, published only when verified, this section grows with the platform.' } },
   ];
 }
