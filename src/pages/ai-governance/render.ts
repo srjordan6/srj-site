@@ -4,6 +4,7 @@
 import detailTpl from '../../templates/gov-detail.tpl.html?raw';
 import hubTpl from '../../templates/gov-hub.tpl.html?raw';
 import { govSchema } from '../../lib/govSchema';
+import { entityNodes, webPageNode } from '../../lib/entityGraph';
 
 const SITE = 'https://srjconsultingservices.com';
 const esc = (s: string) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -34,9 +35,13 @@ export function detailHtml(entry: any, bySlug: Record<string, any>): string {
   const ld = [bcLd, ...govSchema(entry, url)]
     .map((o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`).join('\n');
 
-  return tpl
+  // Production serves NO meta description on china-ai-regulation, global-ai-laws,
+  // and sources. Falling back to entry.short invented one on all three and broke
+  // SEO parity. Emit the real value when there is one, and strip the tag outright
+  // when there is not, rather than shipping an empty content attribute.
+  const html = tpl
     .replaceAll('{{TITLE}}', esc(entry.seo_title || entry.title))
-    .replaceAll('{{DESC}}', esc(entry.meta_description || entry.short))
+    .replaceAll('{{DESC}}', esc(entry.meta_description || ''))
     .replaceAll('{{URL}}', url)
     .replace('{{JSONLD}}', ld)
     .replace('{{BREADCRUMBS}}', bcHtml)
@@ -46,16 +51,31 @@ export function detailHtml(entry: any, bySlug: Record<string, any>): string {
     .replace('{{BODY}}', entry.body_html)
     .replace('{{CHILDREN}}', children)
     .replaceAll('{{KW}}', esc(entry.focus_keyword || entry.title));
+
+  return entry.meta_description
+    ? html
+    : html.replace(/[ \t]*<meta\s+name=["']description["'][^>]*>\s*\n?/i, '');
 }
 
 export function hubHtml(): string {
   const tpl = hubTpl;
-  const org = { '@context': 'https://schema.org', '@type': 'Organization', '@id': SITE + '/#organization',
-    name: 'SRJ Consulting & Services LLC', url: SITE + '/',
-    founder: { '@type': 'Person', name: 'Stephen R. Jordan', url: SITE + '/about/' } };
+  const url = SITE + '/ai-governance/';
+
+  // The hub emitted only a hand-rolled Organization node and breadcrumbs, so it
+  // was the one governance URL still failing schema parity after the detail
+  // pages were fixed: production also carries Place, PostalAddress,
+  // GeoCoordinates, ImageObject, WebSite, and WebPage here. Use the same shared
+  // graph the detail pages and BaseLayout use, so the three cannot drift again.
+  const entity = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      ...entityNodes(),
+      webPageNode(url, 'AI Governance Reference Library'),
+    ],
+  };
   const bc = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
     { '@type': 'ListItem', position: 1, name: 'Home', item: SITE + '/' },
     { '@type': 'ListItem', position: 2, name: 'AI Governance' }] };
-  const ld = [org, bc].map((o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`).join('\n');
+  const ld = [entity, bc].map((o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`).join('\n');
   return tpl.replace('{{JSONLD}}', ld);
 }
