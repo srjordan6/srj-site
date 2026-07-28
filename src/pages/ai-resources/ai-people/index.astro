@@ -1,6 +1,24 @@
 ---
 // AI Movers and Shakers hub: one card per person, alphabetical.
+//
+// New content, so held to the full SEO and AEO standard rather than to parity
+// with the old site, which has no equivalent page.
+//
+// The AEO decision here is ItemList of Person. A grid of 60 cards is, to an
+// answer engine, a page that happens to mention a lot of names. Typed as an
+// ItemList whose members are Person nodes with a jobTitle, an affiliation, and
+// a URL, the page becomes answerable: "who works on AI at X" can be resolved
+// against it, and one person can be lifted and attributed rather than the whole
+// grid being quoted or skipped.
+//
+// Only fields the data actually carries are emitted. Stub entries carry a name,
+// a title, and an organisation and nothing else, so they get exactly that. No
+// birth year, nationality, or field list is inferred for them, which is the
+// same rule the profiles themselves follow: a person with too thin a public
+// record stays a stub rather than getting invented content.
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { itemList, faqPage, collectionPage } from '../../../lib/pageSchema';
+
 const mods = import.meta.glob('../../../content/people/*.json', { eager: true });
 const entries = Object.entries(mods);
 const full = entries.filter(([k]) => !k.endsWith('roster.json')).map(([, m]: any) => m.default ?? m);
@@ -12,17 +30,112 @@ const stubs = roster.people.filter((r: any) => !have.has(r.name)).map((r: any) =
   slug: slugify(r.name), name: r.name, moniker: r.title, org: r.org, stub: true,
 }));
 const people = [...full, ...stubs].sort((a: any, b: any) => a.name.localeCompare(b.name));
+
+// Counts render from the data, never hard-coded, so they cannot go stale as
+// profiles are added.
+const total = people.length;
+const profiled = full.length;
+const inProgress = stubs.length;
+
+const SITE = 'https://srjconsultingservices.com';
+const url = `${SITE}/ai-resources/ai-people/`;
+const title = `AI Movers and Shakers: ${total} People Shaping AI Today | SRJ`;
+const description =
+  `Profiles of ${total} people shaping artificial intelligence, from researchers and ` +
+  `founders to the executives deploying it. Built from primary sources, never invented.`;
+
+const faqs = [
+  {
+    q: `Who are the AI movers and shakers?`,
+    a: `They are the people whose decisions shape how artificial intelligence is built, ` +
+       `regulated, and put to work: the researchers behind the underlying methods, the founders ` +
+       `commercialising them, and the executives inside ordinary companies deciding where AI ` +
+       `actually gets deployed. This page profiles ${total} of them, ${profiled} with a full ` +
+       `profile and ${inProgress} still in progress.`,
+  },
+  {
+    q: `How are these profiles researched?`,
+    a: `Each full profile is built against verified primary sources, most often the person's own ` +
+       `published record, with any quotation taken verbatim rather than paraphrased. Nothing is ` +
+       `generated from a model's general impression of who someone is.`,
+  },
+  {
+    q: `Why do some entries say "profile in progress"?`,
+    a: `Because the person's verifiable public record was too thin to profile without inventing ` +
+       `achievements, dates, or quotations. Those entries stay as honest stubs carrying only what ` +
+       `the published record establishes. An empty field is more useful than a plausible ` +
+       `fabrication, particularly for a page about real, living people.`,
+  },
+  {
+    q: `Does appearing here imply any endorsement or affiliation with SRJ?`,
+    a: `No. These are independent editorial profiles. Inclusion signals influence on the field, ` +
+       `not a relationship with SRJ Consulting & Services, and no one profiled has any input into ` +
+       `what their profile says.`,
+  },
+];
+
+const schema = [
+  collectionPage({ url, name: 'AI Movers and Shakers', description }),
+  itemList({
+    url,
+    name: 'AI Movers and Shakers',
+    description,
+    items: people.map((p: any) => ({
+      name: p.name,
+      url: `${url}${p.slug}/`,
+      description: [p.moniker, p.stub ? p.org : (p.fields ?? []).join(', ')]
+        .filter(Boolean).join('. ') || undefined,
+    })),
+  }),
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    '@id': `${url}#people`,
+    name: 'Profiled people',
+    numberOfItems: people.length,
+    itemListElement: people.map((p: any, i: number) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      item: {
+        '@type': 'Person',
+        '@id': `${url}${p.slug}/#person`,
+        name: p.name,
+        url: `${url}${p.slug}/`,
+        ...(p.moniker ? { jobTitle: p.moniker } : {}),
+        ...(p.stub && p.org ? { affiliation: { '@type': 'Organization', name: p.org } } : {}),
+        ...(!p.stub && p.nationality ? { nationality: p.nationality } : {}),
+        ...(!p.stub && p.fields?.length ? { knowsAbout: p.fields } : {}),
+      },
+    })),
+  },
+  faqPage(url, faqs),
+];
 ---
-<BaseLayout title="AI Movers and Shakers | AI Resources | SRJ Consulting & Services" description="The movers and shakers in the world of AI: one-page profiles with legacy, achievements, timelines, and sources.">
+<BaseLayout title={title} description={description} schema={schema} crumbName="AI Movers and Shakers">
   <section class="hero">
     <div class="container">
-      <p class="eyebrow"><a href="/ai-resources/">AI Resources</a></p>
       <h1>AI Movers and Shakers</h1>
       <p class="lede">The movers and shakers in the world of AI.</p>
+      <p class="stamp">{total} people · {profiled} full profiles · {inProgress} in progress</p>
     </div>
   </section>
+
   <section class="grid-wrap">
     <div class="container">
+      {/* AEO: one self-contained paragraph answering the page's own question,
+          readable with no surrounding context. This is the unit that gets lifted. */}
+      <div class="answer">
+        <p class="answer-label">In short</p>
+        <p>
+          The people shaping artificial intelligence are not only the researchers who invent
+          the methods. They are also the founders commercialising them and the executives
+          inside ordinary companies deciding where AI actually gets deployed. This page
+          profiles {total} of them. Every profile is built from verified primary sources, and
+          where a person&rsquo;s public record is too thin to profile honestly, the entry stays
+          a stub rather than carrying invented detail.
+        </p>
+      </div>
+
       <div class="grid">
         {people.map((p: any) => (
           <a class="card" href={`/ai-resources/ai-people/${p.slug}/`}>
@@ -35,18 +148,42 @@ const people = [...full, ...stubs].sort((a: any, b: any) => a.name.localeCompare
           </a>
         ))}
       </div>
+
+      <section class="faq" aria-labelledby="faq-h">
+        <h2 id="faq-h">Frequently asked questions</h2>
+        <div class="rule"></div>
+        {faqs.map((f) => (
+          <div class="faq-item">
+            <h3>{f.q}</h3>
+            <p>{f.a}</p>
+          </div>
+        ))}
+      </section>
     </div>
   </section>
 </BaseLayout>
 <style>
-  .hero { padding: 100px 0 60px; background: linear-gradient(180deg, var(--cream), var(--white)); }
-  .eyebrow a { color: var(--orange); text-decoration: none; }
+  .hero { padding: 64px 0 40px; background: linear-gradient(180deg, var(--cream), var(--white)); }
   .lede { font-size: 21px; color: var(--ink-soft); font-style: italic; }
+  .stamp { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--orange); font-weight: 600; }
   .grid-wrap { padding: 20px 0 110px; }
+
+  .answer { max-width: 780px; margin: 6px 0 34px; background: #FFF6EC; border: 1px solid #F0D6B0; border-radius: 6px; padding: 22px 26px; }
+  .answer p { font-family: Poppins, sans-serif; font-size: 16px; line-height: 1.7; color: #2C2C2A; margin: 0; }
+  .answer-label { font-size: 11px !important; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #F07800; margin: 0 0 8px !important; }
+
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 22px; }
   .card { display: block; border: 1px solid #e6e4de; border-radius: 10px; padding: 24px 26px; text-decoration: none; background: var(--white); transition: box-shadow .18s ease, transform .18s ease; }
   .card:hover { box-shadow: 0 10px 28px rgba(32,24,104,.12); transform: translateY(-2px); }
   .card h2 { font-family: Lora, serif; font-size: 21px; color: var(--navy); margin: 0 0 4px; }
   .moniker { color: var(--orange); font-weight: 600; font-size: 13.5px; margin: 0 0 10px; line-height: 1.4; }
   .span, .fields { font-size: 13.5px; color: var(--gray); margin: 0 0 4px; }
+
+  .faq { margin: 60px 0 0; }
+  .faq h2 { font-family: Lora, serif; font-size: 26px; color: #201868; margin: 0 0 4px; font-weight: 600; }
+  .rule { width: 56px; height: 3px; background: #F07800; margin: 0 0 20px; }
+  .faq-item { padding: 18px 0; border-bottom: 1px solid #EDEBE5; }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-item h3 { font-family: Lora, serif; font-size: 20px; font-weight: 700; color: #201868; margin: 0 0 7px; }
+  .faq-item p { font-family: Poppins, sans-serif; font-size: 15px; line-height: 1.7; color: #2C2C2A; margin: 0; max-width: 74ch; }
 </style>
