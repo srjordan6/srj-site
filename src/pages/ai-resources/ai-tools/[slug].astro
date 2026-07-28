@@ -125,15 +125,50 @@ const allCats = [...new Set(((catalog as any).tools ?? []).map((t: any) => t.cat
 const catFullTitle = `${catName}: ${members.length} Tools Compared | SRJ`;
 const catTitle = catFullTitle.length <= 60 ? catFullTitle : `${catName} Tools | SRJ`;
 
-const catDescBase =
-  `All ${members.length} ${catName} tools with vendor, jurisdiction, and the governance ` +
-  `question each raises`;
-const catDescShortTail = `, on the SRJ AI tool inventory checklist.`;
-const catDesc = myBoards.length
-  ? `${catDescBase}, plus live model rankings refreshed daily.`
-  : (catDescBase + catDescShortTail).length >= 140
-    ? catDescBase + catDescShortTail
-    : `${catDescBase}, on the SRJ inventory checklist for AI governance and audit work.`;
+// Meta descriptions have to land in 150-160 characters across 23 category names
+// that vary from "Voice & Audio" to "Enterprise AI Platforms & Agent
+// Orchestration", a 32-character spread before the tool count is added. A single
+// template cannot do that: a fixed phrase that fits the short names runs over on
+// the long ones, and padding the short ones overruns the long ones further.
+//
+// So the phrasing is chosen rather than fixed. Several equivalent openings and
+// closings are declared, the fullest combination that lands inside the window
+// wins, and if nothing fits the closest is used. Every variant says the same
+// thing; only the length differs. This is checked for all 23 before shipping,
+// because the failure is invisible on any single page.
+const catDescBases = [
+  `All ${members.length} ${catName} tools, each with its vendor, home jurisdiction, and the governance question it raises`,
+  `All ${members.length} ${catName} tools with vendor, home jurisdiction, and the governance question each raises`,
+  `All ${members.length} ${catName} tools with vendor, jurisdiction, and the governance question each raises`,
+  `All ${members.length} ${catName} tools with vendor, jurisdiction, and the governance question raised`,
+  `All ${members.length} ${catName} tools with vendor, jurisdiction, and governance notes`,
+  `All ${members.length} ${catName} tools with vendor and jurisdiction`,
+];
+const catDescTails = myBoards.length
+  ? [
+      `, plus live arena.ai model rankings, refreshed daily from the source.`,
+      `, plus live arena.ai model rankings refreshed daily.`,
+      `, plus live model rankings refreshed daily.`,
+      `, plus live arena.ai rankings.`,
+    ]
+  : [
+      `, on the SRJ inventory checklist for AI governance, audit, and procurement work.`,
+      `, on the SRJ inventory checklist for AI governance and audit work.`,
+      `, on the SRJ AI tool inventory checklist for governance work.`,
+      `, on the SRJ AI tool inventory checklist.`,
+      `, for the SRJ AI tool inventory.`,
+      `.`,
+    ];
+const catDescCandidates = catDescBases.flatMap((b) => catDescTails.map((t) => b + t));
+const catDescFitting = catDescCandidates.filter((d) => d.length >= 150 && d.length <= 160);
+const catDesc = catDescFitting.length
+  ? catDescFitting.reduce((a, b) => (b.length > a.length ? b : a))
+  : catDescCandidates.reduce((a, b) =>
+      Math.min(Math.abs(b.length - 150), Math.abs(b.length - 160)) <
+      Math.min(Math.abs(a.length - 150), Math.abs(a.length - 160))
+        ? b
+        : a
+    );
 
 const catFaqs = kind !== 'category' ? [] : [
   {
