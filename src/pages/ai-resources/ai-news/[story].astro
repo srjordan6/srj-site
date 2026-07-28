@@ -1,102 +1,243 @@
 ---
-// One page per top story: header + dateline + topic pills, key numbers,
-// who's mentioned, chronological coverage, sources. "Why it matters"
-// renders when the pipeline's analysis step supplies it (future field).
+// One page per top story, built to the same daily-news structure as the hub:
+// operational header, key numbers, why it matters, a coverage timeline,
+// primary sources, and a sticky contents rail.
+//
+// WHAT IS NOT HERE, AND WHY. The structure asks for intraday timestamps
+// (08:30 AM EST and so on). GDELT carries them; the pipeline stores only the
+// date. Grouping by hour would mean inventing times, so the timeline groups by
+// DAY and says so. Storing the full timestamp is a pipeline change, tracked
+// separately. "Why it matters" renders from s.Why when the pipeline supplies
+// analysis, and is otherwise absent rather than guessed.
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { itemList, collectionPage } from '../../../lib/pageSchema';
+import { categoryOf, coverageByDay, readingMinutes, titleCase, type Story } from '../../../lib/newsTopics';
+
 export async function getStaticPaths() {
   const mods = import.meta.glob('../../../content/news/news.json', { eager: true });
   const news: any = Object.values(mods)[0]?.default ?? null;
-  return (news?.stories ?? []).map((s: any) => ({ params: { story: s.Slug }, props: { s, date: news.date, generated: news.generated } }));
+  return (news?.stories ?? []).map((s: any) => ({
+    params: { story: s.Slug },
+    props: { s, date: news.date, generated: news.generated },
+  }));
 }
-const { s, date, generated } = Astro.props;
-const clean = (x: string) => x.replace(/\b\w/g, (c) => c.toUpperCase());
 
-// The pipeline is written in Go, and Go marshals a nil slice to JSON null, not
-// to []. So any story the clustering step finds no organizations, people,
-// domains, or articles for arrives here with that field set to null rather
-// than empty. Reading .slice/.map/.join/.length off null throws, and because
-// these pages are prerendered, one such story fails the entire build and
-// blocks every deploy, not just its own page.
-//
-// That is exactly what happened on July 28, 2026: the daily refresh published
-// a Sam Altman story with Orgs: null, and the build died on s.Orgs.slice(0, 3).
-// Guard every array field at the boundary. Fixing the pipeline to emit [] is
-// the root-cause fix and is tracked separately, but the template must not be
-// the single point of failure for a whole deploy either way.
-const orgs: string[] = s.Orgs ?? [];
-const persons: string[] = s.Persons ?? [];
-const domains: string[] = s.Domains ?? [];
-const articles: any[] = s.Articles ?? [];
+const { s, date, generated } = Astro.props;
+
+// Go marshals a nil slice to JSON null, not []. One story with Orgs: null took
+// the entire site build down on 2026-07-28, because these pages are
+// prerendered and a single bad record fails all of them. The pipeline now
+// refuses to publish such a payload, but this guard stays: srj-content is also
+// written by hand, and the template should not assume otherwise.
+const story: Story = {
+  ...s,
+  Orgs: s.Orgs ?? [],
+  Persons: s.Persons ?? [],
+  Domains: s.Domains ?? [],
+  Articles: s.Articles ?? [],
+};
+
+const cat = categoryOf(story);
+const timeline = coverageByDay(story.Articles);
+const stamp = generated ? `${new Date(generated).toUTCString().slice(0, 22)} UTC` : null;
+const minutes = readingMinutes(story.Headline, ...story.Articles.map((a) => a.Title));
+
+const SITE = 'https://srjconsultingservices.com';
+const url = `${SITE}/ai-resources/ai-news/${story.Slug}/`;
+const title = `${story.Headline}`.slice(0, 62);
+const description =
+  `${story.Headline}. Covered by ${story.DomainCount} outlets across ${story.ArticleCount} ` +
+  `articles: full source list, named entities, and coverage timeline.`.slice(0, 160);
+
+const schema = [
+  collectionPage({ url, name: story.Headline, description }),
+  itemList({
+    url,
+    name: `Sources covering: ${story.Headline}`,
+    description: `Every article the SRJ pipeline found covering this story.`,
+    items: story.Articles.map((a) => ({ name: a.Title, url: a.URL, description: a.Domain })),
+  }),
+];
 ---
-<BaseLayout title={`${s.Headline} | AI News | SRJ Consulting & Services`} description={`Covered by ${s.DomainCount} outlets worldwide: coverage, key entities, and sources for this AI story, compiled by the SRJ pipeline.`}>
+<BaseLayout
+  title={`${title} | AI News | SRJ`}
+  description={description}
+  schema={schema}
+  crumbs={[
+    { name: 'Home', url: '/' },
+    { name: 'AI Resources', url: '/ai-resources/' },
+    { name: 'AI News', url: '/ai-resources/ai-news/' },
+    { name: story.Headline.slice(0, 48) },
+  ]}
+>
+  <!-- 1. Header and operational context -->
   <section class="hero">
     <div class="container">
-      <p class="eyebrow"><a href="/ai-resources/ai-news/">What&rsquo;s happening in the world of AI</a></p>
-      <h1>{s.Headline}</h1>
-      <p class="dateline">Daily briefing · {date} · compiled {new Date(generated).toUTCString().slice(0, 22)} UTC</p>
-      <p class="pills">
-        <span class="pill">#AI</span>
-        {orgs.slice(0, 3).map((o: string) => (<span class="pill">#{clean(o).replace(/\s+/g, '')}</span>))}
+      <h1>{story.Headline}</h1>
+      <p class="dateline">
+        <strong>Daily briefing</strong> · {date}
+        {stamp && <> · compiled {stamp}</>}
+        · {minutes}-minute read
       </p>
+      <div class="pills">
+        <a class="pill pill-cat" href={`/ai-resources/ai-news/#${cat.slug}`}>{cat.name}</a>
+        {story.Orgs.slice(0, 4).map((o) => <span class="pill">{titleCase(o)}</span>)}
+      </div>
     </div>
   </section>
+
   <section class="body">
     <div class="container cols">
       <div class="main">
-        {s.Why && (<><h2>Why it matters</h2><p class="why">{s.Why}</p></>)}
-        <h2>Coverage</h2>
-        <ul class="cov">
-          {articles.map((a: any) => (
-            <li>
-              <a href={a.URL} rel="noopener nofollow" target="_blank">{a.Title}</a>
-              <span class="meta">{a.Domain}{a.Date ? ` · ${a.Date}` : ''}</span>
-            </li>
-          ))}
-        </ul>
-        <p class="note">Coverage is discovery, never evidence. Where this story touches a law, framework, or requirement, the authoritative treatment lives in the <a href="https://srjconsultingservices.com/ai-governance/">AI Governance Reference Library</a>, verified against primary sources.</p>
+        <!-- 2. Why it matters, when the pipeline supplies it. Never invented. -->
+        {story.Why && (
+          <div class="why" id="why">
+            <p class="box-label">Why it matters</p>
+            <p>{story.Why}</p>
+          </div>
+        )}
+
+        <!-- 3. Coverage -->
+        <section id="coverage">
+          <h2>Coverage</h2>
+          <div class="rule"></div>
+          <p class="lead">
+            This story was carried by <strong>{story.DomainCount}</strong> distinct outlets across
+            <strong> {story.ArticleCount}</strong> articles in the past 36 hours. Every source the
+            pipeline found is listed below, unedited.
+          </p>
+          <ul class="cov">
+            {story.Articles.map((a) => (
+              <li>
+                <a href={a.URL} rel="noopener nofollow" target="_blank">{a.Title}</a>
+                <span class="meta">{a.Domain}{a.Date ? ` · ${a.Date}` : ''}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <!-- 4. Coverage timeline, day-level because that is what the data holds -->
+        {timeline.length > 0 && (
+          <section id="timeline">
+            <h2>Coverage timeline</h2>
+            <div class="rule"></div>
+            <ol class="tl">
+              {timeline.map((t) => (
+                <li>
+                  <span class="tl-day">{t.day}</span>
+                  <span class="tl-body">
+                    <strong>{t.count}</strong> {t.count === 1 ? 'article' : 'articles'} across
+                    <strong> {t.outlets}</strong> {t.outlets === 1 ? 'outlet' : 'outlets'}
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <p class="tl-note">
+              Grouped by day. The pipeline records publication dates, not times, so
+              hour-level sequencing is not shown rather than estimated.
+            </p>
+          </section>
+        )}
+
+        <p class="note">
+          Coverage is discovery, never evidence. Where this story touches a law, framework, or
+          requirement, the authoritative treatment lives in the
+          <a href="/ai-governance/">AI Governance Reference Library</a>, verified against primary
+          sources. For the vocabulary, see the <a href="/ai-resources/ai-glossary/">AI Glossary</a>.
+        </p>
       </div>
+
+      <!-- 5. Dashboard and contents -->
       <aside class="side">
-        <div class="nums">
-          <p class="box-label">Key numbers</p>
-          <p class="num"><strong>{s.DomainCount}</strong> outlets</p>
-          <p class="num"><strong>{s.ArticleCount}</strong> articles in 24h</p>
-          <p class="doms">{domains.join(' · ')}</p>
+        <div class="panel sticky">
+          <p class="box-label">On this page</p>
+          <ul class="toc">
+            {story.Why && <li><a href="#why">Why it matters</a></li>}
+            <li><a href="#coverage">Coverage</a></li>
+            {timeline.length > 0 && <li><a href="#timeline">Coverage timeline</a></li>}
+            <li><a href="/ai-resources/ai-news/">Back to the briefing</a></li>
+          </ul>
         </div>
-        {(persons.length > 0 || orgs.length > 0) && (
-          <div class="who">
+
+        <div class="panel">
+          <p class="box-label">Key numbers</p>
+          <table class="dash">
+            <tbody>
+              <tr><th scope="row">Outlets</th><td>{story.DomainCount}</td></tr>
+              <tr><th scope="row">Articles in 36h</th><td>{story.ArticleCount}</td></tr>
+              <tr><th scope="row">Days of coverage</th><td>{timeline.length}</td></tr>
+              <tr><th scope="row">Category</th><td>{cat.name}</td></tr>
+            </tbody>
+          </table>
+          {story.Domains.length > 0 && <p class="doms">{story.Domains.join(' · ')}</p>}
+        </div>
+
+        {(story.Persons.length > 0 || story.Orgs.length > 0) && (
+          <div class="panel">
             <p class="box-label">Who&rsquo;s in this story</p>
-            {persons.length > 0 && <p class="wl">People: {persons.map(clean).join(', ')}</p>}
-            {orgs.length > 0 && <p class="wl">Organizations: {orgs.map(clean).join(', ')}</p>}
+            {story.Persons.length > 0 && <p class="wl"><span>People</span>{story.Persons.map(titleCase).join(', ')}</p>}
+            {story.Orgs.length > 0 && <p class="wl"><span>Organizations</span>{story.Orgs.map(titleCase).join(', ')}</p>}
           </div>
         )}
       </aside>
     </div>
   </section>
 </BaseLayout>
+
 <style>
-  .hero { padding: 96px 0 40px; background: linear-gradient(180deg, var(--cream), var(--white)); }
-  .eyebrow a { color: var(--orange); text-decoration: none; }
-  h1 { max-width: 22ch; line-height: 1.2; }
+  .hero { padding: 56px 0 30px; background: linear-gradient(180deg, var(--cream), var(--white)); }
+  h1 { max-width: 24ch; line-height: 1.2; }
   .dateline { color: var(--gray); font-size: 14px; }
-  .pills { margin-top: 12px; }
-  .pill { display: inline-block; background: var(--navy); color: #fff; font-family: Poppins, sans-serif; font-size: 12px; padding: 4px 12px; border-radius: 999px; margin: 0 6px 6px 0; }
-  .body { padding: 8px 0 110px; }
-  .cols { display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 48px; }
-  @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
-  h2 { font-family: Lora, serif; color: var(--navy); font-size: 24px; margin: 34px 0 14px; }
-  .why { font-size: 17px; line-height: 1.7; max-width: 62ch; }
-  .cov { list-style: none; margin: 0; padding: 0; max-width: 760px; }
+  .dateline strong { color: var(--navy); }
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .pill { display: inline-block; background: #201868; color: #fff; font-family: Poppins, sans-serif; font-size: 12px; padding: 4px 12px; border-radius: 999px; }
+  .pill-cat { background: var(--orange); text-decoration: none; }
+
+  .body { padding: 10px 0 110px; }
+  .cols { display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 44px; align-items: start; }
+  @media (max-width: 960px) { .cols { grid-template-columns: 1fr; } }
+
+  h2 { font-family: Lora, serif; color: var(--navy); font-size: 24px; margin: 30px 0 4px; }
+  .rule { width: 56px; height: 3px; background: #F07800; margin: 0 0 18px; }
+  .box-label { font-family: Poppins, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--orange); margin: 0 0 10px; }
+
+  .why { background: #FFF6EC; border: 1px solid #F0D6B0; border-radius: 6px; padding: 20px 24px; margin: 6px 0 8px; scroll-margin-top: 80px; }
+  .why p { font-family: Poppins, sans-serif; font-size: 16px; line-height: 1.7; color: #2C2C2A; margin: 0; }
+
+  .lead { font-family: Poppins, sans-serif; font-size: 15px; line-height: 1.7; color: #2C2C2A; max-width: 70ch; }
+  #coverage, #timeline { scroll-margin-top: 80px; }
+
+  .cov { list-style: none; margin: 0; padding: 0; max-width: 780px; }
   .cov li { padding: 13px 0; border-bottom: 1px solid #e8e6e0; }
+  .cov li:last-child { border-bottom: none; }
   .cov a { color: var(--navy); text-decoration: none; font-weight: 500; }
   .cov a:hover { color: var(--orange); }
   .cov .meta { display: block; font-size: 13px; color: var(--gray); margin-top: 3px; }
-  .note { margin-top: 30px; font-size: 14px; color: var(--gray); font-style: italic; max-width: 66ch; }
+
+  .tl { list-style: none; margin: 0; padding: 0; max-width: 620px; }
+  .tl li { display: flex; gap: 16px; align-items: baseline; padding: 11px 0; border-bottom: 1px solid #f0eee8; }
+  .tl li:last-child { border-bottom: none; }
+  .tl-day { font-family: Poppins, sans-serif; font-size: 13px; font-weight: 700; color: var(--orange); min-width: 96px; letter-spacing: .03em; }
+  .tl-body { font-family: Poppins, sans-serif; font-size: 14.5px; color: #2C2C2A; }
+  .tl-body strong { color: var(--navy); }
+  .tl-note { font-family: Poppins, sans-serif; font-size: 12.5px; color: var(--gray); font-style: italic; margin: 10px 0 0; max-width: 62ch; }
+
+  .note { margin-top: 34px; font-size: 14px; color: var(--gray); font-style: italic; max-width: 68ch; }
   .note a { color: var(--navy); }
-  .side { display: flex; flex-direction: column; gap: 24px; }
-  .nums, .who { border: 1px solid #e6e4de; border-radius: 10px; padding: 20px 22px; background: #fafaf6; }
-  .box-label { font-family: Poppins, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--orange); margin: 0 0 12px; }
-  .num { font-size: 15px; margin: 0 0 6px; }
-  .num strong { font-family: Lora, serif; font-size: 26px; color: var(--navy); margin-right: 6px; }
-  .doms { font-size: 12.5px; color: var(--gray); line-height: 1.6; margin: 10px 0 0; }
-  .wl { font-size: 14px; line-height: 1.6; margin: 0 0 8px; }
+
+  .side { display: flex; flex-direction: column; gap: 20px; }
+  .panel { border: 1px solid #e6e4de; border-radius: 10px; padding: 18px 20px; background: #fafaf6; }
+  .sticky { position: sticky; top: 20px; }
+  .toc { list-style: none; margin: 0; padding: 0; }
+  .toc li { margin: 0 0 7px; }
+  .toc a { font-family: Poppins, sans-serif; font-size: 13.5px; color: var(--navy); text-decoration: none; }
+  .toc a:hover { color: var(--orange); }
+  .dash { width: 100%; border-collapse: collapse; }
+  .dash th, .dash td { font-family: Poppins, sans-serif; font-size: 13.5px; padding: 7px 0; border-bottom: 1px solid #eceae4; text-align: left; }
+  .dash th { color: var(--gray); font-weight: 500; }
+  .dash td { color: var(--navy); font-weight: 700; text-align: right; }
+  .dash tr:last-child th, .dash tr:last-child td { border-bottom: none; }
+  .doms { font-size: 12px; color: var(--gray); line-height: 1.6; margin: 10px 0 0; }
+  .wl { font-family: Poppins, sans-serif; font-size: 13.5px; line-height: 1.6; margin: 0 0 10px; color: #2C2C2A; }
+  .wl span { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--navy); font-weight: 700; margin-bottom: 2px; }
 </style>

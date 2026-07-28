@@ -1,30 +1,38 @@
 ---
-// Daily briefing: what's happening in the world of AI.
-// Data: news/news.json v2 (clustered top stories), published daily by the
-// pipeline. Tolerates absence and the v1 flat shape until the first v2 run.
+// Daily AI briefing hub, built to the daily-news-page structure:
+// operational header, executive summary, a paragraph summary of the day's top
+// five with links, categorised stories with a consistent three-part layout,
+// a daily dashboard, and a sticky table of contents.
 //
-// New content, so held to the full SEO and AEO standard rather than to parity:
-// the old site has no equivalent page.
+// WHAT IS NOT HERE, AND WHY. The structure also calls for market and commodity
+// indicators, a forward "what's coming next" schedule, per-story "why it
+// matters" analysis, and intraday timestamps. The pipeline collects none of
+// those. Each is left as a slot that renders the moment real data arrives,
+// rather than being filled with something plausible: a fabricated market number
+// or an invented forward schedule on a page that also carries verified
+// governance work would poison the credibility of both.
 //
-// The AEO decision here is ItemList plus real headings. The ten stories were
-// previously rendered as spans inside anchors, which left the page with a single
-// h1 and no h2 at all, the weakest heading structure on the site. A ranked list
-// with no headings and no types reads, to an answer engine, as one undifferentiated
-// block of link text. Each story is now an h2 inside an ItemList carrying its
-// position, so a single story can be lifted and attributed and the ranking is
-// legible as a ranking.
+// The per-story "Why it matters" slot already exists and renders from s.Why
+// when the pipeline supplies it.
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import { itemList, faqPage, collectionPage } from '../../../lib/pageSchema';
+import {
+  groupByCategory, categoryOf, topEntities, summaryParagraph, readingMinutes, titleCase,
+  type Story,
+} from '../../../lib/newsTopics';
+
 const mods = import.meta.glob('../../../content/news/news.json', { eager: true });
 const news: any = Object.values(mods)[0]?.default ?? null;
-const stories = news?.stories ?? [];
+const raw = news?.stories ?? [];
 const big = news?.big_picture ?? [];
 
 // Go marshals a nil slice to JSON null, so a story with no domains, orgs, or
-// people arrives with that field null rather than []. Reading .slice or
-// .length off it throws and fails the whole prerender, blocking every deploy.
-// Normalise once, here, rather than guarding at each use site.
-const safeStories = stories.map((s: any) => ({
+// people arrives with that field null rather than []. Reading .slice or .length
+// off it throws and fails the whole prerender, blocking every deploy. The
+// pipeline now refuses to publish such a payload, but this layer stays:
+// srj-content is also written by hand, and the templates should not assume the
+// pipeline is its only writer.
+const stories: Story[] = raw.map((s: any) => ({
   ...s,
   Domains: s.Domains ?? [],
   Orgs: s.Orgs ?? [],
@@ -32,11 +40,23 @@ const safeStories = stories.map((s: any) => ({
   Articles: s.Articles ?? [],
 }));
 
+const grouped = groupByCategory(stories);
+const entities = topEntities(stories, 8);
+const summary = summaryParagraph(stories, 5);
+const top5 = stories.slice(0, 5);
+
+const totalArticles = stories.reduce((n, s) => n + (s.ArticleCount ?? 0), 0);
+const totalOutlets = new Set(stories.flatMap((s) => s.Domains)).size;
+const leader = stories[0];
+
+const minutes = readingMinutes(summary, ...stories.map((s) => s.Headline), ...big);
+const generated = news?.generated ? new Date(news.generated) : null;
+const stamp = generated
+  ? `${generated.toUTCString().slice(0, 22)} UTC`
+  : null;
+
 const SITE = 'https://srjconsultingservices.com';
 const url = `${SITE}/ai-resources/ai-news/`;
-const count = safeStories.length;
-const outlets = new Set(safeStories.flatMap((s: any) => s.Domains)).size;
-
 const title = `AI News: Today's Top AI Stories, Ranked by Coverage | SRJ`;
 const description =
   `A daily AI briefing: the top stories in artificial intelligence, ranked by breadth of ` +
@@ -46,130 +66,236 @@ const faqs = [
   {
     q: `How are these AI stories chosen and ranked?`,
     a: `Stories are discovered from worldwide news coverage in the past 36 hours, clustered by ` +
-       `headline similarity, and then ranked by how many distinct news outlets are covering them. ` +
+       `headline similarity, then ranked by how many distinct outlets are covering each one. ` +
        `Breadth of independent coverage is the ranking signal, not editorial preference and not ` +
-       `raw article volume, which would let a single prolific outlet dominate.`,
+       `raw article volume, which would let one prolific outlet dominate.`,
   },
   {
     q: `How often is this briefing updated?`,
-    a: `Once every morning, automatically. Each edition is dated and stamped with the time it was ` +
+    a: `Once every morning, automatically. Each edition carries the date and the time it was ` +
        `compiled, so it is always clear how current the page is.`,
+  },
+  {
+    q: `How are stories sorted into categories?`,
+    a: `By an explicit, published keyword map applied to the headline, not by a language model. ` +
+       `It is deterministic and auditable: anyone can see why a story landed where it did, and ` +
+       `anything that does not match falls to a neutral General AI bucket rather than being ` +
+       `forced into a category. It trades some accuracy for the ability to check it.`,
   },
   {
     q: `Is news coverage treated as evidence?`,
     a: `No, and the distinction is deliberate. Coverage is a lead. A claim only enters the AI ` +
-       `Governance Reference Library after it has been verified against a primary source such as ` +
-       `the statute, the regulator's own publication, or the standard itself. Press is explicitly ` +
-       `inadmissible as evidence in that library.`,
-  },
-  {
-    q: `Why do some stories have many outlets but little analysis?`,
-    a: `Because breadth of coverage measures how widely a story travelled, not how much it matters. ` +
-       `A story carried by fifty outlets may still be routine. The ranking answers what the world ` +
-       `is talking about, which is a different question from what carries consequence.`,
+       `Governance Reference Library after verification against a primary source such as the ` +
+       `statute, the regulator's own publication, or the standard itself. Press is explicitly ` +
+       `inadmissible as evidence there.`,
   },
 ];
 
 const schema = [
   collectionPage({ url, name: 'AI News', description }),
   itemList({
-    url,
-    name: `Top AI stories, ${news?.date ?? 'daily briefing'}`,
-    description,
-    items: safeStories.map((s: any) => ({
+    url, name: `Top AI stories, ${news?.date ?? 'daily briefing'}`, description,
+    items: stories.map((s) => ({
       name: s.Headline,
       url: `${url}${s.Slug}/`,
-      description: `Covered by ${s.DomainCount} outlets across ${s.ArticleCount} articles.`,
+      description: `${categoryOf(s).name}. Covered by ${s.DomainCount} outlets across ${s.ArticleCount} articles.`,
     })),
   }),
   faqPage(url, faqs),
 ];
 ---
 <BaseLayout title={title} description={description} schema={schema} crumbName="AI News">
+  <!-- 1. Header and operational context -->
   <section class="hero">
     <div class="container">
       <h1>What&rsquo;s happening in the world of AI</h1>
-      {news && <p class="dateline">Daily briefing · {news.date} · refreshed {new Date(news.generated).toUTCString().slice(0, 22)} UTC · {count} top stories · {outlets} outlets</p>}
+      {news && (
+        <p class="dateline">
+          <strong>Daily briefing</strong> · {news.date}
+          {stamp && <> · last updated {stamp}</>}
+          · {minutes}-minute read
+        </p>
+      )}
+      {entities.length > 0 && (
+        <div class="pills" aria-label="Entities named across today's coverage">
+          <span class="pill-label">In today&rsquo;s coverage</span>
+          {entities.map((e) => <span class="pill">{e}</span>)}
+        </div>
+      )}
     </div>
   </section>
-  {big.length > 0 && (
-    <section class="bigwrap">
-      <div class="container">
-        <div class="big">
-          <p class="box-label">The big picture</p>
-          <ul>{big.map((h: string) => (<li>{h}</li>))}</ul>
-        </div>
-      </div>
-    </section>
-  )}
-  <section class="stories">
-    <div class="container">
-      {/* AEO: one self-contained paragraph answering the page's own question,
-          readable with no surrounding context. This is the unit that gets lifted. */}
-      <div class="answer">
-        <p class="answer-label">In short</p>
-        <p>
-          This is a daily briefing of the biggest stories in artificial intelligence, ranked by
-          how many independent news outlets are covering each one rather than by editorial
-          preference. It is compiled automatically every morning from worldwide coverage. Treat
-          it as discovery, not as evidence: a claim only enters the
-          <a href="/ai-governance/">AI Governance Reference Library</a> once it has been verified
-          against a primary source.
-        </p>
-      </div>
 
-      {safeStories.length === 0 && <p class="empty">Today's briefing publishes with the pipeline's next morning run.</p>}
-      {safeStories.map((s: any, i: number) => (
-        <a class="story" href={`/ai-resources/ai-news/${s.Slug}/`}>
-          <span class="rank">{i + 1}</span>
-          <span class="stext">
-            <h2 class="head">{s.Headline}</h2>
-            <span class="meta"><strong>{s.DomainCount}</strong> outlets · {s.ArticleCount} articles · {s.Domains.slice(0, 4).join(', ')}{s.Domains.length > 4 ? '…' : ''}</span>
-          </span>
-        </a>
-      ))}
-      <p class="note">Stories rank by breadth of coverage across global outlets, discovered by the SRJ pipeline from worldwide news in the past 24 hours. Coverage is a lead, never fact evidence: claims enter the reference library only after verification against primary sources.</p>
-
-      <section class="faq" aria-labelledby="faq-h">
-        <h2 id="faq-h">Frequently asked questions</h2>
-        <div class="rule"></div>
-        {faqs.map((f) => (
-          <div class="faq-item">
-            <h3>{f.q}</h3>
-            <p>{f.a}</p>
+  <section class="body">
+    <div class="container cols">
+      <div class="main">
+        <!-- 2. The Big Picture -->
+        {big.length > 0 && (
+          <div class="big" id="big-picture">
+            <p class="box-label">The big picture</p>
+            <ul>{big.map((h: string) => <li>{h}</li>)}</ul>
           </div>
+        )}
+
+        <!-- Paragraph summary of the day's top five, then the links -->
+        <div class="answer" id="summary">
+          <p class="answer-label">Today in one paragraph</p>
+          <p>{summary}</p>
+        </div>
+
+        {top5.length > 0 && (
+          <ol class="top5">
+            {top5.map((s) => (
+              <li>
+                <a href={`/ai-resources/ai-news/${s.Slug}/`}>{s.Headline}</a>
+                <span class="t5meta">{categoryOf(s).name} · <strong>{s.DomainCount}</strong> outlets</span>
+              </li>
+            ))}
+          </ol>
+        )}
+
+        <!-- 3. Categorised main stories -->
+        {stories.length === 0 && (
+          <p class="empty">Today&rsquo;s briefing publishes with the pipeline&rsquo;s next morning run.</p>
+        )}
+
+        {grouped.map((g) => (
+          <section class="cat" id={g.slug}>
+            <h2>{g.name} <span class="count">{g.stories.length}</span></h2>
+            <p class="cat-blurb">{g.blurb}</p>
+            <div class="rule"></div>
+            {g.stories.map((s) => (
+              <article class="story">
+                <h3><a href={`/ai-resources/ai-news/${s.Slug}/`}>{s.Headline}</a></h3>
+                <p class="brief">
+                  Covered by <strong>{s.DomainCount}</strong> outlets across
+                  <strong> {s.ArticleCount}</strong> articles
+                  {s.Domains.length > 0 && <> , including {s.Domains.slice(0, 4).join(', ')}{s.Domains.length > 4 ? ', and others' : ''}</>}.
+                  {s.Persons.length > 0 && <> Named: {s.Persons.slice(0, 3).map(titleCase).join(', ')}.</>}
+                </p>
+                {/* Renders the moment the pipeline supplies analysis. Never invented. */}
+                {s.Why && <p class="why"><span class="why-label">Why it matters</span>{s.Why}</p>}
+                <div class="nums">
+                  <span class="num"><strong>{s.DomainCount}</strong> outlets</span>
+                  <span class="num"><strong>{s.ArticleCount}</strong> articles</span>
+                  <span class="num"><strong>{s.Orgs.length + s.Persons.length}</strong> entities</span>
+                </div>
+                <a class="more" href={`/ai-resources/ai-news/${s.Slug}/`}>Full coverage and sources &rarr;</a>
+              </article>
+            ))}
+          </section>
         ))}
-      </section>
+
+        <section class="faq" id="faq">
+          <h2>Frequently asked questions</h2>
+          <div class="rule"></div>
+          {faqs.map((f) => (
+            <div class="faq-item">
+              <h3>{f.q}</h3>
+              <p>{f.a}</p>
+            </div>
+          ))}
+        </section>
+      </div>
+
+      <!-- 4. Daily dashboard and sticky contents -->
+      <aside class="side">
+        <div class="panel sticky">
+          <p class="box-label">On this page</p>
+          <ul class="toc">
+            <li><a href="#summary">Today in one paragraph</a></li>
+            {grouped.map((g) => <li><a href={`#${g.slug}`}>{g.name} ({g.stories.length})</a></li>)}
+            <li><a href="#faq">FAQ</a></li>
+          </ul>
+        </div>
+
+        <div class="panel">
+          <p class="box-label">Today&rsquo;s numbers</p>
+          <table class="dash">
+            <tbody>
+              <tr><th scope="row">Stories tracked</th><td>{stories.length}</td></tr>
+              <tr><th scope="row">Articles scanned</th><td>{totalArticles}</td></tr>
+              <tr><th scope="row">Distinct outlets</th><td>{totalOutlets}</td></tr>
+              <tr><th scope="row">Categories active</th><td>{grouped.length}</td></tr>
+              {leader && <tr><th scope="row">Widest coverage</th><td>{leader.DomainCount} outlets</td></tr>}
+            </tbody>
+          </table>
+          <p class="dash-note">
+            Counts are measured from today&rsquo;s scan. Market and regulatory
+            indicators are not shown because this pipeline does not collect them.
+          </p>
+        </div>
+      </aside>
     </div>
   </section>
 </BaseLayout>
+
 <style>
-  .hero { padding: 64px 0 40px; background: linear-gradient(180deg, var(--cream), var(--white)); }
-  .dateline { color: var(--gray); font-size: 14px; letter-spacing: .04em; }
-  .answer { max-width: 780px; margin: 6px 0 30px; background: #FFF6EC; border: 1px solid #F0D6B0; border-radius: 6px; padding: 22px 26px; }
-  .answer p { font-family: Poppins, sans-serif; font-size: 16px; line-height: 1.7; color: #2C2C2A; margin: 0; }
-  .answer a { color: #201868; }
-  .answer-label { font-size: 11px !important; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #F07800; margin: 0 0 8px !important; }
-  .bigwrap { padding: 8px 0 6px; }
-  .big { border: 1px solid #e6e4de; border-left: 4px solid var(--orange); border-radius: 10px; background: #fafaf6; padding: 22px 26px; max-width: 860px; }
+  .hero { padding: 60px 0 30px; background: linear-gradient(180deg, var(--cream), var(--white)); }
+  .dateline { color: var(--gray); font-size: 14px; letter-spacing: .02em; }
+  .dateline strong { color: var(--navy); }
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 12px; }
+  .pill-label { font-family: Poppins, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--orange); margin-right: 4px; }
+  .pill { display: inline-block; background: #201868; color: #fff; font-family: Poppins, sans-serif; font-size: 12px; padding: 4px 12px; border-radius: 999px; }
+
+  .body { padding: 10px 0 110px; }
+  .cols { display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 44px; align-items: start; }
+  @media (max-width: 960px) { .cols { grid-template-columns: 1fr; } }
+
   .box-label { font-family: Poppins, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--orange); margin: 0 0 10px; }
+
+  .big { border: 1px solid #e6e4de; border-left: 4px solid var(--orange); border-radius: 10px; background: #fafaf6; padding: 22px 26px; margin: 0 0 22px; }
   .big ul { margin: 0; padding-left: 20px; }
   .big li { margin: 0 0 8px; line-height: 1.55; font-size: 15.5px; color: #2c2c44; }
-  .stories { padding: 26px 0 110px; }
-  .story { display: flex; gap: 18px; align-items: flex-start; max-width: 860px; padding: 18px 6px; border-bottom: 1px solid #e8e6e0; text-decoration: none; }
-  .story:hover .head { color: var(--orange); }
-  .rank { font-family: Lora, serif; font-size: 26px; color: var(--orange); font-weight: 700; min-width: 34px; line-height: 1.1; }
-  .head { display: block; font-family: Lora, serif; font-size: 20px; font-weight: 600; color: var(--navy); line-height: 1.35; margin: 0 0 5px; }
-  .meta { display: block; font-size: 13.5px; color: var(--gray); }
-  .meta strong { color: var(--navy); }
-  .empty, .note { color: var(--gray); font-style: italic; font-size: 14px; max-width: 70ch; }
-  .note { margin-top: 34px; }
 
-  .faq { margin: 54px 0 0; }
-  .faq h2 { font-family: Lora, serif; font-size: 26px; color: #201868; margin: 0 0 4px; font-weight: 600; }
+  .answer { background: #FFF6EC; border: 1px solid #F0D6B0; border-radius: 6px; padding: 22px 26px; margin: 0 0 18px; }
+  .answer p { font-family: Poppins, sans-serif; font-size: 16px; line-height: 1.75; color: #2C2C2A; margin: 0; }
+  .answer-label { font-size: 11px !important; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #F07800; margin: 0 0 8px !important; }
+
+  .top5 { margin: 0 0 46px; padding-left: 22px; }
+  .top5 li { margin: 0 0 10px; }
+  .top5 a { font-family: Lora, serif; font-size: 17px; color: var(--navy); text-decoration: none; }
+  .top5 a:hover { color: var(--orange); }
+  .t5meta { display: block; font-family: Poppins, sans-serif; font-size: 12.5px; color: var(--gray); }
+
+  .cat { margin: 0 0 44px; scroll-margin-top: 80px; }
+  .cat h2 { font-family: Lora, serif; font-size: 25px; color: #201868; margin: 0 0 2px; font-weight: 600; }
+  .cat .count { font-family: Poppins, sans-serif; font-size: 13px; color: #fff; background: var(--orange); border-radius: 999px; padding: 2px 9px; vertical-align: middle; margin-left: 6px; }
+  .cat-blurb { font-family: Poppins, sans-serif; font-size: 13.5px; color: var(--gray); margin: 0 0 8px; }
   .rule { width: 56px; height: 3px; background: #F07800; margin: 0 0 20px; }
-  .faq-item { padding: 18px 0; border-bottom: 1px solid #EDEBE5; }
+
+  .story { border: 1px solid #e8e6e0; border-radius: 8px; padding: 20px 22px; margin: 0 0 16px; background: #fff; }
+  .story h3 { font-family: Lora, serif; font-size: 19px; line-height: 1.35; margin: 0 0 8px; }
+  .story h3 a { color: var(--navy); text-decoration: none; }
+  .story h3 a:hover { color: var(--orange); }
+  .brief { font-family: Poppins, sans-serif; font-size: 14.5px; line-height: 1.65; color: #2C2C2A; margin: 0 0 10px; }
+  .why { font-family: Poppins, sans-serif; font-size: 14.5px; line-height: 1.65; color: #2C2C2A; background: #F6F5F1; border-left: 3px solid var(--orange); padding: 10px 14px; margin: 0 0 10px; }
+  .why-label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--orange); margin-bottom: 4px; }
+  .nums { display: flex; flex-wrap: wrap; gap: 14px; margin: 0 0 10px; }
+  .num { font-family: Poppins, sans-serif; font-size: 12.5px; color: var(--gray); }
+  .num strong { font-family: Lora, serif; font-size: 17px; color: var(--navy); margin-right: 3px; }
+  .more { font-family: Poppins, sans-serif; font-size: 13.5px; color: var(--navy); text-decoration: none; font-weight: 600; }
+  .more:hover { color: var(--orange); }
+
+  .side { display: flex; flex-direction: column; gap: 20px; }
+  .panel { border: 1px solid #e6e4de; border-radius: 10px; padding: 18px 20px; background: #fafaf6; }
+  .sticky { position: sticky; top: 20px; }
+  .toc { list-style: none; margin: 0; padding: 0; }
+  .toc li { margin: 0 0 7px; }
+  .toc a { font-family: Poppins, sans-serif; font-size: 13.5px; color: var(--navy); text-decoration: none; }
+  .toc a:hover { color: var(--orange); }
+  .dash { width: 100%; border-collapse: collapse; }
+  .dash th, .dash td { font-family: Poppins, sans-serif; font-size: 13.5px; padding: 7px 0; border-bottom: 1px solid #eceae4; text-align: left; }
+  .dash th { color: var(--gray); font-weight: 500; }
+  .dash td { color: var(--navy); font-weight: 700; text-align: right; }
+  .dash tr:last-child th, .dash tr:last-child td { border-bottom: none; }
+  .dash-note { font-family: Poppins, sans-serif; font-size: 12px; line-height: 1.5; color: var(--gray); margin: 10px 0 0; font-style: italic; }
+
+  .faq { margin: 46px 0 0; scroll-margin-top: 80px; }
+  .faq h2 { font-family: Lora, serif; font-size: 25px; color: #201868; margin: 0 0 4px; font-weight: 600; }
+  .faq-item { padding: 16px 0; border-bottom: 1px solid #EDEBE5; }
   .faq-item:last-child { border-bottom: none; }
-  .faq-item h3 { font-family: Lora, serif; font-size: 20px; font-weight: 700; color: #201868; margin: 0 0 7px; }
-  .faq-item p { font-family: Poppins, sans-serif; font-size: 15px; line-height: 1.7; color: #2C2C2A; margin: 0; max-width: 74ch; }
+  .faq-item h3 { font-family: Lora, serif; font-size: 19px; font-weight: 700; color: #201868; margin: 0 0 6px; }
+  .faq-item p { font-family: Poppins, sans-serif; font-size: 14.5px; line-height: 1.7; color: #2C2C2A; margin: 0; max-width: 74ch; }
+
+  .empty { color: var(--gray); font-style: italic; font-size: 14px; }
 </style>
