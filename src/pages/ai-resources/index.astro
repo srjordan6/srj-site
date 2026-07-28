@@ -8,10 +8,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 const sections = [
   { href: '/ai-governance/', title: 'AI Governance Reference Library', desc: 'Laws, regulations, standards, and enforcement, maintained against primary sources. The flagship: 60+ pages, 82,000+ words.', live: true, flagship: true },
   { href: '/ai-resources/ai-glossary/', title: 'AI Glossary', desc: '522 terms across governance, security, and operations, defined in plain business English.', live: false, note: 'Moves here from /resources/ai-glossary/ at stage 2.' },
-  { href: '/ai-resources/ai-news/', title: 'AI News', desc: 'What changed and when: a verified feed of governance developments, every item carrying its primary source.', live: false, note: 'Comes online with the autonomous pipeline.' },
-  { href: '/ai-resources/ai-people/', title: 'AI People', desc: 'The regulators, officials, and authors who shape AI governance, with verified roles and records.', live: false, note: 'Graph ring 1.' },
-  { href: '/ai-resources/ai-events/', title: 'AI Events', desc: 'Deadlines, effective dates, comment windows, and hearings, the dates that carry legal consequence.', live: false, note: 'Graph ring 1.' },
-  { href: '/ai-resources/everything-else/', title: 'AI Tools & Everything Else', desc: 'The 320-tool catalog and every resource that fits nowhere else, verified before it is listed.', live: false, note: 'Catalog migrates at stage 2.' },
+  { href: '/ai-resources/ai-news/', title: 'AI News', desc: 'What\u2019s happening in the world of AI: the day\u2019s top stories ranked by breadth of global coverage, each with its own page and sources.', live: true, note: 'Refreshed every morning by the pipeline.' },
+  { href: '/ai-resources/ai-people/', title: 'AI Movers and Shakers', desc: 'The movers and shakers in the world of AI: verified one-page profiles with legacy, achievements, timelines, and primary sources.', live: true, note: 'Profiles added as they are verified.' },
+  { href: '/ai-resources/ai-events/', title: 'AI News Events', desc: 'Deadlines, effective dates, comment windows, and hearings, the dates that carry legal consequence.', live: false, note: 'Graph ring 1.' },
+  { href: '/ai-resources/ai-tools/', title: 'AI Tools', desc: 'The 320-tool catalog: vendors, categories, and verified official URLs for the AI tools market.', live: false, note: 'Catalog migrates at stage 2.' },
+  { href: '/ai-resources/everything-else/', title: 'Everything Else', desc: 'Every verified resource that fits nowhere else, collected widely, published only when verified.', live: false, note: 'Grows with the platform.' },
 ];
 ---
 <BaseLayout

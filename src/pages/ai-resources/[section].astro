@@ -10,8 +10,9 @@ const news = Object.values(newsFiles)[0]?.default ?? null;
 export function getStaticPaths() {
   return [
     { params: { section: 'ai-glossary' }, props: { title: 'AI Glossary', desc: '522 terms in plain business English.', body: 'The glossary moves here from its current address at stage 2 of the migration, with a permanent redirect. Until then, the live glossary remains at', link: 'https://srjconsultingservices.com/resources/ai-glossary/', linkText: 'srjconsultingservices.com/resources/ai-glossary' } },
-    { params: { section: 'ai-events' }, props: { title: 'AI Events', desc: 'Dates with legal consequence.', body: 'Effective dates, comment deadlines, compliance windows, and hearings, each verified against the issuing body. The dates that appear here are the dates the graph can prove.' } },
-    { params: { section: 'everything-else' }, props: { title: 'AI Tools & Everything Else', desc: 'The catalog and the long tail.', body: 'The 320-tool catalog migrates here at stage 2, and this section grows to hold every verified resource that fits nowhere else. Until then, the live catalog remains at', link: 'https://srjconsultingservices.com/ai-governance/ai-tools/', linkText: 'the AI Tools catalog' } },
+    { params: { section: 'ai-events' }, props: { title: 'AI News Events', desc: 'Dates with legal consequence.', body: 'Effective dates, comment deadlines, compliance windows, and hearings, each verified against the issuing body. The dates that appear here are the dates the graph can prove.' } },
+    { params: { section: 'ai-tools' }, props: { title: 'AI Tools', desc: 'The 320-tool catalog.', body: 'The full catalog of AI tools, with vendors, categories, and verified official URLs, migrates here at stage 2. Until then, the live catalog remains at', link: 'https://srjconsultingservices.com/ai-governance/ai-tools/', linkText: 'the AI Tools catalog' } },
+    { params: { section: 'everything-else' }, props: { title: 'Everything Else', desc: 'The long tail, verified.', body: 'Every verified resource that fits nowhere else. Collected as widely as possible, published only when verified, this section grows with the platform.' } },
   ];
 }
 const { title, desc, body, link, linkText } = Astro.props;
