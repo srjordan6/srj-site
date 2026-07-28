@@ -1,21 +1,4 @@
-# Path-level 301s live here during migration. Target: zero retirements.
-
-# Retired duplicate governance slugs. These three URLs are live and returning
-# 200 on production, so leaving them to 404 after cutover would break URL
-# parity (gate 1) and drop three indexed pages. They are consolidated onto the
-# canonical slug recorded in srj-content/governance/_meta.json retired_duplicates.
-# Verified against the production parity crawl of July 28, 2026.
-/ai-governance/data-management-frameworks/dcam-2/  /ai-governance/data-management-frameworks/dcam/  301
-/ai-governance/sector-rules/ecoa-ai-2/             /ai-governance/sector-rules/ecoa-ai/             301
-/ai-governance/vendor-disclosure/aibom-2/          /ai-governance/vendor-disclosure/aibom/          301
-
-# The glossary moves from the WordPress /resources/ namespace into the new
-# /ai-resources/ hub. Content is a 1:1 carry, only the URL changes, so the old
-# address 301s rather than retiring. Every external citation and AI-crawler
-# reference to the old URL keeps resolving.
-/resources/ai-glossary/                            /ai-resources/ai-glossary/                       301
-
-# The governance library keeps its own AI Tools reference page at
-# /ai-governance/ai-tools/, unchanged and matching production. The richer
-# 320-tool market catalog is a separate section at /ai-resources/ai-tools/.
-# Neither redirects to the other: they are different pages with different jobs.
+/ai-governance/data-management-frameworks/dcam-2/ /ai-governance/data-management-frameworks/dcam/ 301
+/ai-governance/sector-rules/ecoa-ai-2/ /ai-governance/sector-rules/ecoa-ai/ 301
+/ai-governance/vendor-disclosure/aibom-2/ /ai-governance/vendor-disclosure/aibom/ 301
+/resources/ai-glossary/ /ai-resources/ai-glossary/ 301
