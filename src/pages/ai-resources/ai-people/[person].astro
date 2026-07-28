@@ -4,10 +4,9 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 export async function getStaticPaths() {
   const mods = import.meta.glob('../../../content/people/*.json', { eager: true });
-  return Object.values(mods).map((m: any) => {
-    const p = m.default ?? m;
-    return { params: { person: p.slug }, props: { p } };
-  });
+  return Object.values(mods).map((m: any) => m.default ?? m)
+    .filter((p: any) => p.slug)
+    .map((p: any) => ({ params: { person: p.slug }, props: { p } }));
 }
 const { p } = Astro.props;
 const desc = `${p.name}, ${p.moniker}: legacy, key achievements, timeline, signature quote, and primary sources.`;
