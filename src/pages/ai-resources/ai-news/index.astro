@@ -7,13 +7,25 @@ const mods = import.meta.glob('../../../content/news/news.json', { eager: true }
 const news: any = Object.values(mods)[0]?.default ?? null;
 const stories = news?.stories ?? [];
 const big = news?.big_picture ?? [];
+
+// Go marshals a nil slice to JSON null, so a story with no domains, orgs, or
+// people arrives with that field null rather than []. Reading .slice or
+// .length off it throws and fails the whole prerender, blocking every deploy.
+// Normalise once, here, rather than guarding at each use site.
+const safeStories = stories.map((s: any) => ({
+  ...s,
+  Domains: s.Domains ?? [],
+  Orgs: s.Orgs ?? [],
+  Persons: s.Persons ?? [],
+  Articles: s.Articles ?? [],
+}));
 ---
 <BaseLayout title="What's happening in the world of AI | SRJ Consulting & Services" description="Daily AI briefing: the top stories in AI, ranked by breadth of global coverage, each with sources. Refreshed every morning by the SRJ pipeline.">
   <section class="hero">
     <div class="container">
       <p class="eyebrow"><a href="/ai-resources/">AI Resources</a></p>
       <h1>What&rsquo;s happening in the world of AI</h1>
-      {news && <p class="dateline">Daily briefing · {news.date} · refreshed {new Date(news.generated).toUTCString().slice(0, 22)} UTC · {stories.length} top stories</p>}
+      {news && <p class="dateline">Daily briefing · {news.date} · refreshed {new Date(news.generated).toUTCString().slice(0, 22)} UTC · {safeStories.length} top stories</p>}
     </div>
   </section>
   {big.length > 0 && (
@@ -28,8 +40,8 @@ const big = news?.big_picture ?? [];
   )}
   <section class="stories">
     <div class="container">
-      {stories.length === 0 && <p class="empty">Today's briefing publishes with the pipeline's next morning run.</p>}
-      {stories.map((s: any, i: number) => (
+      {safeStories.length === 0 && <p class="empty">Today's briefing publishes with the pipeline's next morning run.</p>}
+      {safeStories.map((s: any, i: number) => (
         <a class="story" href={`/ai-resources/ai-news/${s.Slug}/`}>
           <span class="rank">{i + 1}</span>
           <span class="stext">

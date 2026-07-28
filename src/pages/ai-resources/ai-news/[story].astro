@@ -10,6 +10,23 @@ export async function getStaticPaths() {
 }
 const { s, date, generated } = Astro.props;
 const clean = (x: string) => x.replace(/\b\w/g, (c) => c.toUpperCase());
+
+// The pipeline is written in Go, and Go marshals a nil slice to JSON null, not
+// to []. So any story the clustering step finds no organizations, people,
+// domains, or articles for arrives here with that field set to null rather
+// than empty. Reading .slice/.map/.join/.length off null throws, and because
+// these pages are prerendered, one such story fails the entire build and
+// blocks every deploy, not just its own page.
+//
+// That is exactly what happened on July 28, 2026: the daily refresh published
+// a Sam Altman story with Orgs: null, and the build died on s.Orgs.slice(0, 3).
+// Guard every array field at the boundary. Fixing the pipeline to emit [] is
+// the root-cause fix and is tracked separately, but the template must not be
+// the single point of failure for a whole deploy either way.
+const orgs: string[] = s.Orgs ?? [];
+const persons: string[] = s.Persons ?? [];
+const domains: string[] = s.Domains ?? [];
+const articles: any[] = s.Articles ?? [];
 ---
 <BaseLayout title={`${s.Headline} | AI News | SRJ Consulting & Services`} description={`Covered by ${s.DomainCount} outlets worldwide: coverage, key entities, and sources for this AI story, compiled by the SRJ pipeline.`}>
   <section class="hero">
@@ -19,7 +36,7 @@ const clean = (x: string) => x.replace(/\b\w/g, (c) => c.toUpperCase());
       <p class="dateline">Daily briefing · {date} · compiled {new Date(generated).toUTCString().slice(0, 22)} UTC</p>
       <p class="pills">
         <span class="pill">#AI</span>
-        {s.Orgs.slice(0, 3).map((o: string) => (<span class="pill">#{clean(o).replace(/\s+/g, '')}</span>))}
+        {orgs.slice(0, 3).map((o: string) => (<span class="pill">#{clean(o).replace(/\s+/g, '')}</span>))}
       </p>
     </div>
   </section>
@@ -29,7 +46,7 @@ const clean = (x: string) => x.replace(/\b\w/g, (c) => c.toUpperCase());
         {s.Why && (<><h2>Why it matters</h2><p class="why">{s.Why}</p></>)}
         <h2>Coverage</h2>
         <ul class="cov">
-          {s.Articles.map((a: any) => (
+          {articles.map((a: any) => (
             <li>
               <a href={a.URL} rel="noopener nofollow" target="_blank">{a.Title}</a>
               <span class="meta">{a.Domain}{a.Date ? ` · ${a.Date}` : ''}</span>
@@ -43,13 +60,13 @@ const clean = (x: string) => x.replace(/\b\w/g, (c) => c.toUpperCase());
           <p class="box-label">Key numbers</p>
           <p class="num"><strong>{s.DomainCount}</strong> outlets</p>
           <p class="num"><strong>{s.ArticleCount}</strong> articles in 24h</p>
-          <p class="doms">{s.Domains.join(' · ')}</p>
+          <p class="doms">{domains.join(' · ')}</p>
         </div>
-        {(s.Persons.length > 0 || s.Orgs.length > 0) && (
+        {(persons.length > 0 || orgs.length > 0) && (
           <div class="who">
             <p class="box-label">Who&rsquo;s in this story</p>
-            {s.Persons.length > 0 && <p class="wl">People: {s.Persons.map(clean).join(', ')}</p>}
-            {s.Orgs.length > 0 && <p class="wl">Organizations: {s.Orgs.map(clean).join(', ')}</p>}
+            {persons.length > 0 && <p class="wl">People: {persons.map(clean).join(', ')}</p>}
+            {orgs.length > 0 && <p class="wl">Organizations: {orgs.map(clean).join(', ')}</p>}
           </div>
         )}
       </aside>
