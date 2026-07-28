@@ -1,0 +1,323 @@
+---
+// One page per profiled tool, at /ai-resources/ai-tools/{slug}/.
+//
+// A PAGE EXISTS ONLY WHERE A PROFILE EXISTS. The catalog lists all 320 tools;
+// the ones with a researched profile become internal links and the rest keep
+// pointing at the vendor's own product page. That rule is deliberate: 320 pages
+// carrying four real fields each would be thin content, which is an SEO
+// liability rather than an asset, and it would repeat for tools the mistake
+// this project already refused to make for people.
+//
+// Every field is optional in the render. An absent field simply does not appear,
+// rather than showing an empty row or a plausible guess. That is what makes it
+// safe to publish a profile that is strong on what a tool does and silent on its
+// certifications.
+//
+// NOTE ON COMPLIANCE CLAIMS: certifications are rendered only when supplied in
+// the data. None of the first batch asserts SOC 2, ISO 27001, or HIPAA status,
+// because those are per-vendor per-date facts and a compliance practice
+// publishing a wrong one about a named vendor is a different class of error
+// from a typo.
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { faqPage } from '../../../lib/pageSchema';
+import profileDoc from '../../../content/resources/tool-profiles.json';
+import catalog from '../../../content/resources/tools.json';
+
+export async function getStaticPaths() {
+  const doc: any = profileDoc;
+  const tools: any = catalog;
+  return Object.entries(doc.profiles ?? {}).map(([slug, p]: [string, any]) => {
+    const row = (tools.tools ?? []).find((t: any) => t.name === p.catalog_name) ?? null;
+    return { params: { tool: slug }, props: { slug, p, row, asOf: doc.as_of, caveat: doc.caveat } };
+  });
+}
+
+const { slug, p, row, asOf, caveat } = Astro.props;
+
+const SITE = 'https://srjconsultingservices.com';
+const url = `${SITE}/ai-resources/ai-tools/${slug}/`;
+const title = `${p.name} Review: Features, Pricing & Governance | SRJ`.slice(0, 62);
+const description = `${p.name} by ${p.vendor}: what it does, what it runs on, how it is priced, ` +
+  `what it is good and bad at, and the governance questions it raises.`;
+
+const faqs = [
+  { q: `What is ${p.name} used for?`, a: p.value },
+  ...(p.engine ? [{ q: `What model does ${p.name} run on?`, a: p.engine }] : []),
+  ...(p.training_optout ? [{ q: `Does ${p.name} train on your data?`, a: p.training_optout }] : []),
+  ...(p.alternatives?.length
+    ? [{ q: `What are the alternatives to ${p.name}?`,
+         a: `The closest comparable tools are ${p.alternatives.join(', ')}. Which fits depends on ` +
+            `where the work already lives and what the organization's data terms require.` }]
+    : []),
+];
+
+// SoftwareApplication is the correct type. offers carries the tier structure
+// without dollar figures, since those are the volatile part.
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    '@id': `${url}#software`,
+    name: p.name,
+    applicationCategory: row?.category ?? 'BusinessApplication',
+    description: p.value,
+    url: row?.url || undefined,
+    author: { '@type': 'Organization', name: p.vendor },
+    publisher: { '@id': `${SITE}/#organization` },
+    ...(p.tags?.length ? { keywords: p.tags.join(', ') } : {}),
+    ...(p.pricing?.length
+      ? { offers: p.pricing.map((t: any) => ({
+          '@type': 'Offer', name: t.tier, description: `${t.model}. ${t.includes}`,
+        })) }
+      : {}),
+  },
+  faqPage(url, faqs),
+];
+
+const has = (x: any) => Array.isArray(x) ? x.length > 0 : Boolean(x);
+---
+<BaseLayout title={title} description={description} schema={schema} crumbName={p.name}
+  crumbs={[
+    { name: 'Home', url: '/' },
+    { name: 'AI Resources', url: '/ai-resources/' },
+    { name: 'AI Tools', url: '/ai-resources/ai-tools/' },
+    { name: p.name },
+  ]}>
+
+  <!-- Top banner: name, vendor, category, one-line summary -->
+  <section class="hero">
+    <div class="container">
+      <p class="vendor">{p.vendor}</p>
+      <h1>{p.name}</h1>
+      <p class="tagline">{p.tagline}</p>
+      <div class="pills">
+        {row?.category && <a class="pill pill-cat" href={`/ai-resources/ai-tools/#${row.category.replace(/&/g,' and ').replace(/[^\w\s-]/g,'').trim().toLowerCase().replace(/[\s_-]+/g,'-')}`}>{row.category}</a>}
+        {p.status && <span class="pill">{p.status}</span>}
+        {(p.tags ?? []).map((t: string) => <span class="pill pill-tag">#{t.replace(/\s+/g, '')}</span>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="body">
+    <div class="container cols">
+
+      <!-- Left column: quick specs -->
+      <aside class="side">
+        <div class="panel sticky">
+          <p class="box-label">Quick specs</p>
+          <table class="spec">
+            <tbody>
+              <tr><th scope="row">Developer</th><td>{p.vendor}</td></tr>
+              {row?.jurisdiction && <tr><th scope="row">Jurisdiction</th><td>{row.jurisdiction}</td></tr>}
+              {p.status && <tr><th scope="row">Status</th><td>{p.status}</td></tr>}
+              {has(p.access) && <tr><th scope="row">Access</th><td>{p.access.join(', ')}</td></tr>}
+              {p.engine && <tr><th scope="row">Engine</th><td>{p.engine}</td></tr>}
+              {p.latency && <tr><th scope="row">Speed</th><td>{p.latency}</td></tr>}
+              {p.api && <tr><th scope="row">API</th><td>{p.api}</td></tr>}
+            </tbody>
+          </table>
+          {row?.url && (
+            <a class="btn" href={row.url} target="_blank" rel="noopener">Visit {p.name} &rarr;</a>
+          )}
+          <p class="asof">Profile current as of {asOf}. Verify pricing and certifications with the vendor.</p>
+        </div>
+      </aside>
+
+      <!-- Main body -->
+      <div class="main">
+        <div class="answer">
+          <p class="answer-label">In short</p>
+          <p>{p.value}</p>
+        </div>
+
+        {has(p.use_cases) && (
+          <section id="use-cases">
+            <h2>What it is best at</h2><div class="rule"></div>
+            <ol class="cases">{p.use_cases.map((c: string) => <li>{c}</li>)}</ol>
+            {has(p.audience) && <p class="aud"><strong>Built for:</strong> {p.audience.join(' · ')}</p>}
+          </section>
+        )}
+
+        {(p.engine || p.files || p.quality) && (
+          <section id="technical">
+            <h2>Technical foundation</h2><div class="rule"></div>
+            <dl class="defs">
+              {p.engine && <><dt>Base model</dt><dd>{p.engine}</dd></>}
+              {p.files && <><dt>Context and file handling</dt><dd>{p.files}</dd></>}
+              {p.latency && <><dt>Latency</dt><dd>{p.latency}</dd></>}
+              {p.quality && <><dt>Output quality and limits</dt><dd>{p.quality}</dd></>}
+            </dl>
+          </section>
+        )}
+
+        {has(p.pricing) && (
+          <section id="pricing">
+            <h2>Pricing and access tiers</h2><div class="rule"></div>
+            <div class="tablewrap">
+              <table class="tiers">
+                <thead><tr><th>Tier</th><th>Model</th><th>Key inclusions</th><th>Limits</th></tr></thead>
+                <tbody>
+                  {p.pricing.map((t: any) => (
+                    <tr><td class="tname">{t.tier}</td><td>{t.model}</td><td>{t.includes}</td><td>{t.limits}</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p class="caveat">{caveat}</p>
+          </section>
+        )}
+
+        {(p.training_optout || p.governance_note || has(p.compliance) || p.retention) && (
+          <section id="governance">
+            <h2>Security, privacy and governance</h2><div class="rule"></div>
+            <dl class="defs">
+              {p.training_optout && <><dt>Training data opt-out</dt><dd>{p.training_optout}</dd></>}
+              {has(p.compliance) && <><dt>Compliance and certifications</dt><dd>{p.compliance.join(', ')}</dd></>}
+              {p.retention && <><dt>Data retention</dt><dd>{p.retention}</dd></>}
+            </dl>
+            {p.governance_note && (
+              <div class="gov">
+                <p class="gov-label">The governance question this raises</p>
+                <p>{p.governance_note}</p>
+              </div>
+            )}
+            {!has(p.compliance) && (
+              <p class="caveat">
+                No compliance certifications are listed here. Certification status is
+                vendor-specific and time-specific, so it is stated only where verified rather
+                than assumed. Check the vendor&rsquo;s trust centre and confirm it covers the
+                specific tier you are buying.
+              </p>
+            )}
+          </section>
+        )}
+
+        {(has(p.integrations) || p.api) && (
+          <section id="integrations">
+            <h2>Integrations and ecosystem</h2><div class="rule"></div>
+            {has(p.integrations) && <ul class="bul">{p.integrations.map((i: string) => <li>{i}</li>)}</ul>}
+            {p.api && <p class="api"><strong>API and SDKs:</strong> {p.api}</p>}
+          </section>
+        )}
+
+        {(has(p.pros) || has(p.cons) || has(p.alternatives)) && (
+          <section id="verdict">
+            <h2>The verdict</h2><div class="rule"></div>
+            <div class="pc">
+              {has(p.pros) && (
+                <div class="pcol pros"><p class="pc-label">Strengths</p>
+                  <ul>{p.pros.map((x: string) => <li>{x}</li>)}</ul></div>
+              )}
+              {has(p.cons) && (
+                <div class="pcol cons"><p class="pc-label">Drawbacks</p>
+                  <ul>{p.cons.map((x: string) => <li>{x}</li>)}</ul></div>
+              )}
+            </div>
+            {has(p.alternatives) && (
+              <p class="alts"><strong>Consider instead:</strong> {p.alternatives.join(', ')}</p>
+            )}
+          </section>
+        )}
+
+        <section id="faq">
+          <h2>Frequently asked questions</h2><div class="rule"></div>
+          {faqs.map((f) => (
+            <div class="faq-item"><h3>{f.q}</h3><p>{f.a}</p></div>
+          ))}
+        </section>
+
+        <div class="cta">
+          <h2>Listing a tool is not governing it</h2>
+          <p>
+            The AI Business Enablement Audit&trade; builds the inventory, measures your organization
+            against every framework in the
+            <a href="/ai-governance/"> AI Governance Reference Library</a>, and delivers a defensible
+            governance dossier.
+          </p>
+          <a class="btn-cta" href="https://aiauditforcompanies.com/startaiaudit/" target="_blank" rel="noopener">
+            Start or finish your AI Audit &rarr;
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero { padding: 54px 0 30px; background: linear-gradient(180deg, var(--cream), var(--white)); }
+  .vendor { font-family: Poppins, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--orange); margin: 0 0 4px; }
+  h1 { margin: 0 0 6px; }
+  .tagline { font-size: 19px; color: var(--ink-soft); max-width: 62ch; margin: 0 0 14px; }
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill { display: inline-block; background: #201868; color: #fff; font-family: Poppins, sans-serif; font-size: 12px; padding: 4px 12px; border-radius: 999px; }
+  .pill-cat { background: var(--orange); text-decoration: none; }
+  .pill-tag { background: #F6F5F1; color: #201868; }
+
+  .body { padding: 10px 0 110px; }
+  .cols { display: grid; grid-template-columns: 300px minmax(0,1fr); gap: 44px; align-items: start; }
+  @media (max-width: 960px) { .cols { grid-template-columns: 1fr; } .side { order: 2; } }
+
+  .box-label { font-family: Poppins, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--orange); margin: 0 0 10px; }
+  .panel { border: 1px solid #e6e4de; border-radius: 10px; padding: 18px 20px; background: #fafaf6; }
+  .sticky { position: sticky; top: 20px; }
+  .spec { width: 100%; border-collapse: collapse; }
+  .spec th, .spec td { font-family: Poppins, sans-serif; font-size: 13px; padding: 8px 0; border-bottom: 1px solid #eceae4; text-align: left; vertical-align: top; line-height: 1.5; }
+  .spec th { color: var(--gray); font-weight: 500; width: 38%; padding-right: 10px; }
+  .spec td { color: #2C2C2A; }
+  .spec tr:last-child th, .spec tr:last-child td { border-bottom: none; }
+  .btn { display: block; text-align: center; margin: 14px 0 0; background: #201868; color: #fff; padding: 11px 16px; border-radius: 4px; text-decoration: none; font-family: Poppins, sans-serif; font-size: 14px; font-weight: 600; }
+  .btn:hover { background: var(--orange); }
+  .asof { font-family: Poppins, sans-serif; font-size: 11.5px; line-height: 1.5; color: var(--gray); font-style: italic; margin: 10px 0 0; }
+
+  .answer { background: #FFF6EC; border: 1px solid #F0D6B0; border-radius: 6px; padding: 22px 26px; margin: 0 0 8px; }
+  .answer p { font-family: Poppins, sans-serif; font-size: 16px; line-height: 1.7; color: #2C2C2A; margin: 0; }
+  .answer-label { font-size: 11px !important; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #F07800; margin: 0 0 8px !important; }
+
+  section { scroll-margin-top: 80px; }
+  h2 { font-family: Lora, serif; color: var(--navy); font-size: 24px; margin: 34px 0 4px; }
+  .rule { width: 56px; height: 3px; background: #F07800; margin: 0 0 18px; }
+
+  .cases { padding-left: 22px; margin: 0 0 12px; }
+  .cases li { font-family: Poppins, sans-serif; font-size: 15px; line-height: 1.7; color: #2C2C2A; margin: 0 0 8px; max-width: 72ch; }
+  .aud, .api, .alts { font-family: Poppins, sans-serif; font-size: 14.5px; color: #2C2C2A; max-width: 72ch; }
+
+  .defs { margin: 0; }
+  .defs dt { font-family: Poppins, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--navy); margin: 14px 0 4px; }
+  .defs dd { margin: 0; font-family: Poppins, sans-serif; font-size: 15px; line-height: 1.7; color: #2C2C2A; max-width: 72ch; }
+
+  .tablewrap { overflow-x: auto; }
+  .tiers { width: 100%; border-collapse: collapse; font-family: Poppins, sans-serif; font-size: 13.5px; }
+  .tiers th { text-align: left; padding: 9px 12px 9px 0; border-bottom: 2px solid var(--orange); color: var(--navy); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase; }
+  .tiers td { padding: 11px 12px 11px 0; border-bottom: 1px solid #eceae4; color: #2C2C2A; line-height: 1.55; vertical-align: top; }
+  .tiers .tname { font-weight: 700; color: var(--navy); white-space: nowrap; }
+
+  .caveat { font-family: Poppins, sans-serif; font-size: 12.5px; line-height: 1.6; color: var(--gray); font-style: italic; margin: 12px 0 0; max-width: 74ch; }
+
+  .gov { background: #F6F5F1; border-left: 3px solid var(--orange); padding: 16px 20px; margin: 18px 0 0; border-radius: 0 6px 6px 0; }
+  .gov p { font-family: Poppins, sans-serif; font-size: 15px; line-height: 1.7; color: #2C2C2A; margin: 0; max-width: 72ch; }
+  .gov-label { font-size: 11px !important; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--orange); margin: 0 0 6px !important; }
+
+  .bul { padding-left: 22px; }
+  .bul li { font-family: Poppins, sans-serif; font-size: 15px; line-height: 1.7; color: #2C2C2A; margin: 0 0 6px; }
+
+  .pc { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 700px) { .pc { grid-template-columns: 1fr; } }
+  .pcol { border: 1px solid #e6e4de; border-radius: 8px; padding: 16px 18px; background: #fff; }
+  .pcol ul { margin: 0; padding-left: 18px; }
+  .pcol li { font-family: Poppins, sans-serif; font-size: 14px; line-height: 1.6; color: #2C2C2A; margin: 0 0 7px; }
+  .pc-label { font-family: Poppins, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; margin: 0 0 8px; }
+  .pros { border-top: 3px solid #149e60; } .pros .pc-label { color: #149e60; }
+  .cons { border-top: 3px solid #cc3a21; } .cons .pc-label { color: #cc3a21; }
+
+  .faq-item { padding: 16px 0; border-bottom: 1px solid #EDEBE5; }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-item h3 { font-family: Lora, serif; font-size: 19px; font-weight: 700; color: #201868; margin: 0 0 6px; }
+  .faq-item p { font-family: Poppins, sans-serif; font-size: 14.5px; line-height: 1.7; color: #2C2C2A; margin: 0; max-width: 74ch; }
+
+  .cta { background: #201868; color: #fff; padding: 42px 30px; border-radius: 6px; margin: 44px 0 0; text-align: center; font-family: Poppins, sans-serif; }
+  .cta h2 { color: #fff; font-family: Lora, serif; margin: 0 0 12px; font-size: 26px; }
+  .cta p { color: #FFF6EC; font-size: 16px; line-height: 1.6; margin: 0 auto 22px; max-width: 620px; }
+  .cta p a { color: #FFF6EC; }
+  .btn-cta { display: inline-block; background: #F07800; color: #fff; padding: 15px 34px; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 16px; }
+  .btn-cta:hover { background: #C86400; }
+</style>

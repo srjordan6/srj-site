@@ -23,7 +23,19 @@
 // category still lands.
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import data from '../../../content/resources/tools.json';
+import profileDoc from '../../../content/resources/tool-profiles.json';
 import { itemList, faqPage, collectionPage } from '../../../lib/pageSchema';
+
+// A tool links INTERNALLY when it has a researched profile, and to the vendor's
+// own product page otherwise. Publishing 320 pages carrying four real fields
+// each would be thin content, an SEO liability rather than an asset, and would
+// repeat for tools the mistake this project already refused to make for people.
+// The catalog still lists every tool either way; only the destination differs.
+const profiles: Record<string, any> = (profileDoc as any).profiles ?? {};
+const profileSlugBy: Record<string, string> = Object.fromEntries(
+  Object.entries(profiles).map(([slug, p]: [string, any]) => [p.catalog_name, slug])
+);
+const profiledCount = Object.keys(profiles).length;
 
 const anchor = (s) =>
   s.replace(/&/g, ' and ').replace(/[^\w\s-]/g, '').trim().toLowerCase().replace(/[\s_-]+/g, '-');
@@ -95,7 +107,7 @@ const schema = [
     description,
     items: data.tools.map((t) => ({
       name: t.name,
-      url: t.url || undefined,
+      url: profileSlugBy[t.name] ? `${url}${profileSlugBy[t.name]}/` : (t.url || undefined),
       description: `${t.category}. ${t.vendor}, ${t.jurisdiction}. ${t.note}.`,
     })),
   }),
@@ -114,7 +126,7 @@ const schema = [
       </p>
       <p class="stamp">
         {total} tools · {catCount} categories · {jurisdictions.length} jurisdictions ·
-        {linked} with a verified official URL
+        {profiledCount} full profiles
       </p>
     </div>
   </section>
@@ -135,6 +147,9 @@ const schema = [
       </div>
 
       <p class="note">
+        Tool names link to a full SRJ profile where one has been researched, and to the
+        vendor&rsquo;s own product page otherwise. {profiledCount} of {total} carry a profile
+        today, and more are added as they are verified rather than generated in bulk.
         Jurisdiction is listed because it is a governance fact: it determines which
         data-transfer, privacy, and cross-border rules apply before business data touches
         a tool. This is a reference catalog, not an endorsement list. Presence here means
@@ -158,12 +173,15 @@ const schema = [
             {g.tools.map((t) => (
               <li>
                 <span class="tool">
-                  {t.url ? (
+                  {profileSlugBy[t.name] ? (
+                    <a href={`/ai-resources/ai-tools/${profileSlugBy[t.name]}/`}>{t.name}</a>
+                  ) : t.url ? (
                     <a href={t.url} rel="noopener" target="_blank">{t.name}</a>
                   ) : (
                     t.name
                   )}
                 </span>
+                {profileSlugBy[t.name] && <span class="badge">Profile</span>}
                 <span class="vendor">{t.vendor}, {t.jurisdiction}</span>
                 <span class="note-inline">{t.note}</span>
               </li>
@@ -226,6 +244,7 @@ const schema = [
   .tool { font-weight: 600; color: #201868; font-size: 16px; }
   .tool a { color: #201868; text-decoration: none; border-bottom: 1px solid #E4E2DC; }
   .tool a:hover { color: #F07800; border-bottom-color: #F07800; }
+  .badge { display: inline-block; margin-left: 8px; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #fff; background: var(--orange); padding: 2px 8px; border-radius: 999px; vertical-align: 2px; }
   .vendor { display: inline; margin-left: 8px; font-size: 13px; color: #7A8A9E; }
   .note-inline { display: block; margin-top: 4px; font-size: 14px; line-height: 1.6; color: #5F5E5A; }
 
