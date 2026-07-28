@@ -1,16 +1,32 @@
 # Redirects
 
-`public/_redirects` is deliberately kept bare: rules only, no comments, no
-column alignment. Cloudflare parses that file at the edge and an unexpected
-token can cause rules to be dropped silently, so the explanation lives here
-instead of inline.
+**Redirects are declared in `astro.config.mjs`, not in `public/_redirects`.**
 
-Cloudflare supports `_redirects` natively for Workers with static assets,
-the same as for Pages, provided the file lands in the deployed asset
-directory. Astro copies everything in `public/` into `dist/`, so authoring it
-in `public/` is correct. `_headers` ships from the same directory and is
-confirmed working in production (it sets the `text/plain` content type on
-`/llms.txt`), which proves the file reaches the edge.
+That is not a style preference. `_redirects` does not work on this deployment,
+and the reason is structural.
+
+## Why `_redirects` is dead here
+
+The site is deployed as a **Cloudflare Worker** with static assets, not as a
+Pages project. Cloudflare's documentation is explicit: redirects defined in
+`_redirects` are not applied to requests served by Worker code, even when the
+request URL matches a rule.
+
+Every redirect candidate is, by definition, a path with no matching built file.
+Those requests fall straight through asset routing into the Worker, which is
+exactly the case Cloudflare excludes. So the rules can never fire.
+
+Proven on staging, July 28, 2026:
+
+| Probe | Result | Conclusion |
+|---|---|---|
+| `/llms.txt` content-type is `text/plain` | `_headers` is active | `public/` ships to the edge correctly |
+| A built page carries `referrer-policy`, `x-frame-options` | asset routing serves it | `_headers` applies to assets |
+| A 404 carries `x-astro-reroute: no` and none of the `_headers` values | Astro's runtime answers | non-asset paths are Worker-served |
+| All four rules reformatted to bare single-space lines | still 404 | formatting was not the cause |
+
+`public/_redirects` is kept in the repo but is **inert**. Do not add rules to
+it expecting them to work.
 
 ## Current rules
 
@@ -20,6 +36,9 @@ confirmed working in production (it sets the `text/plain` content type on
 | `/ai-governance/sector-rules/ecoa-ai-2/` | `.../ecoa-ai/` | Same. |
 | `/ai-governance/vendor-disclosure/aibom-2/` | `.../aibom/` | Same. |
 | `/resources/ai-glossary/` | `/ai-resources/ai-glossary/` | The glossary moves into the new hub namespace. Content is a 1:1 carry, only the URL changes, so every external citation and AI-crawler reference to the WordPress URL keeps resolving. |
+
+Keys and destinations both carry trailing slashes, matching
+`trailingSlash: 'always'`.
 
 ## Not redirected, deliberately
 
@@ -32,8 +51,7 @@ it is one of the three sections the migration is allowed to improve on.
 
 ## Verifying
 
-Rules are applied by Cloudflare, not by the build, so a local `astro build`
-proves nothing. Check against the deployed site after the build lands:
+A local `astro build` does not prove a redirect works. Check the deployed site:
 
 ```
 curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' \
@@ -41,5 +59,6 @@ curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' \
 ```
 
 A working rule returns `301` plus the destination. A `404` means the rule was
-not applied, and the first thing to check is whether the Cloudflare project's
-configured build output directory is the same `dist/` that receives `public/`.
+not applied. A `200` with a meta-refresh body means Astro emitted a redirect
+*page* rather than a real 301, which would fail SEO parity and needs the
+Worker to handle the status directly instead.
