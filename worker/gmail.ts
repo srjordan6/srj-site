@@ -17,9 +17,22 @@
  * To: info@. Google accepted and delivered every message, and every one landed
  * in Sent with no Inbox copy, because Gmail deduplicates a self-addressed
  * message. The mail was arriving and invisible, which for a contact form is
- * indistinguishable from being broken. SENDER is an alias on the same mailbox,
- * so From and To are different addresses and delivery is ordinary. Sending as
- * an alias of the impersonated user needs no additional grant.
+ * indistinguishable from being broken.
+ *
+ * WHAT THE MAILBOX ACTUALLY IS, established by reading a delivered message
+ * rather than assumed. The Workspace user's primary address is
+ * srj@srjconsultingservices.com and info@ is an ALIAS on it. A From header
+ * naming an address that is not a send-as identity is not honoured: Gmail
+ * silently substitutes the primary. An earlier attempt set
+ * forms@srjconsultingservices.com and mail arrived from srj@ regardless.
+ *
+ * So SENDER is the primary address, which is what Gmail will use whatever this
+ * says. Stating it plainly keeps the code honest about the envelope it produces,
+ * and it is still different from To: info@, which is what stops the dedup.
+ *
+ * If form mail should come from its own address, forms@ has to exist as a
+ * send-as identity on this user first. Setting it here without that does
+ * nothing.
  *
  * THE TRUST MODEL, stated plainly: domain-wide delegation lets this key act as
  * a user in the domain. It is therefore scoped to exactly one capability,
@@ -39,13 +52,13 @@ const SCOPE = 'https://www.googleapis.com/auth/gmail.send';
 export const MAILBOX = 'info@srjconsultingservices.com';
 
 /**
- * The From address. An alias on MAILBOX, not a separate user.
+ * The From address.
  *
- * Must exist as an alias in Admin console -> Directory -> Users -> info@ ->
- * Email aliases. If it does not, Gmail rejects the send with 400 "Invalid From
- * header", which is loud and obvious rather than silent.
+ * The Workspace user's primary address. Gmail will use this whatever the header
+ * says, because a From naming a non-send-as identity is silently replaced by the
+ * primary. Verified against a delivered message.
  */
-export const SENDER = 'forms@srjconsultingservices.com';
+export const SENDER = 'srj@srjconsultingservices.com';
 
 /** Standard base64 of bytes. */
 function b64(buf: ArrayBuffer | Uint8Array): string {
