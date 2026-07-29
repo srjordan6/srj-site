@@ -10,6 +10,44 @@ const get = async (u) => (await fetch(u, UA)).text();
 const STRIP_LINK = /wp-includes\/css|complianz|relevanssi|godaddy-launch|uploads\/complianz/;
 const STRIP_SCRIPT = /clarity|googletagmanager|gtag\(|cmplz|complianz|relevanssi|wp-emoji|wp-includes\/js|jquery|rocket-loader|stats\.wp/i;
 
+// Trackers that survive STRIP_SCRIPT because they are INLINE and carry none of
+// its keywords. Each was live on 67 governance pages until this was added.
+//
+//   statcounter   analytics, gated by Complianz on WordPress and ungated here
+//   linkedin      Insight Tag, a marketing tracker, the worst of these for CPRA
+//   trustedsite   badge/telemetry
+//   godaddy       _trfd/_trfq/tccl telemetry, meaningless once off GoDaddy
+//
+// The consent layer that gated these on WordPress cannot work on a static site:
+// complianz.min.js needs WP REST endpoints, so it 404s and the banner never
+// initialises. Carrying the markup forward would render consent theatre that
+// collects nothing while the trackers fire regardless. Both sides go.
+const STRIP_INLINE_TRACKER =
+  /statcounter|_linkedin_partner_id|lintrk|licdn\.com|trustedsite|_trfd|_trfq|tccl\.baseHost|tccl-tti/i;
+
+/**
+ * Remove an element and its subtree by id, counting tag depth.
+ *
+ * The Complianz banner is a div containing ~40 nested divs. A regex cannot
+ * match its close tag, and a lazy match stops at the first </div>, leaving a
+ * broken fragment. Depth counting is the only correct approach here.
+ */
+function removeElementById(html, id, tag = 'div') {
+  const open = new RegExp(`<${tag}\\b[^>]*\\bid=["']${id}["'][^>]*>`, 'i');
+  const m = open.exec(html);
+  if (!m) return html;
+  const start = m.index;
+  const step = new RegExp(`<${tag}\\b[^>]*>|</${tag}>`, 'gi');
+  step.lastIndex = start;
+  let depth = 0;
+  let hit;
+  while ((hit = step.exec(html))) {
+    depth += hit[0].startsWith('</') ? -1 : 1;
+    if (depth === 0) return html.slice(0, start) + html.slice(hit.index + hit[0].length);
+  }
+  return html; // unbalanced; leave it rather than truncate the document
+}
+
 function sanitize(html) {
   // drop stylesheet links for absent plugins
   html = html.replace(/<link rel='stylesheet'[^>]*href='([^']*)'[^>]*\/>\n?/g,
@@ -19,12 +57,27 @@ function sanitize(html) {
     if (/application\/ld\+json/.test(m)) return '';           // all JSON-LD re-injected per page
     if (/srj-nav-toggle|srjgov|floating-cta/.test(m)) return m; // theme behavior stays
     if (STRIP_SCRIPT.test(m)) return '';
+    if (STRIP_INLINE_TRACKER.test(m)) return '';               // inline trackers, see above
     if (/<script[^>]*src=/.test(m)) return '';                 // external non-theme scripts
     return m;                                                  // other inline (harmless)
   });
-  // strip WP head plumbing links
-  html = html.replace(/<link rel=["'](?:https:\/\/api\.w\.org|EditURI|wlwmanifest|shortlink|alternate)["'][^>]*>\n?/g, '');
+  // the StatCounter fallback pixel is a <noscript><img>, so no script rule sees it
+  html = html.replace(/<noscript>[\s\S]*?<\/noscript>/g, (m) =>
+    STRIP_INLINE_TRACKER.test(m) ? '' : m);
+  // the Complianz banner and its re-open button are plain markup, not scripts
+  html = removeElementById(html, 'cmplz-cookiebanner-container');
+  html = removeElementById(html, 'cmplz-manage-consent');
+  // strip WP head plumbing links.
+  //
+  // The api.w.org rel value carries a TRAILING SLASH — rel="https://api.w.org/"
+  // — so an alternation ending at ".org" never matched it and the REST API
+  // discovery link shipped on all 67 governance pages. It is also what put
+  // /wp-json/ into the asset manifest as a phantom missing asset. The /? fixes
+  // both.
+  html = html.replace(/<link rel=["'](?:https:\/\/api\.w\.org\/?|EditURI|wlwmanifest|shortlink|alternate)["'][^>]*>\n?/g, '');
   html = html.replace(/<link rel="(?:preconnect|dns-prefetch)" href="[^"]*(?:clarity|google-analytics|googletagmanager)[^"]*"[^>]*>\n?/g, '');
+  // dns-prefetch for the stripped trackers, emitted with single quotes by WP
+  html = html.replace(/<link rel=['"](?:preconnect|dns-prefetch)['"] href=['"][^'"]*(?:statcounter|trustedsite|licdn)[^'"]*['"][^>]*\/?>\n?/gi, '');
   return html;
 }
 
