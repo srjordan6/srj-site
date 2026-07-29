@@ -77,8 +77,18 @@ export default {
       // every one of those 404s.
       const key = decodeURIComponent(url.pathname.slice(1));
 
+      // Only ask R2 for a range when the client actually asked for one.
+      //
+      // Passing `range: request.headers` unconditionally, which is what this
+      // did first, makes R2 report a range on every response covering the whole
+      // object. The status ternary below then picked 206 for every request,
+      // including plain image loads, and no Content-Range was ever set. A 206
+      // without Content-Range is malformed; browsers shrug at it, crawlers and
+      // intermediary caches are entitled not to.
+      const wantsRange = request.headers.has('range');
+
       const object = await env.MEDIA.get(key, {
-        range: request.headers,
+        ...(wantsRange ? { range: request.headers } : {}),
         onlyIf: request.headers,
       });
       if (!object) {
@@ -91,6 +101,7 @@ export default {
       const headers = new Headers();
       object.writeHttpMetadata(headers);
       headers.set('etag', object.httpEtag);
+      headers.set('accept-ranges', 'bytes');
 
       const guessed = typeFor(key);
       if (guessed && !headers.get('content-type')) headers.set('content-type', guessed);
@@ -100,11 +111,32 @@ export default {
       // Class B operations near zero.
       headers.set('cache-control', 'public, max-age=31536000, immutable');
 
-      // A HEAD or a precondition miss comes back without a body.
+      // A conditional request whose precondition failed, or a HEAD, comes back
+      // without a body. Neither is a partial response.
       if (!('body' in object) || object.body === null) {
-        return new Response(null, { status: object.range ? 206 : 304, headers });
+        return new Response(null, { status: 304, headers });
       }
-      return new Response(object.body, { status: object.range ? 206 : 200, headers });
+
+      // A genuine partial. R2Range is a union: {offset,length}, {offset},
+      // {length}, or {suffix}. Normalise to first and last byte positions so
+      // Content-Range is correct whichever form came back.
+      const range = wantsRange ? object.range : undefined;
+      if (range) {
+        const size = object.size;
+        let first: number;
+        let last: number;
+        if ('suffix' in range) {
+          first = size - range.suffix;
+          last = size - 1;
+        } else {
+          first = range.offset ?? 0;
+          last = range.length !== undefined ? first + range.length - 1 : size - 1;
+        }
+        headers.set('content-range', `bytes ${first}-${last}/${size}`);
+        return new Response(object.body, { status: 206, headers });
+      }
+
+      return new Response(object.body, { status: 200, headers });
     }
 
     return env.ASSETS.fetch(request);
