@@ -5,7 +5,15 @@
 // `schema` prop as ready JSON-LD objects and rendered verbatim.
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import ConsentBanner from '../components/ConsentBanner.astro';
+import Trackers from '../components/Trackers.astro';
+// Self-hosted brand fonts, linked rather than imported. The stylesheet lives at
+// public/fonts/fonts.css so the governance pages, which carry WordPress chrome
+// instead of this layout, can link the same file. Importing it here would
+// bundle a second copy under /_astro/ that only half the site uses.
+// See scripts/make-chrome.mjs for the governance side.
 import '../styles/tokens.css';
+import '../styles/srj-consent.css';
 // Form styling for /contact/ and /client-upload/. Imported globally rather than
 // per-page: the forms live inside migrated page HTML, which the catch-all route
 // renders with set:html, so a scoped style would never reach them.
@@ -104,9 +112,14 @@ const orgGraph = {
   <meta property="og:description" content={ogDescription ?? description} />
   <meta property="og:url" content={canonicalUrl} />
   {ogImage && <meta property="og:image" content={ogImage} />}
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  {/* Fonts are self-hosted. The three tags that were here, two preconnects and
+      a stylesheet link to fonts.googleapis.com, sent every visitor's IP to
+      Google while <head> was still parsing, which is before any consent banner
+      can be shown let alone answered. Consent cannot cure a request that has
+      already fired, so the files are served from /fonts/ instead and the
+      transfer no longer happens. */}
+  <link rel="stylesheet" href="/fonts/fonts.css" />
+  <Trackers path={Astro.url.pathname} />
   {pageCss.map((href) => <link rel="stylesheet" href={href} />)}
   {hasRaw
     ? rawSchema.map((s) => <script type="application/ld+json" set:html={s} />)
@@ -131,6 +144,10 @@ const orgGraph = {
   )}
   <main><slot /></main>
   <Footer />
+  {/* Last in the body: the banner is revealed by the bootstrap in <head> only
+      when no current decision exists, and nothing non-essential has run by
+      then. Placed after the footer so it never displaces page content. */}
+  <ConsentBanner />
 </body>
 </html>
 

@@ -78,6 +78,21 @@ function sanitize(html) {
   html = html.replace(/<link rel="(?:preconnect|dns-prefetch)" href="[^"]*(?:clarity|google-analytics|googletagmanager)[^"]*"[^>]*>\n?/g, '');
   // dns-prefetch for the stripped trackers, emitted with single quotes by WP
   html = html.replace(/<link rel=['"](?:preconnect|dns-prefetch)['"] href=['"][^'"]*(?:statcounter|trustedsite|licdn)[^'"]*['"][^>]*\/?>\n?/gi, '');
+
+  // Google Fonts. The governance pages carry WordPress chrome rather than
+  // BaseLayout, so removing the <link> from the layout left these 64 pages
+  // still transmitting every visitor's IP to Google on load. That request
+  // fires while <head> parses, before any consent banner can be answered, so
+  // consent cannot cure it. The fonts are self-hosted and injected below.
+  html = html.replace(/<link[^>]*fonts\.(?:googleapis|gstatic)\.com[^>]*>\n?/gi, '');
+
+  // Put the self-hosted replacement in, at a public path both chrome paths
+  // share. BaseLayout links the same file, so there is one copy of the
+  // @font-face rules and one set of woff2 files for the whole site.
+  html = html.replace(
+    /<title>/i,
+    '<link rel="stylesheet" href="/fonts/fonts.css" />\n<title>'
+  );
   return html;
 }
 

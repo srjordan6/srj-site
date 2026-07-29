@@ -1,0 +1,107 @@
+---
+/**
+ * Consent banner.
+ *
+ * Renders hidden and is revealed by the bootstrap in src/lib/consent.ts only
+ * when no current decision exists. Nothing non-essential has run by then.
+ *
+ * THE LAYOUT IS THE COMPLIANCE. "Accept all" and "Reject all" are the same
+ * element, the same size, the same colour weight, side by side, one click each.
+ * Making refusal harder than acceptance — an extra click, a greyed-out link, a
+ * "manage" detour — is the pattern EU regulators have fined most consistently.
+ * If someone restyles this, that symmetry is the thing not to break.
+ *
+ * The category toggles sit inside a <details> that is closed by default. That
+ * is a progressive disclosure of DETAIL, not a hiding of refusal: rejecting
+ * everything never requires opening it.
+ */
+import { consentBootstrap } from '../lib/consent';
+---
+
+{/* Runs in <head>, before anything else. Inline on purpose: an external file is
+    one more request that could fail and leave trackers ungated. */}
+<script is:inline set:html={consentBootstrap()} />
+
+<div
+  id="srj-consent-banner"
+  class="srj-consent"
+  role="dialog"
+  aria-modal="false"
+  aria-labelledby="srj-consent-title"
+  hidden
+>
+  <div class="srj-consent-inner">
+    <h2 id="srj-consent-title">Cookies on this site</h2>
+
+    <p>
+      We use cookies that are necessary for the site to work. With your agreement we
+      also use analytics that count page views and, on most pages, a tool that records
+      how a page is used, including mouse movement, clicks and scrolling, so we can see
+      where readers get stuck. You can accept, refuse, or choose by category, and you
+      can change your mind at any time.
+      <a href="/privacy/">Read the privacy policy</a>.
+    </p>
+
+    <details class="srj-consent-detail">
+      <summary>Choose by category</summary>
+
+      <div class="srj-consent-cat">
+        <label>
+          <input type="checkbox" checked disabled />
+          <span><strong>Necessary</strong> — required for the site to function. Always on.</span>
+        </label>
+      </div>
+
+      <div class="srj-consent-cat">
+        <label>
+          <input type="checkbox" id="srj-cat-statistics" />
+          <span>
+            <strong>Statistics</strong> &mdash; page views and traffic sources (Google Analytics,
+            StatCounter), and session recording that captures mouse movement, clicks and
+            scrolling (Microsoft Clarity). Recording does not run on the contact or
+            client upload pages.
+          </span>
+        </label>
+      </div>
+
+      <div class="srj-consent-cat">
+        <label>
+          <input type="checkbox" id="srj-cat-marketing" />
+          <span><strong>Marketing</strong> — measuring which publications and campaigns reach their audience.</span>
+        </label>
+      </div>
+
+      <button type="button" class="srj-consent-btn srj-consent-save" id="srj-consent-save">
+        Save my choices
+      </button>
+    </details>
+
+    {/* Equal prominence. Do not make one of these a link. */}
+    <div class="srj-consent-actions">
+      <button type="button" class="srj-consent-btn srj-consent-reject" id="srj-consent-reject">
+        Reject all
+      </button>
+      <button type="button" class="srj-consent-btn srj-consent-accept" id="srj-consent-accept">
+        Accept all
+      </button>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var b = document.getElementById('srj-consent-banner');
+    if (!b || !window.srjConsent) return;
+    document.getElementById('srj-consent-accept')
+      .addEventListener('click', function () { window.srjConsent.accept(); });
+    document.getElementById('srj-consent-reject')
+      .addEventListener('click', function () { window.srjConsent.reject(); });
+    document.getElementById('srj-consent-save')
+      .addEventListener('click', function () {
+        window.srjConsent.save(
+          document.getElementById('srj-cat-statistics').checked,
+          document.getElementById('srj-cat-marketing').checked
+        );
+      });
+  })();
+</script>

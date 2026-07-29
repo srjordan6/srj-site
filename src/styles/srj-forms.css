@@ -9,6 +9,32 @@
    two form pages. If it goes in a new file, bump SRJ_VERSION per Convention 2.
    --------------------------------------------------------------------------- */
 
+/* ---------------------------------------------------------------------------
+   Zoom Scheduler embed.
+
+   The rule that sizes this lives in assets/css/schedule-consultation.css, which
+   WordPress enqueues only on /schedule-consultation/. The Contact page carries
+   the same .booking-frame-wrap markup but loads contact-page.css instead, so
+   the iframe inherits no height. An iframe without one collapses to roughly
+   150px, which is the empty bordered box under "Pick a time below". The same
+   defect exists on the live WordPress site.
+
+   Sized here rather than by pulling the whole schedule-consultation stylesheet
+   onto the Contact page, which would drag in unrelated page layout.
+   --------------------------------------------------------------------------- */
+
+.booking-frame-wrap iframe {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 0;
+  background: #FFFFFF;
+}
+
+@media (max-width: 720px) {
+  .booking-frame-wrap iframe { height: 640px; }
+}
+
 .srj-form {
   max-width: 46rem;
   font-family: 'Poppins', system-ui, sans-serif;

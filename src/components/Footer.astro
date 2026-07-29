@@ -21,6 +21,13 @@ const year = new Date().getFullYear();
       <a href="/privacy/">Privacy</a>
       <a href="/terms/">Terms</a>
       <a href="/disclaimer/">Disclaimer</a>
+      {/* Withdrawal must be as easy as giving consent. This sits in the same
+          row as the other legal links, on every page, and reopens the banner.
+          A button rather than a link because it performs an action; styled to
+          match its neighbours so it does not read as subordinate to them. */}
+      <button type="button" class="srj-consent-reopen" onclick="window.srjConsent && window.srjConsent.open()">
+        Cookie preferences
+      </button>
     </nav>
   </div>
   <div class="container legal">

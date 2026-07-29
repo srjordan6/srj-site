@@ -1,0 +1,96 @@
+---
+/**
+ * Tracker declarations, consent-gated.
+ *
+ * HOW THIS WORKS. Every tracker ships as <script type="text/plain">, a type no
+ * browser executes. The consent bootstrap rewrites it to a real script only
+ * when the matching category has been granted. "Not consented" therefore means
+ * NEVER RAN, not "ran and was ignored" — which is the distinction that matters
+ * if anyone ever asks.
+ *
+ * SESSION REPLAY IS NOT ORDINARY ANALYTICS. Microsoft Clarity records pointer
+ * movement, clicks, scrolling, and keystrokes into form fields, and replays
+ * them. GA4 and StatCounter count page views. Grouping all three under one
+ * "statistics" label and describing it as "how the site is used" would be
+ * technically true and practically misleading, and consent obtained by a
+ * misleading description is not consent. The banner copy names session
+ * recording explicitly for this reason.
+ *
+ * CLARITY IS EXCLUDED FROM THE FORM PAGES, deliberately. See `excludeClarity`
+ * below. Clarity's own masking is a setting in someone else's dashboard that
+ * can be changed without anyone here noticing; not loading it at all on those
+ * pages is a property of this site that cannot be silently undone.
+ */
+
+export interface Props {
+  /** Current path, used to decide whether Clarity is allowed to load here. */
+  path?: string;
+}
+
+const { path = '' } = Astro.props;
+
+const GA4_ID = 'G-WWP3BSKN5N';
+const CLARITY_ID = 'wxtqd3ud7i';
+const STATCOUNTER_PROJECT = '13170872';
+const STATCOUNTER_SECURITY = 'd3cb9c8b';
+
+/**
+ * Pages where session recording must not run.
+ *
+ * /contact/ carries name, email, phone and a free-text message. /client-upload/
+ * carries an organisation name, an engagement reference, and a description of
+ * confidential client material. Recording keystrokes on either means Microsoft
+ * receives client-confidential information, and on the upload page it may mean
+ * receiving a description of material covered by an engagement's own
+ * confidentiality terms.
+ *
+ * No consent checkbox makes that acceptable, because the visitor consenting is
+ * not the party whose confidentiality is at stake.
+ */
+const CLARITY_EXCLUDED = ['/contact/', '/client-upload/'];
+const clarityAllowed = !CLARITY_EXCLUDED.some((p) => path.startsWith(p));
+---
+
+{/* GA4. gtag() and the Consent Mode defaults are already established by the
+    bootstrap in src/lib/consent.ts, which runs earlier in <head>, so this tag
+    inherits denied-by-default rather than racing it. */}
+<script
+  type="text/plain"
+  data-consent="statistics"
+  data-src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`}
+  async
+></script>
+<script type="text/plain" data-consent="statistics" set:html={`
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', '${GA4_ID}', { anonymize_ip: true });
+`}></script>
+
+{/* Microsoft Clarity. Session recording, so not on the form pages. */}
+{clarityAllowed && (
+  <script type="text/plain" data-consent="statistics" set:html={`
+    (function(c,l,a,r,i,t,y){
+      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "${CLARITY_ID}");
+  `}></script>
+)}
+
+{/* StatCounter. Page counts only. The <noscript> pixel that shipped with the
+    WordPress version is deliberately NOT carried: a no-JS fallback fires
+    without consent by definition, since consent is enforced in JS. A visitor
+    with JavaScript disabled is simply not counted, which is the correct
+    trade. */}
+<script type="text/plain" data-consent="statistics" set:html={`
+  var sc_project=${STATCOUNTER_PROJECT};
+  var sc_invisible=1;
+  var sc_security="${STATCOUNTER_SECURITY}";
+`}></script>
+<script
+  type="text/plain"
+  data-consent="statistics"
+  data-src="https://www.statcounter.com/counter/counter.js"
+  async
+></script>
