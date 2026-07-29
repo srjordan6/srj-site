@@ -62,6 +62,44 @@ const TYPES: Record<string, string> = {
 const typeFor = (key: string): string | undefined =>
   TYPES[key.slice(key.lastIndexOf('.') + 1).toLowerCase()];
 
+/**
+ * Resolve a Range request header to first/last byte positions.
+ *
+ * WHY THIS PARSES THE HEADER INSTEAD OF READING object.range. Two attempts at
+ * deriving Content-Range from R2's returned range object were wrong in
+ * different ways, both emitting `bytes NaN-17208/17209` or `bytes 0-17208`
+ * while the body was a correct 100 bytes. R2 honours the header we hand it, so
+ * the header is the authority on what the body contains and cannot disagree
+ * with it. Parsing here is deterministic and testable without a deploy.
+ *
+ * Handles the three forms RFC 9110 allows for a single range:
+ *   bytes=0-99     explicit first and last
+ *   bytes=100-     first through end of object
+ *   bytes=-500     final 500 bytes
+ *
+ * Returns null for anything unsatisfiable or multi-range, in which case the
+ * caller serves the whole object with 200 rather than lying about a partial.
+ */
+function resolveRange(header: string | null, size: number): { first: number; last: number } | null {
+  if (!header) return null;
+  const m = /^bytes=(\d*)-(\d*)$/.exec(header.trim());
+  if (!m) return null;
+  const [, startStr, endStr] = m;
+
+  if (startStr === '') {
+    if (endStr === '') return null;
+    const n = Number(endStr);
+    if (!Number.isFinite(n) || n <= 0) return null;
+    return { first: Math.max(0, size - n), last: size - 1 };
+  }
+
+  const first = Number(startStr);
+  if (!Number.isFinite(first) || first >= size) return null;
+  const last = endStr === '' ? size - 1 : Math.min(Number(endStr), size - 1);
+  if (!Number.isFinite(last) || last < first) return null;
+  return { first, last };
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -117,30 +155,14 @@ export default {
         return new Response(null, { status: 304, headers });
       }
 
-      // A genuine partial. R2Range is a union: {offset,length}, {offset},
-      // {length}, or {suffix}. Normalise to first and last byte positions so
-      // Content-Range is correct whichever form came back.
-      //
-      // Test the VALUES, not key presence. `'suffix' in range` was the first
-      // attempt and it is wrong: R2 returns an object carrying all three keys
-      // with undefined values, so that check passed for an ordinary
-      // `bytes=0-99` request, took the suffix branch, and emitted
-      // `bytes NaN-17208/17209`. The body was correct throughout, so only a
-      // header inspection catches it.
-      const range = wantsRange ? object.range : undefined;
-      if (range) {
-        const { offset, length, suffix } = range as {
-          offset?: number; length?: number; suffix?: number;
-        };
-        const size = object.size;
-        const first = suffix !== undefined ? size - suffix : offset ?? 0;
-        const last =
-          suffix !== undefined
-            ? size - 1
-            : length !== undefined
-              ? first + length - 1
-              : size - 1;
-        headers.set('content-range', `bytes ${first}-${last}/${size}`);
+      // A genuine partial. Derive the byte positions from the request header
+      // rather than from object.range: R2 was handed this exact header, so the
+      // body it returned matches it, and the header parses deterministically.
+      const resolved = wantsRange && object.range
+        ? resolveRange(request.headers.get('range'), object.size)
+        : null;
+      if (resolved) {
+        headers.set('content-range', `bytes ${resolved.first}-${resolved.last}/${object.size}`);
         return new Response(object.body, { status: 206, headers });
       }
 
