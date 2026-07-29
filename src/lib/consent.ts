@@ -183,6 +183,28 @@ export function consentBootstrap(): string {
     }
   };
 
+  // Load one embed on demand, without granting anything.
+  //
+  // A visitor who clicks "Load this video" has asked for that video. That is a
+  // specific, informed, revocable act, and treating it as blanket consent to a
+  // category would be reading far more into one click than it contains. So this
+  // swaps in the single iframe and writes no consent record.
+  window.srjLoadFrame = function (holder) {
+    if (!holder) return;
+    var src = holder.getAttribute('data-frame-src');
+    if (!src) return;
+    var f = document.createElement('iframe');
+    f.src = src;
+    f.loading = 'lazy';
+    f.title = holder.getAttribute('data-frame-title') || '';
+    f.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+    f.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+    f.setAttribute('allowfullscreen', '');
+    holder.innerHTML = '';
+    holder.appendChild(f);
+    holder.removeAttribute('data-frame-src');
+  };
+
   var existing = read();
   if (existing) {
     apply(existing);
