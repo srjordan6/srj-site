@@ -40,11 +40,25 @@ interface Props {
   ogDescription?: string;
   /** Migrated pages only. Carried across so noindex rules survive the migration. */
   robots?: string;
+  /**
+   * Migrated pages only. Absolute URLs of stylesheets this page needs beyond
+   * the shared one.
+   *
+   * WordPress enqueued these conditionally, one per template: about-page.css on
+   * About, contact-page.css on Contact, blog-post.css on the ten Insights
+   * posts, Fluent Forms CSS on the five book pages that carry a signup form.
+   * They only appear in the <head> of the page that uses them, so an asset
+   * inventory built by scanning rendered pages finds style.css and misses every
+   * one of these. 19 of the 70 migrated pages need at least one, and without
+   * them those pages render with the shared stylesheet only and lose their
+   * page-specific layout.
+   */
+  pageCss?: string[];
 }
 const {
   title, description, canonical, schema = [], ogImage,
   crumbs, crumbName, showBreadcrumbs = true,
-  rawSchema = [], ogTitle, ogDescription, robots,
+  rawSchema = [], ogTitle, ogDescription, robots, pageCss = [],
 } = Astro.props;
 const canonicalUrl = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
 const hasRaw = rawSchema.length > 0;
@@ -82,6 +96,7 @@ const orgGraph = {
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  {pageCss.map((href) => <link rel="stylesheet" href={href} />)}
   {hasRaw
     ? rawSchema.map((s) => <script type="application/ld+json" set:html={s} />)
     : (<>

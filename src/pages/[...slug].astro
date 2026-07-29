@@ -31,7 +31,7 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import migrated from '../content/migrated/migrated-pages.json';
-import { rewriteAssets, rewriteAssetUrl } from '../lib/assets';
+import { rewriteAssets, rewriteAssetUrl, ASSET_BASE } from '../lib/assets';
 
 export async function getStaticPaths() {
   const doc: any = migrated;
@@ -42,18 +42,25 @@ export async function getStaticPaths() {
   // build-order detail, not a decision. Fail instead.
   const RESERVED = ['/ai-governance/', '/ai-resources/', '/resources/ai-glossary/'];
 
-  return pages.map((p) => {
-    const path: string = p.path;
-    if (RESERVED.some((r) => path.startsWith(r))) {
-      throw new Error(
-        `Migrated dataset contains ${path}, which is owned by a dedicated route. ` +
-        `Two handlers would claim the same URL. Remove it from the extractor.`
-      );
-    }
-    // '/services/business-services/' -> 'services/business-services'
-    const slug = path.replace(/^\/|\/$/g, '');
-    return { params: { slug: slug || undefined }, props: { page: p } };
-  });
+  // Paths that are now redirects in astro.config.mjs. Building a page here as
+  // well would put a static file and a redirect rule on the same URL, and which
+  // one answers is not something to leave to build order.
+  const REDIRECTED = ['/resources/'];
+
+  return pages
+    .filter((p) => !REDIRECTED.includes(p.path))
+    .map((p) => {
+      const path: string = p.path;
+      if (RESERVED.some((r) => path.startsWith(r))) {
+        throw new Error(
+          `Migrated dataset contains ${path}, which is owned by a dedicated route. ` +
+          `Two handlers would claim the same URL. Remove it from the extractor.`
+        );
+      }
+      // '/services/business-services/' -> 'services/business-services'
+      const slug = path.replace(/^\/|\/$/g, '');
+      return { params: { slug: slug || undefined }, props: { page: p } };
+    });
 }
 
 const { page } = Astro.props as any;
@@ -75,6 +82,17 @@ const schemaRaw: string[] = (page.schema ?? []).map((s: string) => rewriteAssets
 // the extracted markup keeps production's own bytes, and the bucket only enters
 // at render, so the content file stays diffable against production.
 const body = rewriteAssets(page.main);
+
+// Stylesheets WordPress enqueued only on this template. The extractor records
+// the filename; the directory differs by source, so plugin stylesheets are
+// resolved under plugins/ and the theme's own under the child theme.
+const PLUGIN_CSS: Record<string, string> = {
+  'fluent-forms-public.css': 'plugins/fluentform/assets/css/fluent-forms-public.css',
+  'fluentform-public-default.css': 'plugins/fluentform/assets/css/fluentform-public-default.css',
+};
+const pageCss: string[] = (page.page_css ?? []).map((f: string) =>
+  `${ASSET_BASE}/wp-content/${PLUGIN_CSS[f] ?? `themes/srj-consulting/assets/css/${f}`}`
+);
 ---
 <BaseLayout
   title={title}
@@ -85,6 +103,7 @@ const body = rewriteAssets(page.main);
   ogImage={rewriteAssetUrl(page.og_image)}
   robots={page.robots}
   rawSchema={schemaRaw}
+  pageCss={pageCss}
   crumbName={page.h1 || title}
 >
   <div class="migrated" set:html={body} />

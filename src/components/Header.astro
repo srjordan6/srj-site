@@ -7,6 +7,13 @@
 // was missing Applications and FAQ, so every BaseLayout page showed a nav that
 // disagreed with the one on the governance pages and with production.
 //
+// ONE DELIBERATE DEPARTURE FROM PRODUCTION. Resources points at /ai-resources/,
+// not the /resources/ that WordPress links to. /resources/ is the legacy page,
+// titled "Reference Material", whose only outbound link is the glossary.
+// /ai-resources/ is the rebuilt hub that actually indexes the glossary, tools,
+// people, news and everything-else sections. Matching production literally here
+// would point the primary nav at the page the rebuild replaced.
+//
 // Home is reached through the brand mark, which is how production does it too.
 // If this list changes, check it against the live site rather than editing from
 // memory, because the failure is silent: the nav still renders, it is just wrong.
@@ -16,7 +23,7 @@ const nav = [
   { href: '/applications/', label: 'Applications' },
   { href: '/industries/',   label: 'Industries' },
   { href: '/books/',        label: 'Books' },
-  { href: '/resources/',    label: 'Resources' },
+  { href: '/ai-resources/', label: 'Resources' },
   { href: '/faq/',          label: 'FAQ' },
   { href: '/contact/',      label: 'Contact' },
 ];

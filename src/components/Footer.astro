@@ -1,5 +1,10 @@
 ---
 const year = new Date().getFullYear();
+
+// Footer links point at canonical destinations, not the paths that redirect to
+// them. /resources/ai-glossary/ 301s to /ai-resources/ai-glossary/, so linking
+// the old one made every page in the site spend a hop to reach its own glossary
+// and passed a redirect where a direct link belonged.
 ---
 <footer class="site-footer">
   <div class="container cols">
@@ -10,7 +15,7 @@ const year = new Date().getFullYear();
     </div>
     <nav aria-label="Footer">
       <a href="/ai-governance/">AI Governance Library</a>
-      <a href="/resources/ai-glossary/">AI Glossary</a>
+      <a href="/ai-resources/ai-glossary/">AI Glossary</a>
       <a href="/books/">Books</a>
       <a href="/schedule-consultation/">Schedule a Consultation</a>
       <a href="/privacy/">Privacy</a>
