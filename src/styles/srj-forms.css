@@ -174,6 +174,26 @@
 
 .cf-turnstile { margin: 1.25rem 0; }
 
+/* Turnstile failure notice.
+
+   The widget refuses to render when the page's hostname is not on the widget's
+   allowed list, and says nothing: no token is produced, the form looks complete,
+   and submitting returns a bare "Verification failed". The cause is in a
+   Cloudflare dashboard, invisible to both the visitor and the server log. The
+   error callback writes the code here so the page names its own problem. */
+.srj-turnstile-note {
+  margin: 0 0 1rem;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  min-height: 0;
+}
+.srj-turnstile-note.is-error {
+  padding: 0.7rem 0.9rem;
+  background: #FDEAEA;
+  border-left: 3px solid #B3261E;
+  color: #B3261E;
+}
+
 .srj-submit {
   display: inline-block;
   padding: 0.85rem 2rem;
