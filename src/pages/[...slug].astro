@@ -1,0 +1,93 @@
+---
+/**
+ * Stage 2: the 68 migrated pages, at their production URLs.
+ *
+ * WHAT THIS IS. Everything outside the AI Governance library and the four
+ * /ai-resources/ sections: About, Contact, FAQ, the legal pages, the nine-page
+ * Books hierarchy, the twelve-page Services hierarchy, eleven Industries pages,
+ * eight blog category archives, five Insights posts, and the singletons. One
+ * route renders all of them from one extracted dataset.
+ *
+ * PARITY IS THE RULE, same as Stage 1. These pages are migrated, not rewritten.
+ * Title, meta description, canonical, Open Graph tags and the full JSON-LD graph
+ * are lifted verbatim from production, so SEO and schema parity are exact rather
+ * than reconstructed. The body is production's own markup with theme chrome
+ * removed by selector, which means wp-block-* classes, inline style attributes
+ * and Kadence wrappers all carry across untouched. Tidying them would be a
+ * redesign nobody reviewed; if that is wanted it is a separate pass with its own
+ * before-and-after.
+ *
+ * WHY A CATCH-ALL AND NOT 68 FILES. The content is data, not code. 68 near
+ * identical .astro files would be 68 places for the same bug, and the moment
+ * production changes a title the files and the site disagree with no way to
+ * tell. Rendering from one dataset means re-running the extractor is the whole
+ * update.
+ *
+ * ROUTE PRECEDENCE. This is a rest parameter at the site root, so in principle
+ * it matches everything. It does not in practice: getStaticPaths emits exactly
+ * the 68 paths in the dataset, and Astro prefers more specific routes, so
+ * /ai-governance/*, /ai-resources/*, and the home page all keep their own
+ * handlers. The dataset is asserted against that list below rather than trusted.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import migrated from '../content/migrated/migrated-pages.json';
+
+export async function getStaticPaths() {
+  const doc: any = migrated;
+  const pages: any[] = doc.pages ?? [];
+
+  // Paths owned by a more specific route. If the extractor ever picks one of
+  // these up, two handlers would claim the same URL and which one wins is a
+  // build-order detail, not a decision. Fail instead.
+  const RESERVED = ['/ai-governance/', '/ai-resources/', '/resources/ai-glossary/'];
+
+  return pages.map((p) => {
+    const path: string = p.path;
+    if (RESERVED.some((r) => path.startsWith(r))) {
+      throw new Error(
+        `Migrated dataset contains ${path}, which is owned by a dedicated route. ` +
+        `Two handlers would claim the same URL. Remove it from the extractor.`
+      );
+    }
+    // '/services/business-services/' -> 'services/business-services'
+    const slug = path.replace(/^\/|\/$/g, '');
+    return { params: { slug: slug || undefined }, props: { page: p } };
+  });
+}
+
+const { page } = Astro.props as any;
+
+// Production's own values, not regenerated. An empty description is meaningful:
+// five category archives genuinely ship without one, and inventing them would
+// break the parity the migration is measured on.
+const title = page.title || '';
+const description = page.description || '';
+const canonical = page.canonical || '';
+
+// The JSON-LD comes across as raw strings so the graph is byte-identical to
+// production. Parsing and re-serialising would reorder keys and change the
+// bytes for no benefit.
+const schemaRaw: string[] = page.schema ?? [];
+---
+<BaseLayout
+  title={title}
+  description={description}
+  canonical={canonical}
+  ogTitle={page.og_title}
+  ogDescription={page.og_description}
+  ogImage={page.og_image}
+  robots={page.robots}
+  rawSchema={schemaRaw}
+  crumbName={page.h1 || title}
+>
+  <div class="migrated" set:html={page.main} />
+</BaseLayout>
+
+<style is:global>
+  /* The migrated body arrives with production's own classes and inline styles.
+     Nothing is restyled here: this only gives the transplanted markup a sane
+     baseline where the theme stylesheet expected a wrapper it no longer has. */
+  .migrated { width: 100%; }
+  .migrated img { max-width: 100%; height: auto; }
+  .migrated table { max-width: 100%; }
+</style>

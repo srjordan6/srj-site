@@ -23,12 +23,31 @@ interface Props {
   crumbName?: string;
   /** Set false only on the homepage, where a one-item trail is noise. */
   showBreadcrumbs?: boolean;
+  /**
+   * Migrated pages only. Production's JSON-LD, carried across as raw strings so
+   * the graph is byte-identical rather than reparsed and reserialised.
+   *
+   * Supplying this SUPPRESSES the generated entity graph and BreadcrumbList
+   * below, because production's graph already contains Organization, WebSite,
+   * WebPage and BreadcrumbList nodes. Emitting both would put two Organization
+   * nodes on the page, which is exactly the stale-NAP duplication the theme's
+   * own structured-data function was retired for. The visible breadcrumb trail
+   * still renders; only the duplicate markup is withheld.
+   */
+  rawSchema?: string[];
+  /** Migrated pages only. Production's own OG values, when they differ from title/description. */
+  ogTitle?: string;
+  ogDescription?: string;
+  /** Migrated pages only. Carried across so noindex rules survive the migration. */
+  robots?: string;
 }
 const {
   title, description, canonical, schema = [], ogImage,
   crumbs, crumbName, showBreadcrumbs = true,
+  rawSchema = [], ogTitle, ogDescription, robots,
 } = Astro.props;
 const canonicalUrl = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
+const hasRaw = rawSchema.length > 0;
 
 // Every governance page emits BreadcrumbList and none of the .astro pages did.
 // Deriving the trail here rather than in each template means no page can ship
@@ -52,18 +71,23 @@ const orgGraph = {
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title}</title>
-  <meta name="description" content={description} />
+  {description && <meta name="description" content={description} />}
+  {robots && <meta name="robots" content={robots} />}
   <link rel="canonical" href={canonicalUrl} />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content={title} />
-  <meta property="og:description" content={description} />
+  <meta property="og:title" content={ogTitle ?? title} />
+  <meta property="og:description" content={ogDescription ?? description} />
   <meta property="og:url" content={canonicalUrl} />
   {ogImage && <meta property="og:image" content={ogImage} />}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script type="application/ld+json" set:html={JSON.stringify(orgGraph)} />
-  {hasTrail && <script type="application/ld+json" set:html={JSON.stringify(breadcrumbList(trail))} />}
+  {hasRaw
+    ? rawSchema.map((s) => <script type="application/ld+json" set:html={s} />)
+    : (<>
+        <script type="application/ld+json" set:html={JSON.stringify(orgGraph)} />
+        {hasTrail && <script type="application/ld+json" set:html={JSON.stringify(breadcrumbList(trail))} />}
+      </>)}
   {schema.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
 </head>
 <body>

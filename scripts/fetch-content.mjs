@@ -32,7 +32,8 @@ const REQUIRED = 'governance';
 //   resources   - glossary, tools catalog, tool profiles (WordPress seed exports)
 //   leaderboard - arena.ai model rankings, written by publish_leaderboard
 //   legislation - AI bill tracker, written by publish_legislation
-const DIRS = ['news', 'people', 'resources', 'leaderboard', 'legislation'];
+//   migrated    - the 68 Stage 2 pages lifted verbatim from production
+const DIRS = ['news', 'people', 'resources', 'leaderboard', 'legislation', 'migrated'];
 
 const sibling = `../srj-content/${REQUIRED}`;
 
@@ -68,6 +69,7 @@ const HARD_REQUIRED = [
   ['src/content/resources/tools.json', 'the AI Tools catalog'],
   ['src/content/resources/tool-profiles.json', 'the tool profile pages'],
   ['src/content/leaderboard/leaderboard.json', 'the AI Tools category leaderboards'],
+  ['src/content/migrated/migrated-pages.json', 'the 68 Stage 2 migrated pages'],
 ];
 const missing = HARD_REQUIRED.filter(([p]) => !existsSync(p));
 if (missing.length) {

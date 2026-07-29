@@ -1,15 +1,24 @@
 ---
-// Primary navigation. Eight items, matching the live WordPress nav exactly
-// (Resources hub groups AI Governance + Insights; no URL changes).
+// Primary navigation.
+//
+// These eight items are production's nav, verified against the live header on
+// 2026-07-28 rather than assumed. The previous list carried the same count and
+// a comment claiming it matched, but it did not: it shipped Home and Press and
+// was missing Applications and FAQ, so every BaseLayout page showed a nav that
+// disagreed with the one on the governance pages and with production.
+//
+// Home is reached through the brand mark, which is how production does it too.
+// If this list changes, check it against the live site rather than editing from
+// memory, because the failure is silent: the nav still renders, it is just wrong.
 const nav = [
-  { href: '/',            label: 'Home' },
-  { href: '/about/',      label: 'About' },
-  { href: '/books/',      label: 'Books' },
-  { href: '/services/',   label: 'Services' },
-  { href: '/industries/', label: 'Industries' },
-  { href: '/resources/',  label: 'Resources' },
-  { href: '/press/',      label: 'Press' },
-  { href: '/contact/',    label: 'Contact' },
+  { href: '/about/',        label: 'About' },
+  { href: '/services/',     label: 'Services' },
+  { href: '/applications/', label: 'Applications' },
+  { href: '/industries/',   label: 'Industries' },
+  { href: '/books/',        label: 'Books' },
+  { href: '/resources/',    label: 'Resources' },
+  { href: '/faq/',          label: 'FAQ' },
+  { href: '/contact/',      label: 'Contact' },
 ];
 const current = Astro.url.pathname;
 ---
