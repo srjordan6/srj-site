@@ -13,6 +13,14 @@
  * fails silently, a week after anyone last looked at it, which is the worst
  * failure shape available. Service account credentials do not expire.
  *
+ * WHY SENDER AND RECIPIENT DIFFER. The first working version sent From: info@
+ * To: info@. Google accepted and delivered every message, and every one landed
+ * in Sent with no Inbox copy, because Gmail deduplicates a self-addressed
+ * message. The mail was arriving and invisible, which for a contact form is
+ * indistinguishable from being broken. SENDER is an alias on the same mailbox,
+ * so From and To are different addresses and delivery is ordinary. Sending as
+ * an alias of the impersonated user needs no additional grant.
+ *
  * THE TRUST MODEL, stated plainly: domain-wide delegation lets this key act as
  * a user in the domain. It is therefore scoped to exactly one capability,
  * gmail.send, and impersonates exactly one mailbox. It cannot read mail. Grant
@@ -27,8 +35,17 @@ const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const SEND_URL = 'https://gmail.googleapis.com/gmail/v1/users/me/messages/send';
 const SCOPE = 'https://www.googleapis.com/auth/gmail.send';
 
-/** The mailbox impersonated, and the destination for form mail. */
+/** The mailbox impersonated, and where form mail is delivered. */
 export const MAILBOX = 'info@srjconsultingservices.com';
+
+/**
+ * The From address. An alias on MAILBOX, not a separate user.
+ *
+ * Must exist as an alias in Admin console -> Directory -> Users -> info@ ->
+ * Email aliases. If it does not, Gmail rejects the send with 400 "Invalid From
+ * header", which is loud and obvious rather than silent.
+ */
+export const SENDER = 'forms@srjconsultingservices.com';
 
 /** Standard base64 of bytes. */
 function b64(buf: ArrayBuffer | Uint8Array): string {
@@ -74,6 +91,15 @@ async function importKey(pem: string): Promise<CryptoKey> {
 let cached: { token: string; expires: number } | null = null;
 
 async function accessToken(saEmail: string, saKey: string): Promise<string> {
+  // Name the actual problem. Without this, a missing secret surfaces as
+  // "Cannot read properties of undefined (reading 'replace')" from importKey,
+  // which names neither the secret nor the fact that one is missing.
+  if (!saEmail || !saKey) {
+    const missing = [!saEmail && 'GOOGLE_SA_EMAIL', !saKey && 'GOOGLE_SA_KEY']
+      .filter(Boolean).join(' and ');
+    throw new Error(`missing Gmail secret: ${missing}`);
+  }
+
   const now = Math.floor(Date.now() / 1000);
   if (cached && cached.expires > now + 60) return cached.token;
 
@@ -131,7 +157,7 @@ export interface Mail {
 }
 
 /**
- * Send as MAILBOX.
+ * Send from SENDER to MAILBOX.
  *
  * replyTo carries the visitor's address rather than From, deliberately. Forging
  * From would break DMARC alignment and land the mail in spam. The message comes
@@ -144,7 +170,7 @@ export async function sendMail(
   const token = await accessToken(env.GOOGLE_SA_EMAIL, env.GOOGLE_SA_KEY);
 
   const headers = [
-    `From: SRJ Website <${MAILBOX}>`,
+    `From: SRJ Website Forms <${SENDER}>`,
     `To: ${MAILBOX}`,
     mail.replyTo ? `Reply-To: ${mail.replyTo}` : '',
     `Subject: ${encodeSubject(mail.subject)}`,
