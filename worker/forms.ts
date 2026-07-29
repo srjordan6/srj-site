@@ -102,6 +102,12 @@ export async function handleContact(request: Request, env: FormEnv): Promise<Res
   const phone = clip(form.get('phone'), 60);
   const message = clip(form.get('message'), 8000);
 
+  // Consent answers are recorded, not merely collected. The SMS checkbox exists
+  // to satisfy A2P 10DLC for Zoom Phone registration, and a consent nobody can
+  // evidence afterwards is not consent. Both land in the notification.
+  const emailConsent = clip(form.get('email_consent')) ? 'yes' : 'no';
+  const smsConsent = clip(form.get('sms_consent')) ? 'yes' : 'no';
+
   if (!name || !message) return fail(400, 'Please provide your name and a message.');
   if (!looksLikeEmail(email)) return fail(400, 'Please provide a valid email address.');
 
@@ -112,6 +118,9 @@ export async function handleContact(request: Request, env: FormEnv): Promise<Res
     `Email:   ${email}`,
     company ? `Company: ${company}` : '',
     phone ? `Phone:   ${phone}` : '',
+    '',
+    `Email consent: ${emailConsent}`,
+    `SMS consent:   ${smsConsent}`,
     '',
     'Message:',
     message,
@@ -152,7 +161,15 @@ export async function handleUpload(request: Request, env: FormEnv): Promise<Resp
   const reference = clip(form.get('reference'), 200);
   const note = clip(form.get('note'), 4000);
 
+  // The page carries a PHI notice and the submitter attests the files are
+  // clear of it. Record the attestation with the submission; an unrecorded one
+  // is worth nothing later.
+  const phiAttested = clip(form.get('phi_attested')) ? 'yes' : 'no';
+
   if (!name || !company) return fail(400, 'Please provide your name and organisation.');
+  if (phiAttested !== 'yes') {
+    return fail(400, 'Please confirm the files contain no PHI or regulated health information.');
+  }
   if (!looksLikeEmail(email)) return fail(400, 'Please provide a valid email address.');
 
   const files = form.getAll('files').filter((f): f is File => f instanceof File && f.size > 0);
@@ -177,7 +194,13 @@ export async function handleUpload(request: Request, env: FormEnv): Promise<Resp
       const key = `${stamp}/${batch}/${safe}`;
       await env.UPLOADS.put(key, file.stream(), {
         httpMetadata: { contentType: file.type || 'application/octet-stream' },
-        customMetadata: { submittedBy: email, organisation: company, reference },
+        customMetadata: {
+          submittedBy: email,
+          organisation: company,
+          reference,
+          phiAttested,
+          receivedAt: new Date().toISOString(),
+        },
       });
       stored.push(`${key}  (${(file.size / 1024 / 1024).toFixed(1)} MB)`);
     }
@@ -193,6 +216,7 @@ export async function handleUpload(request: Request, env: FormEnv): Promise<Resp
     `Email:        ${email}`,
     `Organisation: ${company}`,
     reference ? `Reference:    ${reference}` : '',
+    `PHI attestation: confirmed (no PHI or regulated health information)`,
     '',
     `Files (${files.length}), in the srj-uploads bucket:`,
     ...stored.map((s) => `  ${s}`),
