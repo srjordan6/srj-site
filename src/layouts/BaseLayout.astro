@@ -6,6 +6,17 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import '../styles/tokens.css';
+// Form styling for /contact/ and /client-upload/. Imported globally rather than
+// per-page: the forms live inside migrated page HTML, which the catch-all route
+// renders with set:html, so a scoped style would never reach them.
+//
+// This is not only cosmetic. The honeypot's off-screen positioning lives in
+// this file, so without it the trap field renders visibly in the middle of the
+// form, a real person fills it in, and the endpoint silently discards their
+// submission as a bot. That is exactly what happened on the first live test.
+// The markup now also carries an inline style as a fallback, but this import is
+// what makes the forms look like the rest of the site.
+import '../styles/srj-forms.css';
 // Shared with the governance render path, which never passes through this
 // layout. See src/lib/entityGraph.ts.
 import { entityNodes, webPageNode } from '../lib/entityGraph';
