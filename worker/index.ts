@@ -125,10 +125,34 @@ export default {
       // intermediary caches are entitled not to.
       const wantsRange = request.headers.has('range');
 
-      const object = await env.MEDIA.get(key, {
-        ...(wantsRange ? { range: request.headers } : {}),
-        onlyIf: request.headers,
-      });
+      // R2 throws on an unsatisfiable range rather than returning null, so the
+      // ranged read is guarded. Without this, `Range: bytes=17209-` on a 17209
+      // byte object surfaced as a 500. RFC 9110 wants 416 with a Content-Range
+      // naming the true size, which is what the catch does after a cheap head()
+      // to learn it. The happy path costs nothing extra.
+      let object: R2ObjectBody | R2Object | null;
+      try {
+        object = await env.MEDIA.get(key, {
+          ...(wantsRange ? { range: request.headers } : {}),
+          onlyIf: request.headers,
+        });
+      } catch (err) {
+        if (!wantsRange) throw err;
+        const meta = await env.MEDIA.head(key);
+        if (!meta) {
+          return new Response('Not found', {
+            status: 404,
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+          });
+        }
+        return new Response(null, {
+          status: 416,
+          headers: {
+            'content-range': `bytes */${meta.size}`,
+            'accept-ranges': 'bytes',
+          },
+        });
+      }
       if (!object) {
         return new Response('Not found', {
           status: 404,
