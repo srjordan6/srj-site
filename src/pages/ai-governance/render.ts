@@ -5,6 +5,7 @@ import detailTpl from '../../templates/gov-detail.tpl.html?raw';
 import hubTpl from '../../templates/gov-hub.tpl.html?raw';
 import { govSchema } from '../../lib/govSchema';
 import { entityNodes, webPageNode } from '../../lib/entityGraph';
+import { rewriteAssets } from '../../lib/assets';
 
 const SITE = 'https://srjconsultingservices.com';
 const esc = (s: string) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -53,8 +54,8 @@ export function detailHtml(entry: any, bySlug: Record<string, any>): string {
     .replaceAll('{{KW}}', esc(entry.focus_keyword || entry.title));
 
   return entry.meta_description
-    ? html
-    : html.replace(/[ \t]*<meta\s+name=["']description["'][^>]*>\s*\n?/i, '');
+    ? rewriteAssets(html)
+    : rewriteAssets(html.replace(/[ \t]*<meta\s+name=["']description["'][^>]*>\s*\n?/i, ''));
 }
 
 export function hubHtml(): string {
@@ -77,5 +78,8 @@ export function hubHtml(): string {
     { '@type': 'ListItem', position: 1, name: 'Home', item: SITE + '/' },
     { '@type': 'ListItem', position: 2, name: 'AI Governance' }] };
   const ld = [entity, bc].map((o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`).join('\n');
-  return tpl.replace('{{JSONLD}}', ld);
+  // The transplanted chrome loads seven stylesheets and three favicons from the
+  // WordPress origin. Repointed at the asset bucket here, alongside the body,
+  // so the governance pages do not go unstyled the moment the domain moves.
+  return rewriteAssets(tpl.replace('{{JSONLD}}', ld));
 }

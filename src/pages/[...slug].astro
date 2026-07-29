@@ -31,6 +31,7 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import migrated from '../content/migrated/migrated-pages.json';
+import { rewriteAssets, rewriteAssetUrl } from '../lib/assets';
 
 export async function getStaticPaths() {
   const doc: any = migrated;
@@ -66,8 +67,14 @@ const canonical = page.canonical || '';
 
 // The JSON-LD comes across as raw strings so the graph is byte-identical to
 // production. Parsing and re-serialising would reorder keys and change the
-// bytes for no benefit.
-const schemaRaw: string[] = page.schema ?? [];
+// bytes for no benefit. Asset references inside it are repointed, because the
+// graph carries image URLs that would 404 after cutover like any other.
+const schemaRaw: string[] = (page.schema ?? []).map((s: string) => rewriteAssets(s));
+
+// wp-content references are repointed at the asset bucket. See src/lib/assets.ts:
+// the extracted markup keeps production's own bytes, and the bucket only enters
+// at render, so the content file stays diffable against production.
+const body = rewriteAssets(page.main);
 ---
 <BaseLayout
   title={title}
@@ -75,12 +82,12 @@ const schemaRaw: string[] = page.schema ?? [];
   canonical={canonical}
   ogTitle={page.og_title}
   ogDescription={page.og_description}
-  ogImage={page.og_image}
+  ogImage={rewriteAssetUrl(page.og_image)}
   robots={page.robots}
   rawSchema={schemaRaw}
   crumbName={page.h1 || title}
 >
-  <div class="migrated" set:html={page.main} />
+  <div class="migrated" set:html={body} />
 </BaseLayout>
 
 <style is:global>

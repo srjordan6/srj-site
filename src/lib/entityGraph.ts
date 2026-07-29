@@ -19,10 +19,22 @@
 // @id values are production's, so any downstream reference to
 // srjconsultingservices.com/#organization and friends still resolves after
 // cutover.
+import { ASSET_BASE } from './assets';
 
 const SITE = 'https://srjconsultingservices.com';
 const ORG_NAME = 'SRJ Consulting & Services LLC';
-const LOGO = `${SITE}/wp-content/uploads/SRJ-Consulting-Services-Medium.jpg`;
+
+// The logo is a real file, so it moves with the other assets. @id values stay
+// on the production domain because they are identifiers that downstream
+// references resolve against; the url is a fetchable location and has to point
+// somewhere that will still answer after cutover.
+//
+// This one line was the whole leftover after the render-time rewrite: 334
+// pages, every URL that emits the entity graph, still pointed the ImageObject
+// at WordPress. Render-time rewriting could not reach it because the graph is
+// built as an object and serialised by JSON.stringify, never passing through
+// the HTML string the rewrite operates on.
+const LOGO = `${ASSET_BASE}/wp-content/uploads/SRJ-Consulting-Services-Medium.jpg`;
 
 /**
  * The four site-wide entity nodes. Identical on every URL.
