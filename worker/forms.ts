@@ -124,11 +124,34 @@ async function gate(form: FormData, env: FormEnv, request: Request): Promise<Res
     return ok('Thank you. Your message has been received.');
   }
 
-  // 2. timing: the form stamps render time in a hidden field
-  const started = Number(clip(form.get('form_started')));
-  if (started && Date.now() - started < 3000) {
-    console.log(`gate: too fast on ${where}, ${Date.now() - started}ms after render`);
+  // 2. Elapsed time since the form rendered.
+  //
+  // The form sends ELAPSED MILLISECONDS, not a timestamp. An earlier version
+  // sent Date.now() from the browser and compared it against Date.now() on the
+  // edge, which is a comparison between two unsynchronised clocks. A visitor
+  // whose machine runs a few seconds ahead produces a tiny or negative
+  // difference, trips this gate, and is told "Thank you. Your message has been
+  // received" while nothing is sent. The visitor cannot tell, and neither could
+  // I: it looks exactly like a broken mail path.
+  //
+  // A delta is measured entirely in the browser, so no clock comparison happens
+  // and skew cannot fire it. form_started is still accepted for anything cached
+  // mid-deploy, but only when it looks like a plausible elapsed value rather
+  // than an epoch timestamp.
+  const elapsedRaw = clip(form.get('form_elapsed'));
+  let elapsed = Number(elapsedRaw);
+  if (!elapsedRaw) {
+    const legacy = Number(clip(form.get('form_started')));
+    // An epoch timestamp is ~1.7e12. Anything that large is not an elapsed
+    // reading, so the old field is only trusted when it clearly is one.
+    elapsed = legacy > 0 && legacy < 1e11 ? legacy : NaN;
+  }
+  if (Number.isFinite(elapsed) && elapsed >= 0 && elapsed < 3000) {
+    console.log(`gate: too fast on ${where}, ${elapsed}ms after render`);
     return ok('Thank you. Your message has been received.');
+  }
+  if (!Number.isFinite(elapsed)) {
+    console.log(`gate: no usable timing value on ${where}, allowing through`);
   }
 
   // 3. Turnstile
