@@ -120,18 +120,26 @@ export default {
       // A genuine partial. R2Range is a union: {offset,length}, {offset},
       // {length}, or {suffix}. Normalise to first and last byte positions so
       // Content-Range is correct whichever form came back.
+      //
+      // Test the VALUES, not key presence. `'suffix' in range` was the first
+      // attempt and it is wrong: R2 returns an object carrying all three keys
+      // with undefined values, so that check passed for an ordinary
+      // `bytes=0-99` request, took the suffix branch, and emitted
+      // `bytes NaN-17208/17209`. The body was correct throughout, so only a
+      // header inspection catches it.
       const range = wantsRange ? object.range : undefined;
       if (range) {
+        const { offset, length, suffix } = range as {
+          offset?: number; length?: number; suffix?: number;
+        };
         const size = object.size;
-        let first: number;
-        let last: number;
-        if ('suffix' in range) {
-          first = size - range.suffix;
-          last = size - 1;
-        } else {
-          first = range.offset ?? 0;
-          last = range.length !== undefined ? first + range.length - 1 : size - 1;
-        }
+        const first = suffix !== undefined ? size - suffix : offset ?? 0;
+        const last =
+          suffix !== undefined
+            ? size - 1
+            : length !== undefined
+              ? first + length - 1
+              : size - 1;
         headers.set('content-range', `bytes ${first}-${last}/${size}`);
         return new Response(object.body, { status: 206, headers });
       }
