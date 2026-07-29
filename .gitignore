@@ -1,3 +1,10 @@
 node_modules/
 dist/
 .astro/
+
+# Service account keys and any local secret material. Never commit.
+*.json.key
+secrets.json
+decent-beacon-*.json
+*-service-account*.json
+.wrangler/
