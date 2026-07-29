@@ -49,9 +49,34 @@ const clip = (v: FormDataEntryValue | null, max = 4000): string =>
 /** Deliberately permissive: rejecting valid addresses is worse than accepting junk. */
 const looksLikeEmail = (s: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s);
 
+/**
+ * Verify a Turnstile token.
+ *
+ * The error codes are logged. Cloudflare tells you precisely why a token was
+ * rejected and an earlier version threw that away, leaving "Verification
+ * failed" as the only signal, which is not enough to act on. The ones that
+ * matter here:
+ *
+ *   invalid-input-secret    TURNSTILE_SECRET is not a secret key. Most likely
+ *                           the SITE key was pasted into it: both start 0x4AAA
+ *                           and they are easy to confuse.
+ *   invalid-input-response  the token is malformed, already used, or expired.
+ *                           Tokens are single-use, so a resubmitted form fails
+ *                           unless the widget is reset.
+ *   timeout-or-duplicate    same token twice.
+ *   hostname-mismatch       the page's hostname is not on the widget's allowed
+ *                           list. Expect this on srj-site.srjordan.workers.dev
+ *                           if only srjconsultingservices.com was added.
+ */
 async function turnstileOk(secret: string, token: string, ip: string | null): Promise<boolean> {
-  if (!secret) return true; // not configured yet; honeypot and timing still apply
-  if (!token) return false;
+  if (!secret) {
+    console.log('turnstile: TURNSTILE_SECRET not set, skipping (honeypot and timing still apply)');
+    return true;
+  }
+  if (!token) {
+    console.log('turnstile: no token in submission (widget did not render, or JS blocked)');
+    return false;
+  }
   try {
     const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
       method: 'POST',
@@ -59,8 +84,16 @@ async function turnstileOk(secret: string, token: string, ip: string | null): Pr
       body: JSON.stringify({ secret, response: token, remoteip: ip ?? undefined }),
     });
     const j: any = await res.json();
-    return j.success === true;
-  } catch {
+    if (j.success !== true) {
+      console.log(
+        `turnstile: rejected, codes=${JSON.stringify(j['error-codes'] ?? [])}` +
+        ` hostname=${j.hostname ?? '(none)'}`
+      );
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.log('turnstile: siteverify unreachable', err);
     return false; // fail closed
   }
 }
@@ -68,14 +101,33 @@ async function turnstileOk(secret: string, token: string, ip: string | null): Pr
 /**
  * Shared gate. Returns null when the submission should proceed, or the response
  * to send when it should not.
+ *
+ * EVERY REJECTION IS LOGGED. The visitor-facing response for a honeypot or
+ * timing failure is a normal success message, deliberately, so a bot cannot
+ * learn which check caught it. The cost is that a real person who trips a gate
+ * sees "thank you" and no mail arrives, and from the outside that is
+ * indistinguishable from a broken mail path. It cost an evening of guessing.
+ * `wrangler tail` now names the gate.
  */
 async function gate(form: FormData, env: FormEnv, request: Request): Promise<Response | null> {
+  const where = new URL(request.url).pathname;
+
   // 1. honeypot
-  if (clip(form.get('company_website'))) return ok('Thank you. Your message has been received.');
+  //
+  // The field is named decoy_note rather than anything resembling a real field.
+  // An earlier version called it company_website, which is exactly the sort of
+  // name a browser or password manager will autofill for a human, silently
+  // turning a real enquiry into a discarded one.
+  const trap = clip(form.get('decoy_note')) || clip(form.get('company_website'));
+  if (trap) {
+    console.log(`gate: honeypot filled on ${where}, value=${JSON.stringify(trap.slice(0, 40))}`);
+    return ok('Thank you. Your message has been received.');
+  }
 
   // 2. timing: the form stamps render time in a hidden field
   const started = Number(clip(form.get('form_started')));
   if (started && Date.now() - started < 3000) {
+    console.log(`gate: too fast on ${where}, ${Date.now() - started}ms after render`);
     return ok('Thank you. Your message has been received.');
   }
 
@@ -85,8 +137,12 @@ async function gate(form: FormData, env: FormEnv, request: Request): Promise<Res
     clip(form.get('cf-turnstile-response')),
     request.headers.get('cf-connecting-ip'),
   );
-  if (!passed) return fail(400, 'Verification failed. Please refresh and try again.');
+  if (!passed) {
+    console.log(`gate: turnstile failed on ${where}`);
+    return fail(400, 'Verification failed. Please refresh and try again.');
+  }
 
+  console.log(`gate: passed on ${where}`);
   return null;
 }
 
@@ -134,6 +190,7 @@ export async function handleContact(request: Request, env: FormEnv): Promise<Res
 
   try {
     await sendMail(env, { subject: `Contact form: ${name}`, text: body, replyTo: email });
+    console.log(`contact: sent, from=${email}`);
   } catch (err) {
     // The visitor is not shown the cause. A failed send must be loud in logs,
     // because a silently dropped enquiry is the failure this endpoint exists
