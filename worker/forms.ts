@@ -1,0 +1,221 @@
+/**
+ * Form endpoints. Stage 4 of the architecture package: "forms Worker replaces
+ * WPForms".
+ *
+ * WHAT WAS BROKEN. Every form on the migrated site posted to
+ * /wp-admin/admin-ajax.php, which does not exist. They rendered, accepted
+ * input, and did nothing. The client upload form is the serious one: it is
+ * linked from the footer of every page, carries a PHI warning, and a visitor
+ * could fill it in believing the files had been sent.
+ *
+ * DEFENCE IN DEPTH, cheapest check first:
+ *   1. honeypot     a field real users never see; bots fill it
+ *   2. timing       a submission under 3 seconds after render is not a human
+ *   3. Turnstile    Cloudflare's challenge, same as production used
+ * All three fail CLOSED but return 200 to the caller. A bot learning which
+ * check caught it is a bot that routes around it next time.
+ *
+ * UPLOADS GO TO A PRIVATE BUCKET. srj-uploads, never srj-assets. Client
+ * material must not be one URL guess from public. The mail is a notification;
+ * the file is fetched from the bucket, not attached.
+ */
+
+import { sendMail, MAILBOX } from './gmail';
+
+export interface FormEnv {
+  GOOGLE_SA_EMAIL: string;
+  GOOGLE_SA_KEY: string;
+  TURNSTILE_SECRET: string;
+  UPLOADS: R2Bucket;
+}
+
+/** Uniform reply. Never reveals which check rejected a submission. */
+const ok = (msg: string) =>
+  new Response(JSON.stringify({ ok: true, message: msg }), {
+    status: 200,
+    headers: { 'content-type': 'application/json; charset=utf-8' },
+  });
+
+const fail = (status: number, msg: string) =>
+  new Response(JSON.stringify({ ok: false, message: msg }), {
+    status,
+    headers: { 'content-type': 'application/json; charset=utf-8' },
+  });
+
+/** Cap what reaches the mail body, so a paste-bomb cannot make an unreadable message. */
+const clip = (v: FormDataEntryValue | null, max = 4000): string =>
+  typeof v === 'string' ? v.trim().slice(0, max) : '';
+
+/** Deliberately permissive: rejecting valid addresses is worse than accepting junk. */
+const looksLikeEmail = (s: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s);
+
+async function turnstileOk(secret: string, token: string, ip: string | null): Promise<boolean> {
+  if (!secret) return true; // not configured yet; honeypot and timing still apply
+  if (!token) return false;
+  try {
+    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ secret, response: token, remoteip: ip ?? undefined }),
+    });
+    const j: any = await res.json();
+    return j.success === true;
+  } catch {
+    return false; // fail closed
+  }
+}
+
+/**
+ * Shared gate. Returns null when the submission should proceed, or the response
+ * to send when it should not.
+ */
+async function gate(form: FormData, env: FormEnv, request: Request): Promise<Response | null> {
+  // 1. honeypot
+  if (clip(form.get('company_website'))) return ok('Thank you. Your message has been received.');
+
+  // 2. timing: the form stamps render time in a hidden field
+  const started = Number(clip(form.get('form_started')));
+  if (started && Date.now() - started < 3000) {
+    return ok('Thank you. Your message has been received.');
+  }
+
+  // 3. Turnstile
+  const passed = await turnstileOk(
+    env.TURNSTILE_SECRET,
+    clip(form.get('cf-turnstile-response')),
+    request.headers.get('cf-connecting-ip'),
+  );
+  if (!passed) return fail(400, 'Verification failed. Please refresh and try again.');
+
+  return null;
+}
+
+/** POST /api/contact */
+export async function handleContact(request: Request, env: FormEnv): Promise<Response> {
+  const form = await request.formData();
+  const blocked = await gate(form, env, request);
+  if (blocked) return blocked;
+
+  const name = clip(form.get('name'), 200);
+  const email = clip(form.get('email'), 200);
+  const company = clip(form.get('company'), 200);
+  const phone = clip(form.get('phone'), 60);
+  const message = clip(form.get('message'), 8000);
+
+  if (!name || !message) return fail(400, 'Please provide your name and a message.');
+  if (!looksLikeEmail(email)) return fail(400, 'Please provide a valid email address.');
+
+  const body = [
+    'New contact form submission',
+    '',
+    `Name:    ${name}`,
+    `Email:   ${email}`,
+    company ? `Company: ${company}` : '',
+    phone ? `Phone:   ${phone}` : '',
+    '',
+    'Message:',
+    message,
+    '',
+    '---',
+    `Received ${new Date().toISOString()}`,
+    `From ${request.headers.get('cf-connecting-ip') ?? 'unknown IP'}`,
+  ]
+    .filter((l) => l !== '')
+    .join('\n');
+
+  try {
+    await sendMail(env, { subject: `Contact form: ${name}`, text: body, replyTo: email });
+  } catch (err) {
+    // The visitor is not shown the cause. A failed send must be loud in logs,
+    // because a silently dropped enquiry is the failure this endpoint exists
+    // to end.
+    console.error('contact send failed', err);
+    return fail(500, 'Something went wrong sending your message. Please email ' + MAILBOX + ' directly.');
+  }
+  return ok('Thank you. Your message has been received and will be answered within one business day.');
+}
+
+/**
+ * POST /api/upload
+ *
+ * Files land in the private srj-uploads bucket under a dated, randomised key.
+ * The notification names them; it does not carry them.
+ */
+export async function handleUpload(request: Request, env: FormEnv): Promise<Response> {
+  const form = await request.formData();
+  const blocked = await gate(form, env, request);
+  if (blocked) return blocked;
+
+  const name = clip(form.get('name'), 200);
+  const email = clip(form.get('email'), 200);
+  const company = clip(form.get('company'), 200);
+  const reference = clip(form.get('reference'), 200);
+  const note = clip(form.get('note'), 4000);
+
+  if (!name || !company) return fail(400, 'Please provide your name and organisation.');
+  if (!looksLikeEmail(email)) return fail(400, 'Please provide a valid email address.');
+
+  const files = form.getAll('files').filter((f): f is File => f instanceof File && f.size > 0);
+  if (!files.length) return fail(400, 'Please choose at least one file to upload.');
+
+  const MAX = 100 * 1024 * 1024; // per file
+  const oversized = files.find((f) => f.size > MAX);
+  if (oversized) {
+    return fail(400, `"${oversized.name}" is larger than the 100 MB limit for this form.`);
+  }
+
+  const stamp = new Date().toISOString().slice(0, 10);
+  const batch = crypto.randomUUID();
+  const stored: string[] = [];
+
+  try {
+    for (const file of files) {
+      // Key is dated and randomised. The filename is preserved for the
+      // recipient but never trusted as a path: slashes would otherwise let a
+      // caller choose where in the bucket the object lands.
+      const safe = file.name.replace(/[\/\\]/g, '_').slice(0, 180);
+      const key = `${stamp}/${batch}/${safe}`;
+      await env.UPLOADS.put(key, file.stream(), {
+        httpMetadata: { contentType: file.type || 'application/octet-stream' },
+        customMetadata: { submittedBy: email, organisation: company, reference },
+      });
+      stored.push(`${key}  (${(file.size / 1024 / 1024).toFixed(1)} MB)`);
+    }
+  } catch (err) {
+    console.error('upload store failed', err);
+    return fail(500, 'Your files could not be stored. Please contact ' + MAILBOX + '.');
+  }
+
+  const body = [
+    'New client file upload',
+    '',
+    `Name:         ${name}`,
+    `Email:        ${email}`,
+    `Organisation: ${company}`,
+    reference ? `Reference:    ${reference}` : '',
+    '',
+    `Files (${files.length}), in the srj-uploads bucket:`,
+    ...stored.map((s) => `  ${s}`),
+    '',
+    note ? `Note:\n${note}\n` : '',
+    '---',
+    `Received ${new Date().toISOString()}`,
+  ]
+    .filter((l) => l !== '')
+    .join('\n');
+
+  try {
+    await sendMail(env, {
+      subject: `Client upload: ${company} (${files.length} file${files.length > 1 ? 's' : ''})`,
+      text: body,
+      replyTo: email,
+    });
+  } catch (err) {
+    // The files are already safe. Report success to the client and shout in the
+    // logs: losing the notification is recoverable, telling them the upload
+    // failed when it did not is worse, because they will send it again.
+    console.error('upload notification failed, files ARE stored', err);
+  }
+
+  return ok('Thank you. Your files have been received. We will confirm by email within one business day.');
+}

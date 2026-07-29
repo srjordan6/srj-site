@@ -1,15 +1,18 @@
 # Cloudflare Worker configuration.
 #
-# The deployment was previously auto-detected from the GitHub connection with
-# no config file. It needs one now because gate 18 requires /wp-content/* to be
-# served from R2 at its original paths, and that needs a bucket binding.
+# The deployment was previously auto-detected from the GitHub connection with no
+# config file. It needs one because gate 18 requires /wp-content/* to be served
+# from R2 at its original paths, and stage 4 needs POST endpoints for the forms.
 #
 #   "Asset parity: all 216 images + 8 PDFs served from Pages at same paths
 #    (/wp-content/uploads/... preserved verbatim to keep every external
 #    citation and AI-crawler reference alive)."
 #
-# See worker/index.ts for the routing, and src/lib/assets.ts for why the
-# content keeps root-relative paths.
+# NOTE ON THE BUILD COMMAND. Adding this file switched the project from
+# Cloudflare's auto-detected Astro build to config-driven deploy, and in that
+# mode only the explicit commands run. The dashboard Build command must be
+# `bun run build`; without it `astro build` never runs, dist/ does not exist,
+# and the deploy fails on assets.directory. That is not expressible here.
 
 name = "srj-site"
 main = "worker/index.ts"
@@ -18,15 +21,19 @@ compatibility_date = "2026-07-01"
 # The built site. `binding` is what makes env.ASSETS available to the Worker;
 # without it the Worker cannot serve the site at all and every route 404s.
 #
-# run_worker_first is required: by default the static handler answers before the
-# Worker ever runs, so a /wp-content/ request would 404 at the asset layer and
-# never reach the R2 fallback. The Worker still calls env.ASSETS.fetch() first
-# for those paths, so build output keeps priority; this only guarantees the
-# Worker gets to make that decision.
+# run_worker_first is required for these paths: by default the static handler
+# answers before the Worker runs, so a /wp-content/ request would 404 at the
+# asset layer and never reach the R2 fallback, and a POST to /api/contact would
+# hit the static 404 page instead of the handler. The Worker still calls
+# env.ASSETS.fetch() first for /wp-content/, so build output keeps priority.
+#
+# /api/glossary.json, /api/tools.json and /api/laws.json are deliberately NOT
+# listed: those are static build artifacts and should be served straight from
+# the asset layer without waking the Worker.
 [assets]
 directory = "./dist"
 binding = "ASSETS"
-run_worker_first = ["/wp-content/*"]
+run_worker_first = ["/wp-content/*", "/api/contact", "/api/upload"]
 
 # The migrated WordPress media tree: 1,236 referenced objects, ~278 MB.
 # Uploaded with rclone rather than the dashboard because 901 of the filenames
@@ -35,3 +42,13 @@ run_worker_first = ["/wp-content/*"]
 [[r2_buckets]]
 binding = "MEDIA"
 bucket_name = "srj-assets"
+
+# Client file uploads. A SEPARATE, PRIVATE bucket, deliberately.
+#
+# srj-assets is public: everything in it is one URL away from anyone. Client
+# engagement material must never share that property, so it goes here, and this
+# bucket must have no public development URL and no custom domain. Objects are
+# reachable only through this Worker's binding.
+[[r2_buckets]]
+binding = "UPLOADS"
+bucket_name = "srj-uploads"

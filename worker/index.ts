@@ -1,36 +1,35 @@
 /**
  * Cloudflare Worker entry.
  *
- * WHAT THIS EXISTS FOR: gate 18 of the architecture package.
+ * Two jobs:
+ *   1. serve /wp-content/* from R2 at its original paths  (gate 18)
+ *   2. handle the form endpoints WordPress used to         (stage 4)
+ *
+ * GATE 18, verbatim from the architecture package:
  *
  *   "Asset parity: all 216 images + 8 PDFs served from Pages at same paths
  *    (/wp-content/uploads/... preserved verbatim to keep every external
  *    citation and AI-crawler reference alive)."
  *
- * The site references 1,236 assets, about 278 MB, which is too much to commit
- * and serve as static files. Serving them from the R2 bucket's own public URL
- * would have been easy and wrong: same bytes, different origin, and every
- * external citation to /wp-content/uploads/... dies at cutover. That is exactly
- * the failure gate 18 is written to prevent.
- *
- * So the path stays on this site and the storage stays in R2. A request for
- * /wp-content/anything is answered from the bucket with the URL unchanged.
- * Nothing in the content, the templates, or anybody's citation has to know.
+ * The site references 1,236 assets, about 278 MB, too much to commit and serve
+ * as static files. Serving them from the R2 bucket's own public URL would have
+ * been easy and wrong: same bytes, different origin, and every external
+ * citation to /wp-content/uploads/... dies at cutover. So the path stays on
+ * this site and the storage stays in R2.
  *
  * ORDER OF RESOLUTION, and it matters:
- *   1. Static assets from the build (env.ASSETS). The site's own pages, CSS
- *      and JS win over everything.
- *   2. /wp-content/* from R2.
- *   3. Otherwise the static handler's own miss behaviour, which is the 404 page.
- *
- * Putting R2 second means anything later committed under public/wp-content/
- * shadows the bucket rather than fighting it.
+ *   1. form endpoints, which must never be shadowed by a static file
+ *   2. static assets from the build (env.ASSETS)
+ *   3. /wp-content/* from R2
+ *   4. otherwise the static handler's own miss behaviour, the 404 page
  */
 
-export interface Env {
+import { handleContact, handleUpload, type FormEnv } from './forms';
+
+export interface Env extends FormEnv {
   /** The built site, bound by wrangler's [assets] block. */
   ASSETS: Fetcher;
-  /** The migrated WordPress media tree. */
+  /** The migrated WordPress media tree. Public-readable content. */
   MEDIA: R2Bucket;
 }
 
@@ -67,10 +66,10 @@ const typeFor = (key: string): string | undefined =>
  *
  * WHY THIS PARSES THE HEADER INSTEAD OF READING object.range. Two attempts at
  * deriving Content-Range from R2's returned range object were wrong in
- * different ways, both emitting `bytes NaN-17208/17209` or `bytes 0-17208`
- * while the body was a correct 100 bytes. R2 honours the header we hand it, so
- * the header is the authority on what the body contains and cannot disagree
- * with it. Parsing here is deterministic and testable without a deploy.
+ * different ways, emitting `bytes NaN-17208/17209` and `bytes 0-17208` while
+ * the body was a correct 100 bytes. R2 honours the header we hand it, so the
+ * header is the authority on what the body contains and cannot disagree with
+ * it. Parsing here is deterministic and testable without a deploy.
  *
  * Handles the three forms RFC 9110 allows for a single range:
  *   bytes=0-99     explicit first and last
@@ -104,6 +103,25 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
+    // 1. Forms. Checked before assets so a stray file can never shadow them.
+    if (url.pathname === '/api/contact' || url.pathname === '/api/upload') {
+      if (request.method !== 'POST') {
+        return new Response('Method not allowed', { status: 405, headers: { allow: 'POST' } });
+      }
+      try {
+        return url.pathname === '/api/contact'
+          ? await handleContact(request, env)
+          : await handleUpload(request, env);
+      } catch (err) {
+        console.error('form handler threw', url.pathname, err);
+        return new Response(
+          JSON.stringify({ ok: false, message: 'Something went wrong. Please email info@srjconsultingservices.com.' }),
+          { status: 500, headers: { 'content-type': 'application/json; charset=utf-8' } },
+        );
+      }
+    }
+
+    // 2 and 3. Assets, then R2 for the migrated media tree.
     if (url.pathname.startsWith('/wp-content/')) {
       // Static handler gets first refusal, so anything genuinely in the build
       // still wins.
@@ -116,13 +134,9 @@ export default {
       const key = decodeURIComponent(url.pathname.slice(1));
 
       // Only ask R2 for a range when the client actually asked for one.
-      //
-      // Passing `range: request.headers` unconditionally, which is what this
-      // did first, makes R2 report a range on every response covering the whole
-      // object. The status ternary below then picked 206 for every request,
-      // including plain image loads, and no Content-Range was ever set. A 206
-      // without Content-Range is malformed; browsers shrug at it, crawlers and
-      // intermediary caches are entitled not to.
+      // Passing `range: request.headers` unconditionally makes R2 report a
+      // range on every response, which turned every plain image load into a
+      // malformed 206.
       const wantsRange = request.headers.has('range');
 
       // R2 throws on an unsatisfiable range rather than returning null, so the
@@ -147,10 +161,7 @@ export default {
         }
         return new Response(null, {
           status: 416,
-          headers: {
-            'content-range': `bytes */${meta.size}`,
-            'accept-ranges': 'bytes',
-          },
+          headers: { 'content-range': `bytes */${meta.size}`, 'accept-ranges': 'bytes' },
         });
       }
       if (!object) {
@@ -179,12 +190,8 @@ export default {
         return new Response(null, { status: 304, headers });
       }
 
-      // A genuine partial. Derive the byte positions from the request header
-      // rather than from object.range: R2 was handed this exact header, so the
-      // body it returned matches it, and the header parses deterministically.
-      const resolved = wantsRange && object.range
-        ? resolveRange(request.headers.get('range'), object.size)
-        : null;
+      const resolved =
+        wantsRange && object.range ? resolveRange(request.headers.get('range'), object.size) : null;
       if (resolved) {
         headers.set('content-range', `bytes ${resolved.first}-${resolved.last}/${object.size}`);
         return new Response(object.body, { status: 206, headers });
