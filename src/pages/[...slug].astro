@@ -33,6 +33,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import BookSpecs from '../components/BookSpecs.astro';
 import migrated from '../content/migrated/migrated-pages.json';
 import { rewriteAssets, rewriteAssetUrl, rewriteInternalLinks, ASSET_BASE } from '../lib/assets';
+import type { Crumb } from '../lib/pageSchema';
 
 export async function getStaticPaths() {
   const doc: any = migrated;
@@ -96,6 +97,40 @@ const PLUGIN_CSS: Record<string, string> = {
 const pageCss: string[] = (page.page_css ?? []).map((f: string) =>
   `${ASSET_BASE}/wp-content/${PLUGIN_CSS[f] ?? `themes/srj-consulting/assets/css/${f}`}`
 );
+
+// Visible breadcrumb trail, from production's own BreadcrumbList.
+//
+// The derived trail labels the current page with page.h1, which on the hub
+// pages is the full hero sentence — /services/ showed "Home › Two pillars.
+// Nine service lines. One operating model." instead of "Home › Services".
+// Every migrated page already carries production's BreadcrumbList in its
+// schema, with the real name for every level, so the visible nav reads the
+// same graph and the two can never disagree. Item URLs are made root-relative
+// for the same reason every other internal link is. Pages whose graph has no
+// BreadcrumbList fall back to the derived trail.
+let prodCrumbs: Crumb[] | undefined;
+for (const s of page.schema ?? []) {
+  if (!s.includes('"BreadcrumbList"')) continue;
+  try {
+    const g = JSON.parse(s);
+    const bc = g['@type'] === 'BreadcrumbList'
+      ? g
+      : (g['@graph'] ?? []).find((n: any) => n['@type'] === 'BreadcrumbList');
+    const items = bc?.itemListElement;
+    if (Array.isArray(items) && items.length > 1) {
+      const sorted = [...items].sort((a: any, b: any) => (a.position ?? 0) - (b.position ?? 0));
+      prodCrumbs = sorted.map((it: any, i: number) => ({
+        name: String(it.name ?? ''),
+        url: i < sorted.length - 1 && it.item
+          ? (String(it.item).replace('https://srjconsultingservices.com', '') || '/')
+          : undefined,
+      }));
+      break;
+    }
+  } catch {
+    // Raw string was not parseable JSON; the derived trail is the fallback.
+  }
+}
 ---
 <BaseLayout
   title={title}
@@ -107,6 +142,7 @@ const pageCss: string[] = (page.page_css ?? []).map((f: string) =>
   robots={page.robots}
   rawSchema={schemaRaw}
   pageCss={pageCss}
+  crumbs={prodCrumbs}
   crumbName={page.h1 || title}
 >
   <div class="migrated" set:html={body} />
