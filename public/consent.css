@@ -16,7 +16,11 @@
    accepting. If this is restyled, change both buttons or neither.
    --------------------------------------------------------------------------- */
 
-.srj-consent {
+/* Renamed from .srj-consent 2026-07-30, in step with src/styles/srj-consent.css:
+   the migrated contact/gate forms use class="srj-consent" for their checkbox
+   wrapper, and this fixed-position rule was capturing those blocks as a
+   permanent bottom overlay. */
+.srj-consent-banner {
   position: fixed;
   bottom: 0;
   left: 0;
@@ -32,7 +36,7 @@
   overflow-y: auto;
 }
 
-.srj-consent[hidden] { display: none; }
+.srj-consent-banner[hidden] { display: none; }
 
 .srj-consent-inner {
   max-width: 62rem;
@@ -40,14 +44,14 @@
   padding: 1.5rem 1.5rem 1.75rem;
 }
 
-.srj-consent h2 {
+.srj-consent-banner h2 {
   margin: 0 0 0.5rem;
   font-family: 'Lora', Georgia, serif;
   font-size: 1.15rem;
   color: #201868;
 }
 
-.srj-consent p {
+.srj-consent-banner p {
   margin: 0 0 1rem;
   font-size: 0.9rem;
   line-height: 1.6;
@@ -55,7 +59,7 @@
   max-width: 58rem;
 }
 
-.srj-consent a { color: #201868; text-decoration: underline; }
+.srj-consent-banner a { color: #201868; text-decoration: underline; }
 
 /* Detail disclosure. Closed by default, which hides DETAIL, never refusal:
    "Reject all" is reachable without opening this. */

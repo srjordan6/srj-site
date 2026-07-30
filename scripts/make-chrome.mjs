@@ -84,7 +84,7 @@ function trackerDeclarations() {
  */
 function consentBannerHtml() {
   return `
-<div id="srj-consent-banner" class="srj-consent" role="dialog" aria-modal="false" aria-labelledby="srj-consent-title" hidden>
+<div id="srj-consent-banner" class="srj-consent-banner" role="dialog" aria-modal="false" aria-labelledby="srj-consent-title" hidden>
   <div class="srj-consent-inner">
     <h2 id="srj-consent-title">Cookies on this site</h2>
     <p>We use cookies that are necessary for the site to work. With your agreement we
