@@ -94,9 +94,19 @@ const PLUGIN_CSS: Record<string, string> = {
   'fluent-forms-public.css': 'plugins/fluentform/assets/css/fluent-forms-public.css',
   'fluentform-public-default.css': 'plugins/fluentform/assets/css/fluentform-public-default.css',
 };
-const pageCss: string[] = (page.page_css ?? []).map((f: string) =>
-  `${ASSET_BASE}/wp-content/${PLUGIN_CSS[f] ?? `themes/srj-consulting/assets/css/${f}`}`
-);
+const pageCss: string[] = [
+  // The scoped WP theme baseline. Migrated markup was authored against the
+  // child theme's global style.css and Kadence's base (16px body, 32/28/24px
+  // heading scale); without it the pages render on BaseLayout's 17px base and
+  // clamp() headings sized for the governance library — visibly oversized
+  // text, reported by Stephen July 30. Every selector inside is scoped under
+  // .migrated so nothing leaks into site chrome. Loaded first so page-specific
+  // stylesheets keep cascade priority, same order WordPress enqueued them.
+  '/migrated-theme.css',
+  ...(page.page_css ?? []).map((f: string) =>
+    `${ASSET_BASE}/wp-content/${PLUGIN_CSS[f] ?? `themes/srj-consulting/assets/css/${f}`}`
+  ),
+];
 
 // Visible breadcrumb trail, from production's own BreadcrumbList.
 //

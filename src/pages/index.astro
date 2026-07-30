@@ -30,9 +30,14 @@ import { rewriteAssets, rewriteAssetUrl, rewriteInternalLinks, ASSET_BASE } from
 const page: any = home;
 const schemaRaw: string[] = (page.schema ?? []).map((s: string) => rewriteAssets(s));
 const body = rewriteInternalLinks(rewriteAssets(page.main));
-const pageCss: string[] = (page.page_css ?? []).map(
-  (f: string) => `${ASSET_BASE}/wp-content/themes/srj-consulting/assets/css/${f}`,
-);
+const pageCss: string[] = [
+  // Scoped WP theme baseline, same reasoning as [...slug].astro: the homepage
+  // markup was authored against the theme's 16px base, not BaseLayout's 17px.
+  '/migrated-theme.css',
+  ...(page.page_css ?? []).map(
+    (f: string) => `${ASSET_BASE}/wp-content/themes/srj-consulting/assets/css/${f}`,
+  ),
+];
 ---
 <BaseLayout
   title={page.title}
