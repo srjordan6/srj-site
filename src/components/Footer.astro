@@ -1,48 +1,403 @@
 ---
+/**
+ * Site footer.
+ *
+ * Rebuilt from the WordPress footer.php (v1.2.14, 24 July 2026) rather than
+ * invented. That template is the accumulation of a dozen deliberate revisions,
+ * and its structure encodes decisions worth keeping:
+ *
+ *  - The Resources group exists because the v1.8.0 nav consolidation replaced
+ *    the separate "AI Governance" and "Insights" nav items with one "Resources"
+ *    item, which left the governance library and the Insights archive with no
+ *    sitewide internal link at all. The footer is what restores it. Removing
+ *    that group would orphan 67 pages again.
+ *  - Industries is a header with no children on purpose: it is a hub in its own
+ *    right, so it reads at header weight rather than sitting indented as a
+ *    list item.
+ *  - Books carries the two pillar landing pages, matching Services, since
+ *    Book 04 completed Pillar I at four available volumes.
+ *
+ * WHAT CHANGED FROM THE WORDPRESS VERSION, and why:
+ *
+ *  - Every link is root-relative. WordPress emitted absolute
+ *    https://srjconsultingservices.com/... URLs, which on staging means every
+ *    footer link leaves the site.
+ *  - /resources/ becomes /ai-resources/. The old hub is retired; linking it
+ *    would spend a redirect hop on every page.
+ *  - /resources/ai-glossary/ and /ai-governance/ai-tools/ become their
+ *    /ai-resources/ equivalents, confirmed as the canonical destinations.
+ *  - The Cookie preferences control is added. Consent must be as easy to
+ *    withdraw as to give, and this is the only place on every page that does it.
+ *  - Contact details are literals rather than srj_get_phone() and friends.
+ *    Those helpers exist in the theme and there is nothing to call here; if
+ *    these ever change, this file and src/lib/entityGraph.ts both need it.
+ */
 const year = new Date().getFullYear();
 
-// Footer links point at canonical destinations, not the paths that redirect to
-// them. /resources/ai-glossary/ 301s to /ai-resources/ai-glossary/, so linking
-// the old one made every page in the site spend a hop to reach its own glossary
-// and passed a redirect where a direct link belonged.
+const PHONE_DISPLAY = '(415) 413-7772';
+const PHONE_TEL = '+14154137772';
+const EMAIL = 'info@srjconsultingservices.com';
+const NEWSLETTER_URL = 'https://srj-consulting-services.beehiiv.com';
 ---
+
 <footer class="site-footer">
-  <div class="container cols">
-    <div>
-      <p class="f-brand">SRJ Consulting &amp; Services LLC</p>
-      <p class="f-line">Operator-led AI advisory. Frisco, Texas.</p>
-      <p class="f-line">The Operating Discipline for AI Library&trade;</p>
+  <div class="container">
+
+    {/* Newsletter band. Subscribe goes straight to Beehiiv's hosted page; the
+        secondary link explains the newsletter first, for readers who want that
+        before handing over an address. */}
+    <div class="f-news">
+      <div class="f-news-text">
+        <div class="f-news-eyebrow">The AI Operating System&trade;</div>
+        <h2 class="f-news-head">Get operating discipline for AI, every other Tuesday.</h2>
+        <p class="f-news-sub">
+          Biweekly framework analysis, new templates, and field notes from active client
+          engagements. Free, no software pitches, unsubscribe anytime.
+        </p>
+      </div>
+      <div class="f-news-action">
+        <a class="f-news-btn" href={NEWSLETTER_URL} target="_blank" rel="noopener noreferrer">
+          Subscribe Free <span class="arrow">&rarr;</span>
+        </a>
+        <a class="f-news-learn" href="/newsletter/">Learn more about the newsletter</a>
+      </div>
     </div>
-    <nav aria-label="Footer">
-      <a href="/ai-governance/">AI Governance Library</a>
-      <a href="/ai-resources/ai-glossary/">AI Glossary</a>
-      <a href="/books/">Books</a>
-      <a href="/schedule-consultation/">Schedule a Consultation</a>
-      <a href="/privacy/">Privacy</a>
-      <a href="/terms/">Terms</a>
-      <a href="/disclaimer/">Disclaimer</a>
-      {/* Withdrawal must be as easy as giving consent. This sits in the same
-          row as the other legal links, on every page, and reopens the banner.
-          A button rather than a link because it performs an action; styled to
-          match its neighbours so it does not read as subordinate to them. */}
-      <button type="button" class="srj-consent-reopen" onclick="window.srjConsent && window.srjConsent.open()">
-        Cookie preferences
-      </button>
-    </nav>
-  </div>
-  <div class="container legal">
-    <p>&copy; {year} SRJ Consulting &amp; Services LLC. All rights reserved.</p>
+
+    <div class="f-grid">
+
+      {/* Column 1: identity and social */}
+      <div>
+        <div class="f-logo">SRJ Consulting<span class="amp">&amp;</span>Services</div>
+        <p class="f-about">
+          Operator-led AI advisory for executives accountable for AI outcomes. Governance,
+          performance, and security frameworks built from three decades of senior leadership
+          at Citi, Intel, McAfee, and Optiv.
+        </p>
+
+        <div class="f-social" aria-label="Connect with SRJ Consulting">
+          <a class="ic-li" href="https://www.linkedin.com/in/stephenrjordan/" target="_blank" rel="noopener noreferrer" aria-label="Stephen R. Jordan on LinkedIn">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+          <a class="ic-li" href="https://www.linkedin.com/company/srjconsultingandservices/" target="_blank" rel="noopener noreferrer" aria-label="SRJ Consulting on LinkedIn">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+          <a class="ic-yt" href="https://www.youtube.com/@srjconsvcs" target="_blank" rel="noopener noreferrer" aria-label="SRJ Consulting on YouTube">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          </a>
+          <a class="ic-g" href="https://maps.app.goo.gl/gPJgc2nvcHRdtvJM7" target="_blank" rel="noopener noreferrer" aria-label="SRJ Consulting on Google">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      {/* Column 2: Explore. Each header is itself a destination. */}
+      <nav aria-label="Explore">
+        <h3><a href="/services/">Services</a></h3>
+        <ul>
+          <li class="sub"><a href="/services/business-services/">AI Business Services</a></li>
+          <li class="sub"><a href="/services/risk-governance-security/">AI Risk Governance &amp; Security</a></li>
+        </ul>
+
+        <h3 class="spaced"><a href="/applications/">Applications</a></h3>
+        <ul>
+          <li class="sub"><a href="/ai-audit/">AI Audit</a></li>
+          <li class="sub"><a href="/applications/outcomestar/">Outcomestar</a></li>
+        </ul>
+
+        {/* No children by design: a hub that reads at header weight. */}
+        <h3 class="spaced"><a href="/industries/">Industries</a></h3>
+
+        <h3 class="spaced"><a href="/books/">Books</a></h3>
+        <ul>
+          <li class="sub"><a href="/books/ai-business-services/">AI Business Services</a></li>
+          <li class="sub"><a href="/books/ai-risk-governance-security/">AI Risk Governance &amp; Security</a></li>
+        </ul>
+
+        {/* This group is load-bearing: without it the governance library and the
+            Insights archive have no sitewide internal link. */}
+        <h3 class="spaced"><a href="/ai-resources/">Resources</a></h3>
+        <ul>
+          <li class="sub"><a href="/ai-governance/">AI Governance Library</a></li>
+          <li class="sub"><a href="/ai-resources/ai-tools/">AI Tools Catalog</a></li>
+          <li class="sub"><a href="/ai-resources/ai-glossary/">AI Glossary</a></li>
+          <li class="sub"><a href="/insights/">Insights</a></li>
+        </ul>
+      </nav>
+
+      {/* Column 3: Firm */}
+      <nav aria-label="Firm">
+        <h3>Firm</h3>
+        <ul>
+          <li><a href="/about/">About Stephen R. Jordan</a></li>
+          <li><a href="/newsletter/">Newsletter</a></li>
+          <li><a href="/faq/">FAQ</a></li>
+          <li><a href="/press/">Press &amp; Media Kit</a></li>
+          <li><a href="/contact/">Contact</a></li>
+        </ul>
+
+        <h3 class="spaced">Client Resources</h3>
+        <ul>
+          <li><a href="/client-upload/">Secure File Upload</a></li>
+        </ul>
+      </nav>
+
+      {/* Column 4: Contact */}
+      <div>
+        <h3>Contact</h3>
+        <div class="f-contact">
+          <strong>Phone</strong>
+          <a href={`tel:${PHONE_TEL}`}>{PHONE_DISPLAY}</a>
+        </div>
+        <div class="f-contact">
+          <strong>Email</strong>
+          <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
+        </div>
+        <div class="f-contact">
+          <strong>Office</strong>
+          <span>13054 Cinderella Lane<br>Frisco, TX 75035-5194<br>United States</span>
+        </div>
+        <a class="f-cta" href="/schedule-consultation/">
+          Schedule a Free AI Consultation <span class="arrow">&rarr;</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="f-bottom">
+      <div>&copy; {year} SRJ Consulting &amp; Services LLC. All rights reserved.</div>
+      <div class="f-legal">
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+        <a href="/disclaimer/">Disclaimer</a>
+        <a href="/contact/">Contact</a>
+        {/* Withdrawal must be as easy as giving consent. A button because it
+            performs an action, styled to match its neighbours so it does not
+            read as subordinate to them. */}
+        <button type="button" class="srj-consent-reopen" onclick="window.srjConsent && window.srjConsent.open()">
+          Cookie preferences
+        </button>
+      </div>
+    </div>
   </div>
 </footer>
+
 <style>
-  .site-footer { background: var(--navy-deep); color: var(--cream); margin-top: 90px; padding: 56px 0 28px; }
-  .cols { display: grid; grid-template-columns: 1.3fr 1fr; gap: 40px; }
-  .f-brand { font-family: var(--font-head); font-size: 20px; color: var(--white); margin-bottom: 6px; }
-  .f-line { font-size: 14px; opacity: .8; margin: 0 0 4px; }
-  nav { display: grid; gap: 8px; align-content: start; }
-  nav a { color: var(--cream); font-size: 14px; text-decoration: none; }
-  nav a:hover { color: var(--orange); }
-  .legal { border-top: 1px solid rgba(255,255,255,.12); margin-top: 40px; padding-top: 20px; }
-  .legal p { font-size: 12.5px; opacity: .6; margin: 0; }
-  @media (max-width: 700px) { .cols { grid-template-columns: 1fr; } }
+  .site-footer {
+    background: var(--navy-deep);
+    color: var(--cream);
+    margin-top: 90px;
+    padding: 0 0 28px;
+  }
+
+  /* ---- newsletter band ---- */
+  .f-news {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    padding: 38px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  }
+  .f-news-eyebrow {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 8px;
+  }
+  .f-news-head {
+    font-family: var(--font-head);
+    font-size: 26px;
+    line-height: 1.2;
+    color: var(--white);
+    margin: 0 0 8px;
+    font-weight: 600;
+  }
+  .f-news-sub {
+    font-size: 14px;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.78);
+    margin: 0;
+    max-width: 600px;
+  }
+  .f-news-action {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .f-news-btn {
+    display: inline-flex;
+    align-items: center;
+    background: var(--orange);
+    color: var(--white);
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.4px;
+    padding: 14px 28px;
+    border-radius: var(--radius);
+    border: 2px solid var(--orange);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .f-news-btn:hover {
+    background: var(--white);
+    color: var(--navy);
+    border-color: var(--white);
+  }
+  .f-news-btn .arrow { margin-left: 8px; }
+  .f-news-learn {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: underline;
+  }
+  .f-news-learn:hover { color: var(--orange); }
+
+  /* ---- four-column grid ---- */
+  .f-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1.1fr;
+    gap: 44px;
+    padding: 44px 0 0;
+  }
+
+  .f-logo {
+    font-family: var(--font-head);
+    font-size: 21px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 12px;
+  }
+  .f-logo .amp { color: var(--orange); margin: 0 2px; }
+
+  .f-about {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.76);
+    margin: 0;
+    max-width: 34em;
+  }
+
+  .f-social { display: flex; gap: 10px; margin-top: 20px; }
+  .f-social a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    color: var(--white);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .f-social a:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18); }
+  .f-social a svg { width: 20px; height: 20px; display: block; }
+  /* Brand colours, carried from the WordPress footer. Recognisability is the
+     point of a social icon; a monochrome set reads as decoration. */
+  .f-social .ic-li { background: #0A66C2; }
+  .f-social .ic-yt { background: #FF0000; }
+  .f-social .ic-g  { background: #FFFFFF; border: 1px solid #DADCE0; }
+
+  .f-grid h3 {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--white);
+    margin: 0 0 10px;
+  }
+  .f-grid h3.spaced { margin-top: 24px; }
+  .f-grid h3 a { color: inherit; text-decoration: none; }
+  .f-grid h3 a:hover { color: var(--orange); }
+
+  .f-grid ul { list-style: none; margin: 0; padding: 0; }
+  .f-grid li { margin-bottom: 6px; }
+  .f-grid li a {
+    font-size: 13.5px;
+    color: rgba(255, 255, 255, 0.82);
+    text-decoration: none;
+  }
+  .f-grid li a:hover { color: var(--orange); }
+
+  /* Nested sub-item: indented with a rotated arrow marker, carried from the
+     WordPress footer's .footer-firm-sub. */
+  .f-grid li.sub {
+    padding-left: 16px;
+    position: relative;
+  }
+  .f-grid li.sub::before {
+    content: '\\21B3';
+    position: absolute;
+    left: 0;
+    color: var(--orange);
+    opacity: 0.7;
+    font-size: 12px;
+  }
+  .f-grid li.sub a { font-size: 13px; color: rgba(255, 255, 255, 0.72); }
+
+  .f-contact { margin-bottom: 14px; font-size: 13.5px; line-height: 1.55; }
+  .f-contact strong {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  .f-contact a { color: rgba(255, 255, 255, 0.9); text-decoration: none; }
+  .f-contact a:hover { color: var(--orange); }
+  .f-contact span { color: rgba(255, 255, 255, 0.82); }
+
+  .f-cta {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 6px;
+    padding: 12px 20px;
+    border: 2px solid var(--orange);
+    border-radius: var(--radius);
+    color: var(--white);
+    font-size: 13.5px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .f-cta:hover { background: var(--orange); color: var(--white); }
+  .f-cta .arrow { margin-left: 7px; }
+
+  /* ---- bottom bar ---- */
+  .f-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    margin-top: 44px;
+    padding-top: 20px;
+    font-size: 12.5px;
+    color: rgba(255, 255, 255, 0.6);
+  }
+  .f-legal { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; }
+  .f-legal a,
+  .f-legal .srj-consent-reopen {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12.5px;
+    text-decoration: underline;
+  }
+  .f-legal a:hover,
+  .f-legal .srj-consent-reopen:hover { color: var(--orange); }
+
+  @media (max-width: 1000px) {
+    .f-grid { grid-template-columns: 1fr 1fr; gap: 36px; }
+  }
+  @media (max-width: 760px) {
+    .f-news { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .f-news-action { align-items: flex-start; }
+    .f-news-head { font-size: 22px; }
+    .f-grid { grid-template-columns: 1fr; }
+    .f-bottom { flex-direction: column; align-items: flex-start; }
+  }
 </style>
