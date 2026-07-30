@@ -1,11 +1,14 @@
 ---
 // Primary navigation.
 //
-// These eight items are production's nav, verified against the live header on
-// 2026-07-28 rather than assumed. The previous list carried the same count and
-// a comment claiming it matched, but it did not: it shipped Home and Press and
-// was missing Applications and FAQ, so every BaseLayout page showed a nav that
-// disagreed with the one on the governance pages and with production.
+// Rebuilt 2026-07-30 to match the production WordPress header, from Stephen's
+// screenshot of the live site rather than memory: a two-tier header. The navy
+// topbar carries location, phone, email on the left and Search plus the
+// consultation CTA on the right; the light main bar carries the serif
+// wordmark with the library tagline and the nav links.
+//
+// Nav items are production's minus FAQ, removed on Stephen's instruction
+// 2026-07-30 (the page still exists and stays linked from the footer).
 //
 // ONE DELIBERATE DEPARTURE FROM PRODUCTION. Resources points at /ai-resources/,
 // not the /resources/ that WordPress links to. /resources/ is the legacy page,
@@ -18,12 +21,9 @@
 // If this list changes, check it against the live site rather than editing from
 // memory, because the failure is silent: the nav still renders, it is just wrong.
 //
-// SEARCH, added 2026-07-30. Production's header carries a search toggle opening
-// a panel (WordPress + Relevanssi). Here the toggle opens a panel backed by
-// Pagefind, whose index is already generated at build time (`pagefind --site
-// dist` in the build script) and was shipping unused. The UI script and CSS
-// load lazily on first open, so the 300 pages that never see a search pay
-// nothing for it.
+// SEARCH. The topbar Search button opens a panel backed by Pagefind, whose
+// index is generated at build time (`pagefind --site dist`). The UI script and
+// CSS load lazily on first open, so pages that never see a search pay nothing.
 const nav = [
   { href: '/about/',        label: 'About' },
   { href: '/services/',     label: 'Services' },
@@ -31,37 +31,62 @@ const nav = [
   { href: '/industries/',   label: 'Industries' },
   { href: '/books/',        label: 'Books' },
   { href: '/ai-resources/', label: 'Resources' },
-  { href: '/faq/',          label: 'FAQ' },
   { href: '/contact/',      label: 'Contact' },
 ];
 const current = Astro.url.pathname;
+
+const PHONE_DISPLAY = '(415) 413-7772';
+const PHONE_TEL = '+14154137772';
+const EMAIL = 'info@srjconsultingservices.com';
 ---
 <header class="site-header">
-  <div class="container bar">
-    <a class="brand" href="/">
-      <span class="brand-srj">SRJ</span>
-      <span class="brand-rest">Consulting &amp; Services</span>
-    </a>
-    <nav aria-label="Primary">
-      <ul>
-        {nav.map((n) => (
-          <li><a href={n.href} aria-current={current === n.href ? 'page' : undefined}>{n.label}</a></li>
-        ))}
-        <li>
-          <button type="button" class="search-toggle" aria-expanded="false" aria-controls="srj-search-panel" aria-label="Search this site">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" width="18" height="18">
-              <circle cx="11" cy="11" r="7"></circle>
-              <line x1="21" y1="21" x2="16.3" y2="16.3"></line>
-            </svg>
-          </button>
-        </li>
-      </ul>
-    </nav>
+
+  {/* Tier 1: navy topbar */}
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <div class="topbar-contact">
+        <span class="topbar-loc">Frisco, TX</span>
+        <span class="topbar-dot" aria-hidden="true">&bull;</span>
+        <a href={`tel:${PHONE_TEL}`}>{PHONE_DISPLAY}</a>
+        <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
+      </div>
+      <div class="topbar-actions">
+        <button type="button" class="search-toggle" aria-expanded="false" aria-controls="srj-search-panel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" width="15" height="15">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="21" y1="21" x2="16.3" y2="16.3"></line>
+          </svg>
+          <span>Search</span>
+        </button>
+        <a class="topbar-cta" href="/schedule-consultation/">
+          Schedule a Free AI Consultation <span class="arrow">&rarr;</span>
+        </a>
+      </div>
+    </div>
   </div>
+
+  {/* Search panel sits between the tiers so it reads as part of the topbar */}
   <div id="srj-search-panel" class="search-panel" hidden>
     <div class="container">
       <div id="srj-search-box"></div>
       <p class="search-hint">Searches every page: governance library, books, services, glossary, tools, insights.</p>
+    </div>
+  </div>
+
+  {/* Tier 2: main bar */}
+  <div class="mainbar">
+    <div class="container bar">
+      <a class="brand" href="/">
+        <span class="brand-line">SRJ Consulting <span class="amp">&amp;</span>Services</span>
+        <span class="brand-tag">The Operating Discipline for AI Library&trade;</span>
+      </a>
+      <nav aria-label="Primary">
+        <ul>
+          {nav.map((n) => (
+            <li><a href={n.href} aria-current={current === n.href ? 'page' : undefined}>{n.label}</a></li>
+          ))}
+        </ul>
+      </nav>
     </div>
   </div>
 </header>
@@ -128,23 +153,46 @@ const current = Astro.url.pathname;
 </script>
 
 <style>
-  .site-header { background: var(--navy); position: sticky; top: 0; z-index: 50; }
-  .bar { display: flex; align-items: center; justify-content: space-between; height: 66px; }
-  .brand { display: flex; align-items: baseline; gap: 8px; text-decoration: none; }
-  .brand-srj { font-family: var(--font-head); font-weight: 700; font-size: 26px; color: var(--white); }
-  .brand-srj::after { content: ''; display: inline-block; width: 8px; height: 8px; margin-left: 2px; background: var(--orange); }
-  .brand-rest { font-family: var(--font-body); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cream); opacity: .85; }
-  nav ul { display: flex; gap: 26px; list-style: none; margin: 0; padding: 0; align-items: center; }
-  nav a { color: var(--white); font-size: 14.5px; font-weight: 500; text-decoration: none; opacity: .92; }
-  nav a:hover, nav a[aria-current="page"] { color: var(--orange); opacity: 1; }
-  .search-toggle {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 34px; height: 34px; padding: 0;
-    background: transparent; border: 0; border-radius: 6px;
-    color: var(--white); opacity: .92; cursor: pointer;
+  .site-header { position: sticky; top: 0; z-index: 50; box-shadow: 0 1px 0 rgba(32, 24, 104, 0.08); }
+
+  /* ---- tier 1: topbar ---- */
+  .topbar { background: var(--navy); }
+  .topbar-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 20px; min-height: 46px; font-size: 13.5px;
   }
-  .search-toggle:hover, .search-toggle[aria-expanded="true"] { color: var(--orange); opacity: 1; }
+  .topbar-contact { display: flex; align-items: center; gap: 14px; }
+  .topbar-loc { color: rgba(255, 255, 255, 0.55); }
+  .topbar-dot { color: var(--orange); font-size: 15px; }
+  .topbar-contact a { color: var(--white); text-decoration: none; }
+  .topbar-contact a:hover { color: var(--orange); }
+  .topbar-actions { display: flex; align-items: center; gap: 22px; }
+  .search-toggle {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 6px 14px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 7px;
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    cursor: pointer;
+  }
+  .search-toggle:hover, .search-toggle[aria-expanded="true"] { border-color: var(--orange); color: var(--orange); }
   .search-toggle:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+  .topbar-cta {
+    color: var(--orange);
+    font-weight: 600;
+    font-size: 12.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .topbar-cta:hover { color: var(--white); }
+  .topbar-cta .arrow { margin-left: 6px; letter-spacing: 0; }
+
+  /* ---- search panel ---- */
   .search-panel {
     background: var(--navy-deep);
     border-top: 1px solid rgba(255, 255, 255, 0.12);
@@ -164,5 +212,44 @@ const current = Astro.url.pathname;
   }
   .search-panel :global(.pagefind-ui__result-link) { color: var(--orange); }
   .search-panel :global(.pagefind-ui__result-excerpt) { color: rgba(255, 255, 255, 0.8); }
-  @media (max-width: 860px) { nav ul { gap: 16px; flex-wrap: wrap; } .bar { height: auto; padding: 12px 24px; flex-direction: column; gap: 8px; } }
+
+  /* ---- tier 2: main bar ---- */
+  .mainbar { background: var(--cream); }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-top: 16px; padding-bottom: 16px; }
+  .brand { display: flex; flex-direction: column; gap: 4px; text-decoration: none; }
+  .brand-line {
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 27px;
+    line-height: 1.1;
+    color: var(--navy);
+  }
+  .brand-line .amp { color: var(--orange); margin-right: 1px; }
+  .brand-tag {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 10.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--navy);
+    opacity: 0.85;
+  }
+  nav ul { display: flex; gap: 30px; list-style: none; margin: 0; padding: 0; align-items: center; }
+  nav a {
+    color: var(--navy);
+    font-size: 15.5px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  nav a:hover, nav a[aria-current="page"] { color: var(--orange); }
+
+  @media (max-width: 1080px) {
+    .topbar-contact { display: none; }
+    .topbar-inner { justify-content: flex-end; }
+  }
+  @media (max-width: 860px) {
+    .bar { flex-direction: column; align-items: flex-start; gap: 12px; }
+    nav ul { gap: 14px 20px; flex-wrap: wrap; }
+    .topbar-cta { letter-spacing: 0.08em; }
+  }
 </style>
