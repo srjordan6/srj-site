@@ -144,15 +144,20 @@ for (const s of page.schema ?? []) {
 }
 // Classes production's <main> element carried, per path. The extractor strips
 // the <main> wrapper as theme chrome, and its classes went with it — which
-// left every stylesheet scoped under them inert: about-page.css entirely
-// under .about-page-gutenberg, the book hero/body styles in migrated-theme.css
-// under .book-detail, and so on (About and the book detail pages both
-// rendered as bare baseline, reported by Stephen July 30). The map is
-// harvested live from production (srj-content migrated/main-classes.json);
-// paths absent from it are templates that emit no <main> at all, whose styles
-// bind to classes present in their own markup.
-const wrapperClass = ['migrated', (mainClasses as any).classes[page.path] ?? '']
-  .filter(Boolean).join(' ');
+// left every stylesheet scoped under them inert. The map is harvested live
+// from production (srj-content migrated/main-classes.json); paths absent from
+// it are templates that emit no <main> at all.
+//
+// STRUCTURE MATTERS, NOT JUST THE CLASSES. These classes go on an INNER div
+// nested inside the .migrated scope, never merged onto the scope element
+// itself. The harvested selectors read `:where(.migrated) .book-detail
+// .book-hero`, which requires .book-detail to be a DESCENDANT of the scope;
+// with both classes on one element the chain can never match and every rule
+// keyed to the main classes goes silently inert — which is precisely how the
+// book pages rendered bare while their styles sat correct in the stylesheet
+// (Stephen, July 30). Nesting reproduces production's own containment:
+// body > main.books-page.book-detail > section.book-hero.
+const mainClass = (mainClasses as any).classes[page.path] ?? '';
 ---
 <BaseLayout
   title={title}
@@ -167,7 +172,9 @@ const wrapperClass = ['migrated', (mainClasses as any).classes[page.path] ?? '']
   crumbs={prodCrumbs}
   crumbName={page.h1 || title}
 >
-  <div class={wrapperClass} set:html={body} />
+  <div class="migrated">
+    <div class={mainClass || undefined} set:html={body} />
+  </div>
   {/* Bibliographic specs and Book/Offer schema for the nine book detail pages.
       Renders nothing on any other path, and nothing for a forthcoming title,
       which has no ISBN, price, or availability to assert.

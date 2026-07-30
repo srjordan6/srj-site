@@ -51,7 +51,9 @@ const pageCss: string[] = [
   rawSchema={schemaRaw}
   pageCss={pageCss}
 >
-  <div class={['migrated', (mainClasses as any).classes['/'] ?? 'homepage'].join(' ')} set:html={body} />
+  <div class="migrated">
+    <div class={(mainClasses as any).classes['/'] ?? 'homepage'} set:html={body} />
+  </div>
 </BaseLayout>
 
 <style is:global>
