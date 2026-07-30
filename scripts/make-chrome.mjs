@@ -4,8 +4,127 @@
 // only trackers and WP plumbing are stripped. Visual parity by identity.
 import { writeFileSync, mkdirSync } from 'node:fs';
 
+// The governance pages carry transplanted WordPress chrome rather than
+// BaseLayout, so nothing the Astro layout adds reaches them. Consent and the
+// tracker declarations have to be injected here instead.
+//
+// This imports the SAME consent.ts the Astro components use. Node 22 runs
+// TypeScript directly, so there is one implementation of the consent gate for
+// the whole site rather than a copy in each chrome path. A copy is how the two
+// would drift, and a consent gate that differs between page types is worse than
+// no gate at all, because it looks uniform and is not.
+import { consentBootstrap } from '../src/lib/consent.ts';
+
 const UA = { headers: { 'User-Agent': 'Mozilla/5.0 Chrome/126.0' } };
 const get = async (u) => (await fetch(u, UA)).text();
+
+// ---------------------------------------------------------------------------
+// Consent-gated trackers for the governance chrome.
+//
+// Every tracker ships as <script type="text/plain">, a type no browser
+// executes. The bootstrap rewrites it to a real script only once the matching
+// category is granted, so "not consented" means NEVER RAN rather than "ran and
+// was ignored".
+//
+// These ids match src/components/Trackers.astro. They are duplicated here
+// because a build script cannot render an Astro component; the consent LOGIC is
+// shared via consent.ts, which is the part that would be dangerous to fork.
+// ---------------------------------------------------------------------------
+const GA4_ID = 'G-WWP3BSKN5N';
+const CLARITY_ID = 'wxtqd3ud7i';
+const STATCOUNTER_PROJECT = '13170872';
+const STATCOUNTER_SECURITY = 'd3cb9c8b';
+
+/**
+ * Clarity runs on the governance pages.
+ *
+ * It is excluded from /contact/ and /client-upload/ because session recording
+ * captures keystrokes and those pages carry client-confidential input. No
+ * governance page has a form, so there is nothing to record but reading
+ * behaviour, which is what Clarity is for.
+ */
+function trackerDeclarations() {
+  return [
+    `<script type="text/plain" data-consent="statistics" data-src="https://www.googletagmanager.com/gtag/js?id=${GA4_ID}" async></script>`,
+    `<script type="text/plain" data-consent="statistics">`,
+    `window.dataLayer = window.dataLayer || [];`,
+    `function gtag(){ dataLayer.push(arguments); }`,
+    `gtag('js', new Date());`,
+    `gtag('config', '${GA4_ID}', { anonymize_ip: true });`,
+    `</script>`,
+    `<script type="text/plain" data-consent="statistics">`,
+    `(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};`,
+    `t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;`,
+    `y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","${CLARITY_ID}");`,
+    `</script>`,
+    // No <noscript> pixel. A no-JS fallback fires without consent by definition,
+    // since consent is enforced in JavaScript, and that is exactly how
+    // StatCounter was running ungated on these pages before.
+    `<script type="text/plain" data-consent="statistics">`,
+    `var sc_project=${STATCOUNTER_PROJECT};var sc_invisible=1;var sc_security="${STATCOUNTER_SECURITY}";`,
+    `</script>`,
+    `<script type="text/plain" data-consent="statistics" data-src="https://www.statcounter.com/counter/counter.js" async></script>`,
+  ].join('\n');
+}
+
+/**
+ * The consent banner, rendered hidden and revealed by the bootstrap only when no
+ * current decision exists.
+ *
+ * Reject and Accept are the same element, side by side, one click each. Making
+ * refusal visually subordinate is the pattern EU regulators have fined most
+ * consistently. If this markup is edited, that symmetry is the thing not to
+ * break.
+ *
+ * Kept in step with src/components/ConsentBanner.astro by hand. The ids and
+ * classes are the contract the shared bootstrap relies on: srj-consent-banner,
+ * srj-consent-accept, srj-consent-reject, srj-consent-save, srj-cat-statistics,
+ * srj-cat-marketing.
+ */
+function consentBannerHtml() {
+  return `
+<div id="srj-consent-banner" class="srj-consent" role="dialog" aria-modal="false" aria-labelledby="srj-consent-title" hidden>
+  <div class="srj-consent-inner">
+    <h2 id="srj-consent-title">Cookies on this site</h2>
+    <p>We use cookies that are necessary for the site to work. With your agreement we
+      also use analytics that count page views and, on most pages, a tool that records
+      how a page is used, including mouse movement, clicks and scrolling, so we can see
+      where readers get stuck. You can accept, refuse, or choose by category, and you
+      can change your mind at any time.
+      <a href="/privacy/">Read the privacy policy</a>.</p>
+    <details class="srj-consent-detail">
+      <summary>Choose by category</summary>
+      <div class="srj-consent-cat"><label><input type="checkbox" checked disabled />
+        <span><strong>Necessary</strong> &mdash; required for the site to function. Always on.</span></label></div>
+      <div class="srj-consent-cat"><label><input type="checkbox" id="srj-cat-statistics" />
+        <span><strong>Statistics</strong> &mdash; page views and traffic sources (Google Analytics,
+        StatCounter), and session recording that captures mouse movement, clicks and
+        scrolling (Microsoft Clarity). Recording does not run on the contact or
+        client upload pages.</span></label></div>
+      <div class="srj-consent-cat"><label><input type="checkbox" id="srj-cat-marketing" />
+        <span><strong>Marketing</strong> &mdash; measuring which publications and campaigns reach their audience.</span></label></div>
+      <button type="button" class="srj-consent-btn srj-consent-save" id="srj-consent-save">Save my choices</button>
+    </details>
+    <div class="srj-consent-actions">
+      <button type="button" class="srj-consent-btn srj-consent-reject" id="srj-consent-reject">Reject all</button>
+      <button type="button" class="srj-consent-btn srj-consent-accept" id="srj-consent-accept">Accept all</button>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  var b = document.getElementById('srj-consent-banner');
+  if (!b || !window.srjConsent) return;
+  document.getElementById('srj-consent-accept').addEventListener('click', function () { window.srjConsent.accept(); });
+  document.getElementById('srj-consent-reject').addEventListener('click', function () { window.srjConsent.reject(); });
+  document.getElementById('srj-consent-save').addEventListener('click', function () {
+    window.srjConsent.save(
+      document.getElementById('srj-cat-statistics').checked,
+      document.getElementById('srj-cat-marketing').checked);
+  });
+})();
+</script>`;
+}
 
 const STRIP_LINK = /wp-includes\/css|complianz|relevanssi|godaddy-launch|uploads\/complianz/;
 const STRIP_SCRIPT = /clarity|googletagmanager|gtag\(|cmplz|complianz|relevanssi|wp-emoji|wp-includes\/js|jquery|rocket-loader|stats\.wp/i;
@@ -89,9 +208,18 @@ function sanitize(html) {
   // Put the self-hosted replacement in, at a public path both chrome paths
   // share. BaseLayout links the same file, so there is one copy of the
   // @font-face rules and one set of woff2 files for the whole site.
+  //
+  // The consent bootstrap goes in the same insertion, and it must be FIRST in
+  // <head>: it establishes Google Consent Mode denied-by-default and defines the
+  // activation function, and both have to exist before any tracker declaration
+  // is parsed. The stylesheet link follows it.
   html = html.replace(
     /<title>/i,
-    '<link rel="stylesheet" href="/fonts/fonts.css" />\n<title>'
+    `<script>${consentBootstrap()}</script>\n` +
+    '<link rel="stylesheet" href="/fonts/fonts.css" />\n' +
+    '<link rel="stylesheet" href="/consent.css" />\n' +
+    trackerDeclarations() +
+    '<title>'
   );
   // Internal navigation becomes root-relative.
   //
@@ -112,6 +240,11 @@ function sanitize(html) {
     /(<a\b[^>]*?\bhref=["'])https:\/\/srjconsultingservices\.com(\/[^"']*)?(["'])/g,
     (_m, pre, path, post) => pre + ((path === '/resources/' ? '/ai-resources/' : path) || '/') + post
   );
+
+  // The consent banner goes last in the body, so it never displaces page
+  // content. It renders hidden; the bootstrap in <head> reveals it only when no
+  // current decision exists, by which point nothing non-essential has run.
+  html = html.replace(/<\/body>/i, consentBannerHtml() + '\n</body>');
 
   return html;
 }

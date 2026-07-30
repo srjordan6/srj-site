@@ -553,7 +553,165 @@
 </style>
     
 <!-- Search Engine Optimization by Rank Math PRO - https://rankmath.com/ -->
-<title>{{TITLE}}</title>
+<script>(function () {
+  var NAME = 'srj_consent';
+  var VERSION = 1;
+  var MAX_AGE = 34128000;
+
+  function read() {
+    var m = document.cookie.match(new RegExp('(^|; )' + NAME + '=([^;]*)'));
+    if (!m) return null;
+    try {
+      var v = JSON.parse(decodeURIComponent(m[2]));
+      // A record from an older policy version is not consent to the current one.
+      return (v && v.v === VERSION) ? v : null;
+    } catch (e) { return null; }
+  }
+
+  function write(rec) {
+    document.cookie = NAME + '=' + encodeURIComponent(JSON.stringify(rec)) +
+      ';path=/;max-age=' + MAX_AGE + ';SameSite=Lax' +
+      (location.protocol === 'https:' ? ';Secure' : '');
+  }
+
+  // ---- Google Consent Mode v2 -------------------------------------------
+  // Must be established BEFORE any Google tag loads. Everything denied until
+  // the visitor says otherwise. wait_for_update gives the banner time to apply
+  // a stored decision before a tag would otherwise fire with the defaults.
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { window.dataLayer.push(arguments); }
+  window.gtag = window.gtag || gtag;
+
+  gtag('consent', 'default', {
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    analytics_storage: 'denied',
+    functionality_storage: 'granted',
+    security_storage: 'granted',
+    wait_for_update: 500
+  });
+
+  function pushConsentMode(rec) {
+    gtag('consent', 'update', {
+      ad_storage: rec.marketing ? 'granted' : 'denied',
+      ad_user_data: rec.marketing ? 'granted' : 'denied',
+      ad_personalization: rec.marketing ? 'granted' : 'denied',
+      analytics_storage: rec.statistics ? 'granted' : 'denied'
+    });
+  }
+
+  // ---- Activate the scripts a decision permits ---------------------------
+  // Trackers ship as <script type="text/plain" data-consent="statistics">, a
+  // type no browser executes. Rewriting to a real script is what runs them, so
+  // "not consented" means "never ran", not "ran and was ignored".
+  function activate(rec) {
+    var pending = document.querySelectorAll('script[type="text/plain"][data-consent]');
+    Array.prototype.forEach.call(pending, function (node) {
+      var cat = node.getAttribute('data-consent');
+      if (!rec[cat]) return;
+      var s = document.createElement('script');
+      Array.prototype.forEach.call(node.attributes, function (a) {
+        if (a.name === 'type' || a.name === 'data-consent' || a.name === 'data-src') return;
+        s.setAttribute(a.name, a.value);
+      });
+      if (node.getAttribute('data-src')) s.src = node.getAttribute('data-src');
+      else s.text = node.textContent;
+      node.parentNode.replaceChild(s, node);
+    });
+
+    // Placeholders for third-party embeds, which are a network call to a third
+    // party whether or not they set a cookie.
+    var frames = document.querySelectorAll('[data-consent-frame]');
+    Array.prototype.forEach.call(frames, function (holder) {
+      if (!rec[holder.getAttribute('data-consent-frame')]) return;
+      var src = holder.getAttribute('data-frame-src');
+      if (!src) return;
+      var f = document.createElement('iframe');
+      f.src = src;
+      f.loading = 'lazy';
+      f.title = holder.getAttribute('data-frame-title') || '';
+      f.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+      holder.innerHTML = '';
+      holder.appendChild(f);
+      holder.removeAttribute('data-frame-src');
+    });
+  }
+
+  function apply(rec) {
+    write(rec);
+    pushConsentMode(rec);
+    activate(rec);
+    document.documentElement.setAttribute('data-consent-set', '1');
+    window.dispatchEvent(new CustomEvent('srj:consent', { detail: rec }));
+  }
+
+  function decide(statistics, marketing) {
+    apply({
+      v: VERSION,
+      t: new Date().toISOString(),
+      necessary: true,
+      statistics: !!statistics,
+      marketing: !!marketing
+    });
+    var b = document.getElementById('srj-consent-banner');
+    if (b) b.hidden = true;
+  }
+
+  // Exposed so the banner markup and the preferences page drive the same code
+  // path. Two implementations of consent is how they drift apart.
+  window.srjConsent = {
+    get: read,
+    accept: function () { decide(true, true); },
+    reject: function () { decide(false, false); },
+    save: decide,
+    open: function () {
+      var b = document.getElementById('srj-consent-banner');
+      if (b) { b.hidden = false; b.querySelector('.srj-consent-detail').open = true; }
+    }
+  };
+
+  // Load one embed on demand, without granting anything.
+  //
+  // A visitor who clicks "Load this video" has asked for that video. That is a
+  // specific, informed, revocable act, and treating it as blanket consent to a
+  // category would be reading far more into one click than it contains. So this
+  // swaps in the single iframe and writes no consent record.
+  window.srjLoadFrame = function (holder) {
+    if (!holder) return;
+    var src = holder.getAttribute('data-frame-src');
+    if (!src) return;
+    var f = document.createElement('iframe');
+    f.src = src;
+    f.loading = 'lazy';
+    f.title = holder.getAttribute('data-frame-title') || '';
+    f.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+    f.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+    f.setAttribute('allowfullscreen', '');
+    holder.innerHTML = '';
+    holder.appendChild(f);
+    holder.removeAttribute('data-frame-src');
+  };
+
+  var existing = read();
+  if (existing) {
+    apply(existing);
+  } else {
+    // No decision yet: show the banner once the markup exists. Nothing
+    // non-essential has run at this point, which is the whole design.
+    document.addEventListener('DOMContentLoaded', function () {
+      var b = document.getElementById('srj-consent-banner');
+      if (b) b.hidden = false;
+    });
+  }
+})();</script>
+<link rel="stylesheet" href="/fonts/fonts.css" />
+<link rel="stylesheet" href="/consent.css" />
+<script type="text/plain" data-consent="statistics" data-src="https://www.googletagmanager.com/gtag/js?id=G-WWP3BSKN5N" async></script>
+<script type="text/plain" data-consent="statistics">window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-WWP3BSKN5N',{anonymize_ip:true});</script>
+<script type="text/plain" data-consent="statistics">(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","wxtqd3ud7i");</script>
+<script type="text/plain" data-consent="statistics">var sc_project=13170872;var sc_invisible=1;var sc_security="d3cb9c8b";</script>
+<script type="text/plain" data-consent="statistics" data-src="https://www.statcounter.com/counter/counter.js" async></script><title>{{TITLE}}</title>
 <meta name="description" content="{{DESC}}"/>
 <meta name="robots" content="follow, index, max-snippet:-1, max-video-preview:-1, max-image-preview:large"/>
 <link rel="canonical" href="{{URL}}" />
@@ -579,9 +737,6 @@
 
 <!-- /Rank Math WordPress SEO plugin -->
 
-<link rel='dns-prefetch' href='//cdn.trustedsite.com' />
-<link rel='dns-prefetch' href='//www.statcounter.com' />
-<link rel="stylesheet" href="/fonts/fonts.css" />
 			<script>document.documentElement.classList.remove( 'no-js' );</script>
 			    
     <style id='wp-img-auto-sizes-contain-inline-css'>
@@ -617,7 +772,6 @@ body .wp-site-blocks .is-style-overlay-dark :is(h1,h2,h3,h4,h5,h6,p,li,blockquot
 /*# sourceURL=global-styles-inline-css */
 </style>
 
-
 <link rel='stylesheet' id='parent-style-css' href='https://srjconsultingservices.com/wp-content/themes/kadence/style.css?ver=1.6.9' media='all' />
 <link rel='stylesheet' id='srj-style-css' href='https://srjconsultingservices.com/wp-content/themes/srj-consulting/assets/css/style.css?ver=1.6.9' media='all' />
 <link rel='stylesheet' id='kadence-global-css' href='https://srjconsultingservices.com/wp-content/themes/kadence/assets/css/global.min.css?ver=1.5.2' media='all' />
@@ -634,27 +788,21 @@ body .wp-site-blocks .is-style-overlay-dark :is(h1,h2,h3,h4,h5,h6,p,li,blockquot
 <link rel='stylesheet' id='kadence-content-css' href='https://srjconsultingservices.com/wp-content/themes/kadence/assets/css/content.min.css?ver=1.5.2' media='all' />
 <link rel='stylesheet' id='kadence-footer-css' href='https://srjconsultingservices.com/wp-content/themes/kadence/assets/css/footer.min.css?ver=1.5.2' media='all' />
 <link rel='stylesheet' id='kadence-rankmath-css' href='https://srjconsultingservices.com/wp-content/themes/kadence/assets/css/rankmath.min.css?ver=1.5.2' media='all' />
-<script id="statcounter-js-js-before">
-var sc_project=13170872;
-var sc_security="d3cb9c8b";
-var sc_invisible=1;
-
-//# sourceURL=statcounter-js-js-before
-</script>
 
 
 
-<link rel="https://api.w.org/" href="https://srjconsultingservices.com/wp-json/" />			<style>.cmplz-hidden {
+
+			<style>.cmplz-hidden {
 					display: none !important;
 				}</style>
 				
 
-	<noscript><div class="statcounter"><a title="web analytics" href="https://statcounter.com/"><img class="statcounter" src="https://c.statcounter.com/13170872/0/d3cb9c8b/1/" alt="web analytics" /></a></div></noscript>
+	
 	<link rel="icon" href="https://srjconsultingservices.com/wp-content/uploads/cropped-SRJ-Consulting-Services-Website-Logo-32x32.jpg" sizes="32x32" />
 <link rel="icon" href="https://srjconsultingservices.com/wp-content/uploads/cropped-SRJ-Consulting-Services-Website-Logo-192x192.jpg" sizes="192x192" />
 <link rel="apple-touch-icon" href="https://srjconsultingservices.com/wp-content/uploads/cropped-SRJ-Consulting-Services-Website-Logo-180x180.jpg" />
 <meta name="msapplication-TileImage" content="https://srjconsultingservices.com/wp-content/uploads/cropped-SRJ-Consulting-Services-Website-Logo-270x270.jpg" />
-<style id="wp-site-designer-contrast-fallback"> body .wp-site-blocks .wp-block-designsetgo-section.has-white-background-color:not(.has-text-color){background-color:var(--wp--preset--color--white);color:var(--wp--preset--color--contrast);--dsgo-text-color:var(--wp--preset--color--contrast);} body .wp-site-blocks .wp-block-designsetgo-section.has-black-background-color:not(.has-text-color){background-color:var(--wp--preset--color--black);color:var(--wp--preset--color--contrast);--dsgo-text-color:var(--wp--preset--color--contrast);} body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color) h1:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color) h2:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color) h3:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color) h4:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color) h5:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color) h6:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color) p:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color) a:where(:not(.wp-element-button)):not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color) .wp-element-caption:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)){color:var(--dsgo-text-color,inherit) !important;} body .wp-site-blocks .wp-block-designsetgo-section:is(.has-white-background-color,.has-black-background-color).has-text-color{--dsgo-text-color:initial;} body .wp-site-blocks .wp-block-group.has-white-background-color:not(.has-text-color){background-color:var(--wp--preset--color--white);color:var(--wp--preset--color--contrast);--dsgo-text-color:var(--wp--preset--color--contrast);} body .wp-site-blocks .wp-block-group.has-black-background-color:not(.has-text-color){background-color:var(--wp--preset--color--black);color:var(--wp--preset--color--contrast);--dsgo-text-color:var(--wp--preset--color--contrast);} body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color) h1:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color) h2:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color) h3:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color) h4:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color) h5:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color) h6:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color) p:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color) a:where(:not(.wp-element-button)):not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color) .wp-element-caption:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)){color:var(--dsgo-text-color,inherit) !important;} body .wp-site-blocks .wp-block-group:is(.has-white-background-color,.has-black-background-color).has-text-color{--dsgo-text-color:initial;} body .wp-site-blocks .wp-block-column.has-white-background-color:not(.has-text-color){background-color:var(--wp--preset--color--white);color:var(--wp--preset--color--contrast);--dsgo-text-color:var(--wp--preset--color--contrast);} body .wp-site-blocks .wp-block-column.has-black-background-color:not(.has-text-color){background-color:var(--wp--preset--color--black);color:var(--wp--preset--color--contrast);--dsgo-text-color:var(--wp--preset--color--contrast);} body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color) h1:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color) h2:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color) h3:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color) h4:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color) h5:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color) h6:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color) p:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color) a:where(:not(.wp-element-button)):not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color) .wp-element-caption:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)){color:var(--dsgo-text-color,inherit) !important;} body .wp-site-blocks .wp-block-column:is(.has-white-background-color,.has-black-background-color).has-text-color{--dsgo-text-color:initial;} .wp-block-group:not(:is(.has-white-background-color,.has-black-background-color)),.wp-block-column:not(:is(.has-white-background-color,.has-black-background-color)),.wp-block-columns:not(:is(.has-white-background-color,.has-black-background-color)){--dsgo-text-color:initial;} :is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover:not(.has-text-color){color:var(--wp--preset--color--contrast-3) !important;--dsgo-text-color:var(--wp--preset--color--contrast-3);} body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) h1:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) h2:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) h3:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) h4:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) h5:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) h6:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) p:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) a:where(:not(.wp-element-button)):not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not(:is(.has-white-background-color,.has-black-background-color)):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) .wp-element-caption:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)){color:var(--dsgo-text-color,inherit) !important;} body .wp-site-blocks :is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column):is(:is(.has-white-background-color,.has-black-background-color),[data-dsgo-inline-bg]) .wp-block-button:is([class*="is-style-outline"],[class*="is-style-secondary"]) .wp-element-button{color:var(--dsgo-text-color,inherit) !important;border-color:currentColor !important;}body .wp-site-blocks :is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column):is(:is(.has-white-background-color,.has-black-background-color),[data-dsgo-inline-bg]) .wp-block-button:is([class*="is-style-outline"],[class*="is-style-secondary"]) .wp-element-button:hover{opacity:0.75;} body .wp-site-blocks [data-dsgo-inline-bg] h1:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] h2:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] h3:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] h4:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] h5:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] h6:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] p:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] a:where(:not(.wp-element-button)):not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] .wp-element-caption:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)){color:var(--dsgo-text-color,inherit) !important;} :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)),.has-background:is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)),.has-text-color:is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)){background-color:var(--wp--preset--color--accent-5);color:var(--wp--preset--color--contrast);} body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) h1:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) h2:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) h3:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) h4:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) h5:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) h6:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) p:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) a:where(:not(.wp-element-button)):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) .wp-element-caption:where(:not(.elementor *):not([data-elementor-type] *)){color:var(--wp--preset--color--contrast);} :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)),.has-background:is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)),.has-text-color:is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)){background-color:var(--wp--preset--color--accent-2);color:var(--wp--preset--color--contrast);} body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) h1:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) h2:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) h3:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) h4:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) h5:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) h6:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) p:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) a:where(:not(.wp-element-button)):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) .wp-element-caption:where(:not(.elementor *):not([data-elementor-type] *)){color:var(--wp--preset--color--contrast);} :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)),.has-background:is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)),.has-text-color:is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)){background-color:var(--wp--preset--color--accent-1);color:var(--wp--preset--color--contrast);} body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) h1:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) h2:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) h3:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) h4:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) h5:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) h6:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) p:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) a:where(:not(.wp-element-button)):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) .wp-element-caption:where(:not(.elementor *):not([data-elementor-type] *)){color:var(--wp--preset--color--contrast);} :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)),.has-background:is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)),.has-text-color:is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)){background-color:var(--wp--preset--color--accent-3);color:var(--wp--preset--color--accent-2);} body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) h1:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) h2:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) h3:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) h4:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) h5:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) h6:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) p:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) a:where(:not(.wp-element-button)):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) .wp-element-caption:where(:not(.elementor *):not([data-elementor-type] *)){color:var(--wp--preset--color--accent-2);} :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)),.has-background:is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)),.has-text-color:is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)){background-color:var(--wp--preset--color--contrast);color:var(--wp--preset--color--base);} body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) h1:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) h2:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) h3:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) h4:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) h5:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) h6:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) p:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) a:where(:not(.wp-element-button)):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) .wp-element-caption:where(:not(.elementor *):not([data-elementor-type] *)){color:var(--wp--preset--color--base);}   body .wp-site-blocks input:not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="image"]):not([type="hidden"]),body .wp-site-blocks textarea,body .wp-site-blocks select{background-color:var(--wp--preset--color--base);color:var(--wp--preset--color--contrast);border:1px solid color-mix(in srgb, var(--wp--preset--color--contrast) 30%, transparent);} .wp-site-blocks input[type="submit"]:not(.wp-element-button),.wp-site-blocks button[type="submit"]:not(.wp-element-button){background-color:var(--wp--preset--color--accent-2);color:var(--wp--preset--color--base);border-width:0;padding:12px 30px;font-family:inherit;font-size:var(--wp--preset--font-size--medium, 1rem);line-height:inherit;cursor:pointer;}</style>
+<style id="wp-site-designer-contrast-fallback"> .wp-block-group:not([data-dsgo-inline-bg]),.wp-block-column:not([data-dsgo-inline-bg]),.wp-block-columns:not([data-dsgo-inline-bg]){--dsgo-text-color:initial;} :is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not([class*="-background-color"]):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover:not(.has-text-color){color:var(--wp--preset--color--contrast-3) !important;--dsgo-text-color:var(--wp--preset--color--contrast-3);} body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not([class*="-background-color"]):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) h1:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not([class*="-background-color"]):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) h2:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not([class*="-background-color"]):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) h3:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not([class*="-background-color"]):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) h4:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not([class*="-background-color"]):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) h5:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not([class*="-background-color"]):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) h6:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not([class*="-background-color"]):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) p:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not([class*="-background-color"]):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) a:where(:not(.wp-element-button):not(.wp-block-social-link-anchor)):not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(:is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column).has-background:not([class*="-background-color"]):not(.has-text-color):not(.is-style-footer-section):not(.is-style-header-section),.wp-block-cover) .wp-element-caption:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)){color:var(--dsgo-text-color,inherit) !important;} body .wp-site-blocks :is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column)[data-dsgo-inline-bg] .wp-block-button:is([class*="is-style-outline"],[class*="is-style-secondary"]) .wp-element-button{color:var(--dsgo-text-color,inherit) !important;border-color:currentColor !important;}body .wp-site-blocks :is(.wp-block-designsetgo-section,.wp-block-group,.wp-block-column)[data-dsgo-inline-bg] .wp-block-button:is([class*="is-style-outline"],[class*="is-style-secondary"]) .wp-element-button:hover{opacity:0.75;} body .wp-site-blocks [data-dsgo-inline-bg] h1:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] h2:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] h3:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] h4:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] h5:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] h6:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] p:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] a:where(:not(.wp-element-button):not(.wp-block-social-link-anchor)):not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks [data-dsgo-inline-bg] .wp-element-caption:not(.has-text-color):where(:not(.elementor *):not([data-elementor-type] *)){color:var(--dsgo-text-color,inherit) !important;} .wp-block-designsetgo-section.has-background:not([data-dsgo-inline-bg]):not(.has-text-color){color:var(--wp--preset--color--contrast);--dsgo-text-color:var(--wp--preset--color--contrast);} :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)),.has-background:is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)),.has-text-color:is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)){background-color:var(--wp--preset--color--accent-5);color:var(--wp--preset--color--contrast);} body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) h1:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) h2:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) h3:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) h4:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) h5:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) h6:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) p:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) a:where(:not(.wp-element-button):not(.wp-block-social-link-anchor)):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-1:not(:is(.has-white-background-color,.has-black-background-color)) .wp-element-caption:where(:not(.elementor *):not([data-elementor-type] *)){color:var(--wp--preset--color--contrast);} :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)),.has-background:is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)),.has-text-color:is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)){background-color:var(--wp--preset--color--accent-2);color:var(--wp--preset--color--contrast);} body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) h1:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) h2:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) h3:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) h4:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) h5:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) h6:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) p:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) a:where(:not(.wp-element-button):not(.wp-block-social-link-anchor)):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-2:not(:is(.has-white-background-color,.has-black-background-color)) .wp-element-caption:where(:not(.elementor *):not([data-elementor-type] *)){color:var(--wp--preset--color--contrast);} :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)),.has-background:is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)),.has-text-color:is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)){background-color:var(--wp--preset--color--accent-1);color:var(--wp--preset--color--contrast);} body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) h1:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) h2:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) h3:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) h4:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) h5:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) h6:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) p:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) a:where(:not(.wp-element-button):not(.wp-block-social-link-anchor)):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-3:not(:is(.has-white-background-color,.has-black-background-color)) .wp-element-caption:where(:not(.elementor *):not([data-elementor-type] *)){color:var(--wp--preset--color--contrast);} :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)),.has-background:is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)),.has-text-color:is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)){background-color:var(--wp--preset--color--accent-3);color:var(--wp--preset--color--accent-2);} body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) h1:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) h2:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) h3:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) h4:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) h5:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) h6:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) p:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) a:where(:not(.wp-element-button):not(.wp-block-social-link-anchor)):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-4:not(:is(.has-white-background-color,.has-black-background-color)) .wp-element-caption:where(:not(.elementor *):not([data-elementor-type] *)){color:var(--wp--preset--color--accent-2);} :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)),.has-background:is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)),.has-text-color:is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)){background-color:var(--wp--preset--color--contrast);color:var(--wp--preset--color--base);} body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) h1:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) h2:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) h3:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) h4:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) h5:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) h6:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) p:where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) a:where(:not(.wp-element-button):not(.wp-block-social-link-anchor)):where(:not(.elementor *):not([data-elementor-type] *)),body .wp-site-blocks :is(.wp-block-group,.wp-block-column).is-style-section-5:not(:is(.has-white-background-color,.has-black-background-color)) .wp-element-caption:where(:not(.elementor *):not([data-elementor-type] *)){color:var(--wp--preset--color--base);}   body .wp-site-blocks input:not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="image"]):not([type="hidden"]),body .wp-site-blocks textarea,body .wp-site-blocks select{background-color:var(--wp--preset--color--base);color:var(--wp--preset--color--contrast);border:1px solid color-mix(in srgb, var(--wp--preset--color--contrast) 30%, transparent);} .wp-site-blocks input[type="submit"]:not(.wp-element-button),.wp-site-blocks button[type="submit"]:not(.wp-element-button){background-color:var(--wp--preset--color--accent-2);color:var(--wp--preset--color--base);border-width:0;padding:12px 30px;font-family:inherit;font-size:var(--wp--preset--font-size--medium, 1rem);line-height:inherit;cursor:pointer;}</style>
 		<style id="wp-custom-css">
 			/* Insights (Latest Posts) titles - brand color. Added 2026-05-29 */
 .srj-latest-insights .wp-block-latest-posts__post-title{color:var(--navy)!important;-webkit-text-fill-color:var(--navy)!important}
@@ -700,27 +848,27 @@ body.home{background-color:#ffffff!important}
             </svg>
             <span class="announce-search-label">Search</span>
           </button>
-          <a href="https://srjconsultingservices.com/schedule-consultation/" target="_blank" rel="noopener">Schedule a Free AI Consultation <span class="arrow">&rarr;</span></a>
+          <a href="/schedule-consultation/" target="_blank" rel="noopener">Schedule a Free AI Consultation <span class="arrow">&rarr;</span></a>
         </div>
       </div>
     </div>
         <header class="nav">
       <div class="container nav-inner">
-        <a href="https://srjconsultingservices.com/" class="logo" style="text-decoration:none">
+        <a href="/" class="logo" style="text-decoration:none">
           <div class="logo-mark">SRJ Consulting<span class="amp">&amp;</span>Services</div>
           <div class="logo-tag">The Operating Discipline for AI Library&trade;</div>
         </a>
 
                 <nav class="primary">
           <ul>
-            <li><a href="https://srjconsultingservices.com/about/">About</a></li>
-            <li><a href="https://srjconsultingservices.com/services/">Services</a></li>
-            <li><a href="https://srjconsultingservices.com/applications/">Applications</a></li>
-            <li><a href="https://srjconsultingservices.com/industries/">Industries</a></li>
-            <li><a href="https://srjconsultingservices.com/books/">Books</a></li>
-            <li><a href="https://srjconsultingservices.com/ai-resources/">Resources</a></li>
-            <li><a href="https://srjconsultingservices.com/faq/">FAQ</a></li>
-            <li><a href="https://srjconsultingservices.com/contact/">Contact</a></li>
+            <li><a href="/about/">About</a></li>
+            <li><a href="/services/">Services</a></li>
+            <li><a href="/applications/">Applications</a></li>
+            <li><a href="/industries/">Industries</a></li>
+            <li><a href="/books/">Books</a></li>
+            <li><a href="/ai-resources/">Resources</a></li>
+            <li><a href="/faq/">FAQ</a></li>
+            <li><a href="/contact/">Contact</a></li>
           </ul>
         </nav>
 
@@ -740,16 +888,16 @@ body.home{background-color:#ffffff!important}
         <button class="srj-mobile-close" id="srj-mobile-close" type="button" aria-label="Close menu">&#215;</button>
       </div>
       <ul class="srj-mobile-links">
-        <li><a href="https://srjconsultingservices.com/about/">About</a></li>
-        <li><a href="https://srjconsultingservices.com/services/">Services</a></li>
-        <li><a href="https://srjconsultingservices.com/applications/">Applications</a></li>
-        <li><a href="https://srjconsultingservices.com/industries/">Industries</a></li>
-        <li><a href="https://srjconsultingservices.com/books/">Books</a></li>
-        <li><a href="https://srjconsultingservices.com/ai-resources/">Resources</a></li>
-        <li><a href="https://srjconsultingservices.com/faq/">FAQ</a></li>
-        <li><a href="https://srjconsultingservices.com/contact/">Contact</a></li>
+        <li><a href="/about/">About</a></li>
+        <li><a href="/services/">Services</a></li>
+        <li><a href="/applications/">Applications</a></li>
+        <li><a href="/industries/">Industries</a></li>
+        <li><a href="/books/">Books</a></li>
+        <li><a href="/ai-resources/">Resources</a></li>
+        <li><a href="/faq/">FAQ</a></li>
+        <li><a href="/contact/">Contact</a></li>
       </ul>
-      <a href="https://srjconsultingservices.com/schedule-consultation/" target="_blank" rel="noopener" class="srj-mobile-cta">Schedule a Free AI Consultation</a>
+      <a href="/schedule-consultation/" target="_blank" rel="noopener" class="srj-mobile-cta">Schedule a Free AI Consultation</a>
     </nav>
 
         <script>
@@ -929,7 +1077,7 @@ body.home{background-color:#ffffff!important}
       </div>
       <div class="footer-newsletter-action">
         <a href="https://srj-consulting-services.beehiiv.com" target="_blank" rel="noopener noreferrer" class="footer-newsletter-btn">Subscribe Free <span class="arrow">&rarr;</span></a>
-        <a href="https://srjconsultingservices.com/newsletter/" class="footer-newsletter-learn">Learn more about the newsletter</a>
+        <a href="/newsletter/" class="footer-newsletter-learn">Learn more about the newsletter</a>
       </div>
     </div>
 
@@ -955,43 +1103,43 @@ body.home{background-color:#ffffff!important}
       </div>
 
       <div>
-        <h5><a href="https://srjconsultingservices.com/services/" style="color:inherit;text-decoration:none">Services</a></h5>
+        <h5><a href="/services/" style="color:inherit;text-decoration:none">Services</a></h5>
         <ul>
-          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/services/business-services/">AI Business Services</a></li>
-          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/services/risk-governance-security/">AI Risk Governance &amp; Security</a></li>
+          <li class="footer-firm-sub"><a href="/services/business-services/">AI Business Services</a></li>
+          <li class="footer-firm-sub"><a href="/services/risk-governance-security/">AI Risk Governance &amp; Security</a></li>
         </ul>
-        <h5 style="margin-top:24px"><a href="https://srjconsultingservices.com/applications/" style="color:inherit;text-decoration:none">Applications</a></h5>
+        <h5 style="margin-top:24px"><a href="/applications/" style="color:inherit;text-decoration:none">Applications</a></h5>
         <ul>
-          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/ai-audit/">AI Audit</a></li>
-          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/applications/outcomestar/">Outcomestar</a></li>
+          <li class="footer-firm-sub"><a href="/ai-audit/">AI Audit</a></li>
+          <li class="footer-firm-sub"><a href="/applications/outcomestar/">Outcomestar</a></li>
         </ul>
-        <h5 style="margin-top:24px"><a href="https://srjconsultingservices.com/industries/" style="color:inherit;text-decoration:none">Industries</a></h5>
-        <h5 style="margin-top:24px"><a href="https://srjconsultingservices.com/books/" style="color:inherit;text-decoration:none">Books</a></h5>
+        <h5 style="margin-top:24px"><a href="/industries/" style="color:inherit;text-decoration:none">Industries</a></h5>
+        <h5 style="margin-top:24px"><a href="/books/" style="color:inherit;text-decoration:none">Books</a></h5>
         <ul>
-          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/books/ai-business-services/">AI Business Services</a></li>
-          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/books/ai-risk-governance-security/">AI Risk Governance &amp; Security</a></li>
+          <li class="footer-firm-sub"><a href="/books/ai-business-services/">AI Business Services</a></li>
+          <li class="footer-firm-sub"><a href="/books/ai-risk-governance-security/">AI Risk Governance &amp; Security</a></li>
         </ul>
-        <h5 style="margin-top:24px"><a href="https://srjconsultingservices.com/resources/" style="color:inherit;text-decoration:none">Resources</a></h5>
+        <h5 style="margin-top:24px"><a href="/ai-resources/" style="color:inherit;text-decoration:none">Resources</a></h5>
         <ul>
-          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/ai-governance/">AI Governance Library</a></li>
-          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/ai-governance/ai-tools/">AI Tools Catalog</a></li>
-          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/resources/ai-glossary/">AI Glossary</a></li>
-          <li class="footer-firm-sub"><a href="https://srjconsultingservices.com/insights/">Insights</a></li>
+          <li class="footer-firm-sub"><a href="/ai-governance/">AI Governance Library</a></li>
+          <li class="footer-firm-sub"><a href="/ai-governance/ai-tools/">AI Tools Catalog</a></li>
+          <li class="footer-firm-sub"><a href="/resources/ai-glossary/">AI Glossary</a></li>
+          <li class="footer-firm-sub"><a href="/insights/">Insights</a></li>
         </ul>
       </div>
 
       <div>
         <h5>Firm</h5>
         <ul>
-          <li><a href="https://srjconsultingservices.com/about/">About Stephen R. Jordan</a></li>
-          <li><a href="https://srjconsultingservices.com/newsletter/">Newsletter</a></li>
-          <li><a href="https://srjconsultingservices.com/faq/">FAQ</a></li>
-          <li><a href="https://srjconsultingservices.com/press/">Press &amp; Media Kit</a></li>
-          <li><a href="https://srjconsultingservices.com/contact/">Contact</a></li>
+          <li><a href="/about/">About Stephen R. Jordan</a></li>
+          <li><a href="/newsletter/">Newsletter</a></li>
+          <li><a href="/faq/">FAQ</a></li>
+          <li><a href="/press/">Press &amp; Media Kit</a></li>
+          <li><a href="/contact/">Contact</a></li>
         </ul>
         <h5 style="margin-top:30px">Client Resources</h5>
         <ul>
-          <li><a href="https://srjconsultingservices.com/client-upload/">Secure File Upload</a></li>
+          <li><a href="/client-upload/">Secure File Upload</a></li>
         </ul>
       </div>
 
@@ -1009,17 +1157,17 @@ body.home{background-color:#ffffff!important}
           <strong>Office</strong>
                     13054 Cinderella Lane<br>
           Frisco, TX 75035-5194<br>United States        </div>
-        <a href="https://srjconsultingservices.com/schedule-consultation/" target="_blank" rel="noopener" class="footer-schedule-btn">Schedule a Free AI Consultation <span class="arrow">&rarr;</span></a>
+        <a href="/schedule-consultation/" target="_blank" rel="noopener" class="footer-schedule-btn">Schedule a Free AI Consultation <span class="arrow">&rarr;</span></a>
       </div>
     </div>
 
     <div class="footer-bottom">
       <div>&copy; 2026 SRJ Consulting &amp; Services LLC. All rights reserved.</div>
       <div>
-        <a href="https://srjconsultingservices.com/privacy/">Privacy</a> &nbsp;&middot;&nbsp;
-        <a href="https://srjconsultingservices.com/terms/">Terms</a> &nbsp;&middot;&nbsp;
-        <a href="https://srjconsultingservices.com/disclaimer/">Disclaimer</a> &nbsp;&middot;&nbsp;
-        <a href="https://srjconsultingservices.com/contact/">Contact</a>
+        <a href="/privacy/">Privacy</a> &nbsp;&middot;&nbsp;
+        <a href="/terms/">Terms</a> &nbsp;&middot;&nbsp;
+        <a href="/disclaimer/">Disclaimer</a> &nbsp;&middot;&nbsp;
+        <a href="/contact/">Contact</a>
       </div>
     </div>
   </div>
@@ -1212,7 +1360,7 @@ body.home{background-color:#ffffff!important}
   }
 </style>
 <div class="floating-cta" id="floatingCta">
-  <a href="https://srjconsultingservices.com/schedule-consultation/" target="_blank" rel="noopener">
+  <a href="/schedule-consultation/" target="_blank" rel="noopener">
     Schedule a Free AI Consultation <span class="arrow">&rarr;</span>
   </a>
 </div>
@@ -1223,161 +1371,8 @@ body.home{background-color:#ffffff!important}
 </script>
 
 <!-- Consent Management powered by Complianz | GDPR/CCPA Cookie Consent https://wordpress.org/plugins/complianz-gdpr -->
-<div id="cmplz-cookiebanner-container"><div id="cmplz-cookiebanner-1-optout" class="cmplz-cookiebanner cmplz-hidden banner-1 banner-a optout cmplz-bottom-right cmplz-categories-type-view-preferences" aria-modal="true" data-nosnippet="true" role="dialog" aria-live="polite" aria-labelledby="cmplz-header-1-optout" aria-describedby="cmplz-message-1-optout">
-	<div class="cmplz-header">
-		<div class="cmplz-logo"></div>
-		<div class="cmplz-title" id="cmplz-header-1-optout">Manage Consent</div>
-		<div class="cmplz-close" tabindex="0" role="button" aria-label="Close dialog">
-			<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" class="svg-inline--fa fa-times fa-w-11" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>
-		</div>
-	</div>
 
-	<div class="cmplz-divider cmplz-divider-header"></div>
-	<div class="cmplz-body">
-		<div class="cmplz-message" id="cmplz-message-1-optout">To provide the best experiences, we use technologies like cookies to store and/or access device information. Consenting to these technologies will allow us to process data such as browsing behavior or unique IDs on this site. Not consenting or withdrawing consent, may adversely affect certain features and functions.</div>
-		<!-- categories start -->
-		<div class="cmplz-categories">
-			<div class="cmplz-category cmplz-functional">
-				<div class="cmplz-category-header">
-					<span class="cmplz-category-title" id="cmplz-title-functional-1-optout">Functional</span>
-					<span class='cmplz-always-active'>
-						<span class="cmplz-banner-checkbox">
-							<input type="checkbox"
-									id="cmplz-functional-optout"
-									data-category="cmplz_functional"
-									class="cmplz-consent-checkbox cmplz-functional"
-									size="40"
-									value="1"/>
-							<label class="cmplz-label" for="cmplz-functional-optout"><span class="screen-reader-text">Functional</span></label>
-						</span>
-						Always active					</span>
-					<button class="cmplz-category-toggle"
-							aria-expanded="false"
-							aria-controls="cmplz-desc-functional-1-optout"
-							aria-labelledby="cmplz-title-functional-1-optout">
-						<span class="cmplz-icon cmplz-open">
-							<svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" height="18"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"/></svg>
-						</span>
-					</button>
-				</div>
-				<div class="cmplz-description" id="cmplz-desc-functional-1-optout" hidden>
-					<span class="cmplz-description-functional">The technical storage or access is strictly necessary for the legitimate purpose of enabling the use of a specific service explicitly requested by the subscriber or user, or for the sole purpose of carrying out the transmission of a communication over an electronic communications network.</span>
-				</div>
-			</div>
-
-			<div class="cmplz-category cmplz-preferences">
-				<div class="cmplz-category-header">
-					<span class="cmplz-category-title" id="cmplz-title-preferences-1-optout">Preferences</span>
-					<span class="cmplz-banner-checkbox">
-						<input type="checkbox"
-								id="cmplz-preferences-optout"
-								data-category="cmplz_preferences"
-								class="cmplz-consent-checkbox cmplz-preferences"
-								size="40"
-								value="1"/>
-						<label class="cmplz-label" for="cmplz-preferences-optout"><span class="screen-reader-text">Preferences</span></label>
-					</span>
-					<button class="cmplz-category-toggle"
-							aria-expanded="false"
-							aria-controls="cmplz-desc-preferences-1-optout"
-							aria-labelledby="cmplz-title-preferences-1-optout">
-						<span class="cmplz-icon cmplz-open">
-							<svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" height="18"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"/></svg>
-						</span>
-					</button>
-				</div>
-				<div class="cmplz-description" id="cmplz-desc-preferences-1-optout" hidden>
-					<span class="cmplz-description-preferences">The technical storage or access is necessary for the legitimate purpose of storing preferences that are not requested by the subscriber or user.</span>
-				</div>
-			</div>
-
-			<div class="cmplz-category cmplz-statistics">
-				<div class="cmplz-category-header">
-					<span class="cmplz-category-title" id="cmplz-title-statistics-1-optout">Statistics</span>
-					<span class="cmplz-banner-checkbox">
-						<input type="checkbox"
-								id="cmplz-statistics-optout"
-								data-category="cmplz_statistics"
-								class="cmplz-consent-checkbox cmplz-statistics"
-								size="40"
-								value="1"/>
-						<label class="cmplz-label" for="cmplz-statistics-optout"><span class="screen-reader-text">Statistics</span></label>
-					</span>
-					<button class="cmplz-category-toggle"
-							aria-expanded="false"
-							aria-controls="cmplz-desc-statistics-1-optout"
-							aria-labelledby="cmplz-title-statistics-1-optout">
-						<span class="cmplz-icon cmplz-open">
-							<svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" height="18"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"/></svg>
-						</span>
-					</button>
-				</div>
-				<div class="cmplz-description" id="cmplz-desc-statistics-1-optout" hidden>
-					<span class="cmplz-description-statistics">The technical storage or access that is used exclusively for statistical purposes.</span>
-					<span class="cmplz-description-statistics-anonymous">The technical storage or access that is used exclusively for anonymous statistical purposes. Without a subpoena, voluntary compliance on the part of your Internet Service Provider, or additional records from a third party, information stored or retrieved for this purpose alone cannot usually be used to identify you.</span>
-				</div>
-			</div>
-
-			<div class="cmplz-category cmplz-marketing">
-				<div class="cmplz-category-header">
-					<span class="cmplz-category-title" id="cmplz-title-marketing-1-optout">Marketing</span>
-					<span class="cmplz-banner-checkbox">
-						<input type="checkbox"
-								id="cmplz-marketing-optout"
-								data-category="cmplz_marketing"
-								class="cmplz-consent-checkbox cmplz-marketing"
-								size="40"
-								value="1"/>
-						<label class="cmplz-label" for="cmplz-marketing-optout"><span class="screen-reader-text">Marketing</span></label>
-					</span>
-					<button class="cmplz-category-toggle"
-							aria-expanded="false"
-							aria-controls="cmplz-desc-marketing-1-optout"
-							aria-labelledby="cmplz-title-marketing-1-optout">
-						<span class="cmplz-icon cmplz-open">
-							<svg aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" height="18"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"/></svg>
-						</span>
-					</button>
-				</div>
-				<div class="cmplz-description" id="cmplz-desc-marketing-1-optout" hidden>
-					<span class="cmplz-description-marketing">The technical storage or access is required to create user profiles to send advertising, or to track the user on a website or across several websites for similar marketing purposes.</span>
-				</div>
-			</div>
-		</div><!-- categories end -->
-			</div>
-
-	<div class="cmplz-links cmplz-information">
-		<ul>
-			<li><a class="cmplz-link cmplz-manage-options cookie-statement" href="#" data-relative_url="#cmplz-manage-consent-container">Manage options</a></li>
-			<li><a class="cmplz-link cmplz-manage-third-parties cookie-statement" href="#" data-relative_url="#cmplz-cookies-overview">Manage services</a></li>
-			<li><a class="cmplz-link cmplz-manage-vendors tcf cookie-statement" href="#" data-relative_url="#cmplz-tcf-wrapper">Manage {vendor_count} vendors</a></li>
-			<li><a class="cmplz-link cmplz-external cmplz-read-more-purposes tcf" target="_blank" rel="noopener noreferrer nofollow" href="https://cookiedatabase.org/tcf/purposes/" aria-label="Read more about TCF purposes on Cookie Database">Read more about these purposes</a></li>
-		</ul>
-			</div>
-
-	<div class="cmplz-divider cmplz-footer"></div>
-
-	<div class="cmplz-buttons">
-		<button class="cmplz-btn cmplz-accept">Accept</button>
-		<button class="cmplz-btn cmplz-deny">Deny</button>
-		<button class="cmplz-btn cmplz-view-preferences">View preferences</button>
-		<button class="cmplz-btn cmplz-save-preferences">Save preferences</button>
-		<a class="cmplz-btn cmplz-manage-options tcf cookie-statement" href="#" data-relative_url="#cmplz-manage-consent-container">View preferences</a>
-			</div>
-
-
-	<div class="cmplz-documents cmplz-links">
-		<ul>
-			<li><a class="cmplz-link cookie-statement" href="#" data-relative_url="">{title}</a></li>
-			<li><a class="cmplz-link privacy-statement" href="#" data-relative_url="">{title}</a></li>
-			<li><a class="cmplz-link impressum" href="#" data-relative_url="">{title}</a></li>
-		</ul>
-			</div>
-</div>
-</div>
-					<div id="cmplz-manage-consent" data-nosnippet="true"><button class="cmplz-btn cmplz-hidden cmplz-manage-consent manage-consent-1" aria-haspopup="dialog" aria-controls="cmplz-cookiebanner-1-optout">Manage consent</button>
-
-</div>		<style type="text/css">
+							<style type="text/css">
 			.relevanssi-live-search-results {
 				opacity: 0;
 				transition: opacity .25s ease-in-out;
@@ -1412,40 +1407,28 @@ var kadenceConfig = {"screenReader":{"expand":"Child menu","expandOf":"Child men
 
 
 
-    <script type="text/javascript">
-    _linkedin_partner_id = "9681908";
-    window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
-    window._linkedin_data_partner_ids.push(_linkedin_partner_id);
-    </script>
-    <script type="text/javascript">
-    (function(l) {
-      if (!l){window.lintrk = function(a,b){window.lintrk.q.push([a,b])}; window.lintrk.q=[]}
-      var s = document.getElementsByTagName("script")[0];
-      var b = document.createElement("script");
-      b.type = "text/javascript"; b.async = true;
-      b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
-      s.parentNode.insertBefore(b, s);
-    })(window.lintrk);
-    </script>
-    		<script>'undefined'=== typeof _trfq || (window._trfq = []);'undefined'=== typeof _trfd && (window._trfd=[]),
-                _trfd.push({'tccl.baseHost':'secureserver.net'}),
-                _trfd.push({'ap':'wpaas_v2'},
-                    {'server':'de31524669e3'},
-                    {'pod':'c17-prod-p3-us-west-2'},
-                                        {'xid':'46226597'},
-                    {'wp':'6.9.5'},
-                    {'php':'8.3.32'},
-                    {'loggedin':'0'},
-                    {'cdn':'1'},
-                    {'builder':''},
-                    {'theme':'kadence'},
-                    {'wds':'0'},
-                    {'wp_alloptions_count':'367'},
-                    {'wp_alloptions_bytes':'149937'},
-                    {'gdl_coming_soon_page':'0'}
-                    , {'appid':'1166339'}                 );
-            var trafficScript = document.createElement('script'); trafficScript.src = 'https://img1.wsimg.com/signals/js/clients/scc-c2/scc-c2.min.js'; window.document.head.appendChild(trafficScript);</script>
-		<script>window.addEventListener('click', function (elem) { var _elem$target, _elem$target$dataset, _window, _window$_trfq; return (elem === null || elem === void 0 ? void 0 : (_elem$target = elem.target) === null || _elem$target === void 0 ? void 0 : (_elem$target$dataset = _elem$target.dataset) === null || _elem$target$dataset === void 0 ? void 0 : _elem$target$dataset.eid) && ((_window = window) === null || _window === void 0 ? void 0 : (_window$_trfq = _window._trfq) === null || _window$_trfq === void 0 ? void 0 : _window$_trfq.push(["cmdLogEvent", "click", elem.target.dataset.eid]));});</script>
+    
+    
+    		
 		
-		</body>
+		
+		
+<div id="srj-consent-banner" class="srj-consent" role="dialog" aria-modal="false" aria-labelledby="srj-consent-title" hidden>
+  <div class="srj-consent-inner"><h2 id="srj-consent-title">Cookies on this site</h2>
+    <p>We use cookies that are necessary for the site to work. <a href="/privacy/">Read the privacy policy</a>.</p>
+    <details class="srj-consent-detail"><summary>Choose by category</summary>
+      <div class="srj-consent-cat"><label><input type="checkbox" checked disabled /><span><strong>Necessary</strong></span></label></div>
+      <div class="srj-consent-cat"><label><input type="checkbox" id="srj-cat-statistics" /><span><strong>Statistics</strong></span></label></div>
+      <div class="srj-consent-cat"><label><input type="checkbox" id="srj-cat-marketing" /><span><strong>Marketing</strong></span></label></div>
+      <button type="button" class="srj-consent-btn srj-consent-save" id="srj-consent-save">Save my choices</button></details>
+    <div class="srj-consent-actions">
+      <button type="button" class="srj-consent-btn srj-consent-reject" id="srj-consent-reject">Reject all</button>
+      <button type="button" class="srj-consent-btn srj-consent-accept" id="srj-consent-accept">Accept all</button></div>
+  </div></div>
+<script>(function(){var b=document.getElementById('srj-consent-banner');if(!b||!window.srjConsent)return;
+document.getElementById('srj-consent-accept').addEventListener('click',function(){window.srjConsent.accept();});
+document.getElementById('srj-consent-reject').addEventListener('click',function(){window.srjConsent.reject();});
+document.getElementById('srj-consent-save').addEventListener('click',function(){window.srjConsent.save(
+document.getElementById('srj-cat-statistics').checked,document.getElementById('srj-cat-marketing').checked);});})();</script>
+</body>
 </html>

@@ -1,0 +1,212 @@
+/* ---------------------------------------------------------------------------
+   PUBLIC COPY of src/styles/srj-consent.css.
+
+   Served at /consent.css so the governance pages can link it. Those 64 pages
+   carry transplanted WordPress chrome rather than BaseLayout, so an Astro style
+   import never reaches them; they need a plain stylesheet at a stable URL.
+
+   KEEP IN STEP WITH src/styles/srj-consent.css. Two copies is not the design
+   anyone would choose, but the alternative is the governance pages having no
+   banner styling at all, which would leave Reject and Accept as unstyled
+   buttons and lose the visual symmetry that is the compliance requirement.
+
+   THE VISUAL SYMMETRY IS THE COMPLIANCE. Reject and Accept share one rule for
+   size, padding, weight and radius, and differ only in fill. Regulators across
+   the EU have fined the pattern where refusing is visually subordinate to
+   accepting. If this is restyled, change both buttons or neither.
+   --------------------------------------------------------------------------- */
+
+.srj-consent {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: #FFFFFF;
+  border-top: 3px solid #F07800;
+  box-shadow: 0 -4px 24px rgba(26, 19, 87, 0.16);
+  font-family: 'Poppins', system-ui, sans-serif;
+  /* The banner never blocks the page. A wall that cannot be dismissed without
+     accepting is itself a dark pattern, and it breaks crawler access. */
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.srj-consent[hidden] { display: none; }
+
+.srj-consent-inner {
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 1.75rem;
+}
+
+.srj-consent h2 {
+  margin: 0 0 0.5rem;
+  font-family: 'Lora', Georgia, serif;
+  font-size: 1.15rem;
+  color: #201868;
+}
+
+.srj-consent p {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #1A1357;
+  max-width: 58rem;
+}
+
+.srj-consent a { color: #201868; text-decoration: underline; }
+
+/* Detail disclosure. Closed by default, which hides DETAIL, never refusal:
+   "Reject all" is reachable without opening this. */
+.srj-consent-detail {
+  margin: 0 0 1.1rem;
+  border-top: 1px solid #E4E9EF;
+  padding-top: 0.9rem;
+}
+
+.srj-consent-detail summary {
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #201868;
+  padding: 0.2rem 0;
+}
+
+.srj-consent-cat {
+  margin: 0.85rem 0;
+}
+
+.srj-consent-cat label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  cursor: pointer;
+}
+
+.srj-consent-cat input { margin-top: 0.28rem; flex: none; }
+
+.srj-consent-cat span {
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: #1A1357;
+}
+
+.srj-consent-cat strong { color: #201868; }
+
+/* Disabled "necessary" toggle. Shown ticked and locked so the visitor can see
+   what is always on rather than being told about it. */
+.srj-consent-cat input:disabled + span { color: #7A8A9E; }
+
+.srj-consent-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* One rule for both primary buttons. Fill is the only difference. */
+.srj-consent-btn {
+  flex: 1 1 12rem;
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.srj-consent-accept {
+  background: #F07800;
+  color: #FFFFFF;
+  border: 2px solid #F07800;
+}
+.srj-consent-accept:hover { background: #D66B00; border-color: #D66B00; }
+
+.srj-consent-reject {
+  background: #FFFFFF;
+  color: #201868;
+  border: 2px solid #201868;
+}
+.srj-consent-reject:hover { background: #F2F4F8; }
+
+.srj-consent-save {
+  flex: 0 0 auto;
+  margin-top: 0.6rem;
+  background: #FFFFFF;
+  color: #201868;
+  border: 2px solid #C9D2DD;
+}
+.srj-consent-save:hover { border-color: #201868; }
+
+.srj-consent-btn:focus-visible {
+  outline: 3px solid rgba(240, 120, 0, 0.45);
+  outline-offset: 2px;
+}
+
+@media (min-width: 720px) {
+  .srj-consent-actions { justify-content: flex-start; }
+  .srj-consent-btn { flex: 0 0 auto; min-width: 11rem; }
+}
+
+/* ---------------------------------------------------------------------------
+   Withdrawal control.
+
+   Consent must be as easy to withdraw as to give. This sits in the footer of
+   every page and reopens the banner.
+   --------------------------------------------------------------------------- */
+
+.srj-consent-reopen {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---------------------------------------------------------------------------
+   Click-to-load placeholder for third-party embeds.
+
+   A YouTube or Zoom iframe is a network call to a third party on page load,
+   whether or not it sets a cookie. Until the visitor asks for it, they get this
+   instead.
+   --------------------------------------------------------------------------- */
+
+[data-consent-frame] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 320px;
+  padding: 2rem;
+  background: #F2F4F8;
+  border: 1px dashed #C9D2DD;
+  border-radius: 4px;
+  text-align: center;
+}
+
+[data-consent-frame] p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #7A8A9E;
+  max-width: 34rem;
+}
+
+[data-consent-frame] iframe {
+  width: 100%;
+  height: 600px;
+  border: 0;
+  display: block;
+}
+
+/* Once the frame is in, the placeholder chrome must not box it. */
+[data-consent-frame]:not([data-frame-src]) {
+  display: block;
+  min-height: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+}
