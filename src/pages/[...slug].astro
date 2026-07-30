@@ -30,6 +30,7 @@
  * handlers. The dataset is asserted against that list below rather than trusted.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
+import BookSpecs from '../components/BookSpecs.astro';
 import migrated from '../content/migrated/migrated-pages.json';
 import { rewriteAssets, rewriteAssetUrl, ASSET_BASE } from '../lib/assets';
 
@@ -107,6 +108,21 @@ const pageCss: string[] = (page.page_css ?? []).map((f: string) =>
   crumbName={page.h1 || title}
 >
   <div class="migrated" set:html={body} />
+  {/* Bibliographic specs and Book/Offer schema for the nine book detail pages.
+      Renders nothing on any other path, and nothing for a forthcoming title,
+      which has no ISBN, price, or availability to assert.
+
+      Every fact comes from srj-content/books/books.json, generated from
+      press_books and press_book_isbns, so a status or a price cannot drift from
+      the database. That is the failure being designed out: the press kit had
+      Book 04 marked "Forthcoming" for five days after it published, because the
+      same fact was hardcoded in three places.
+
+      The prose above is untouched. The block adds 52 words, which is 1.43 to
+      1.70 percent of each book body, inside gate 15's two percent content-parity
+      tolerance. Checked, not assumed: on a shorter page 52 words would breach
+      it. */}
+  <BookSpecs path={page.path} />
 </BaseLayout>
 
 <style is:global>

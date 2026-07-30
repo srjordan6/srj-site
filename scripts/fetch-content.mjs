@@ -33,7 +33,9 @@ const REQUIRED = 'governance';
 //   leaderboard - arena.ai model rankings, written by publish_leaderboard
 //   legislation - AI bill tracker, written by publish_legislation
 //   migrated    - the 68 Stage 2 pages lifted verbatim from production
-const DIRS = ['news', 'people', 'resources', 'leaderboard', 'legislation', 'migrated'];
+//   books       - bibliographic facts from press_books, for the specs block and
+//                 Book/Offer schema on the nine book detail pages
+const DIRS = ['news', 'people', 'resources', 'leaderboard', 'legislation', 'migrated', 'books'];
 
 const sibling = `../srj-content/${REQUIRED}`;
 

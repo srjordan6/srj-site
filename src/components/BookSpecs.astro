@@ -1,0 +1,262 @@
+---
+/**
+ * Bibliographic specs and Book/Offer schema for a book detail page.
+ *
+ * WHY THIS EXISTS. The book pages have never carried an ISBN, a page count, a
+ * price, or a publication date, on the new site or on WordPress. The theme
+ * template (page-book-detail.php) holds an Amazon link and a cover image and
+ * nothing else. So the pages omit exactly what a buyer, a librarian, and Google
+ * Books each look for, and the site emits Offer schema once across 138 pages.
+ *
+ * WHY IT IS DATA-DRIVEN. Every fact here comes from srj-content/books/books.json,
+ * generated from press_books and press_book_isbns. Nothing bibliographic is
+ * written into a template or into page prose. That is the whole point: the press
+ * kit had Book 04 marked "Forthcoming" for five days after it published, listed
+ * six service lines where there are nine, and carried an ISBN outside SRJ's
+ * registered blocks, all because the same facts were hardcoded in three places.
+ * A status or a price cannot drift from the database if it is never typed twice.
+ *
+ * The PROSE on each page stays exactly as migrated from WordPress. This adds a
+ * specs block and schema; it does not rewrite anything a reader was already
+ * reading, which keeps content parity intact on all nine pages.
+ */
+import books from '../content/books/books.json';
+
+export interface Props {
+  /** Page path, e.g. /books/ai-business-services/the-ai-business-enablement-audit/ */
+  path: string;
+}
+const { path } = Astro.props;
+
+interface Isbn { format: string; isbn: string; list_price: number | null }
+interface Book {
+  book_number: number;
+  title: string;
+  subtitle: string | null;
+  pillar: string;
+  status: string;
+  pages: number | null;
+  published_on: string | null;
+  amazon_url: string | null;
+  url_path: string | null;
+  isbns: Isbn[];
+}
+
+const book = ((books as any).books as Book[]).find((b) => b.url_path === path);
+
+// Format names as a reader recognises them. Bowker records say Hardback and
+// Ebook; a bookshop says Hardcover and Kindle. The registry wording belongs in
+// the ISBN row, not on the page.
+const FORMAT_LABEL: Record<string, string> = {
+  Hardback: 'Hardcover',
+  Paperback: 'Paperback',
+  Ebook: 'Kindle',
+};
+
+const SITE = 'https://srjconsultingservices.com';
+
+const money = (n: number) => `$${n.toFixed(2)}`;
+
+const publishedLabel = book?.published_on
+  ? new Date(book.published_on + 'T12:00:00Z').toLocaleDateString('en-US', {
+      timeZone: 'UTC', month: 'long', day: 'numeric', year: 'numeric',
+    })
+  : null;
+
+/**
+ * Book + Offer JSON-LD.
+ *
+ * One Book node with a workExample per format, which is how schema.org models a
+ * work published in several editions: the ISBN and the price belong to the
+ * edition, not to the work. Emitting three separate Book nodes would claim three
+ * books exist.
+ *
+ * Only rendered for a published book. A forthcoming title has no ISBN, no price,
+ * and no availability, and an Offer asserting otherwise would be false.
+ */
+const schema = book && book.status === 'available' && book.isbns.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'Book',
+      name: book.title,
+      ...(book.subtitle ? { alternateName: book.subtitle } : {}),
+      author: { '@type': 'Person', name: 'Stephen R. Jordan' },
+      publisher: { '@type': 'Organization', name: 'SRJ Consulting & Services Publishing' },
+      inLanguage: 'en',
+      ...(book.published_on ? { datePublished: book.published_on } : {}),
+      ...(book.url_path ? { url: SITE + book.url_path } : {}),
+      isPartOf: {
+        '@type': 'BookSeries',
+        name: 'The Operating Discipline for AI Library',
+        position: book.book_number,
+      },
+      workExample: book.isbns.map((i) => ({
+        '@type': 'Book',
+        bookFormat:
+          i.format === 'Ebook'
+            ? 'https://schema.org/EBook'
+            : i.format === 'Paperback'
+              ? 'https://schema.org/Paperback'
+              : 'https://schema.org/Hardcover',
+        isbn: i.isbn,
+        ...(book.pages ? { numberOfPages: book.pages } : {}),
+        inLanguage: 'en',
+        ...(i.list_price != null && book.amazon_url
+          ? {
+              offers: {
+                '@type': 'Offer',
+                price: i.list_price.toFixed(2),
+                priceCurrency: 'USD',
+                availability: 'https://schema.org/InStock',
+                url: book.amazon_url,
+              },
+            }
+          : {}),
+      })),
+    }
+  : null;
+---
+
+{book && book.status === 'available' && book.isbns.length > 0 && (
+  <section class="book-specs" aria-labelledby="book-specs-head">
+    <h2 id="book-specs-head">Publication details</h2>
+
+    <dl class="bs-meta">
+      <div>
+        <dt>Series</dt>
+        <dd>The Operating Discipline for AI Library&trade;, Volume {book.book_number}</dd>
+      </div>
+      {publishedLabel && (
+        <div>
+          <dt>Published</dt>
+          <dd>{publishedLabel}</dd>
+        </div>
+      )}
+      {book.pages && (
+        <div>
+          <dt>Length</dt>
+          <dd>{book.pages} pages</dd>
+        </div>
+      )}
+      <div>
+        <dt>Publisher</dt>
+        <dd>SRJ Consulting &amp; Services Publishing</dd>
+      </div>
+    </dl>
+
+    <table class="bs-editions">
+      <caption class="sr-only">Editions, ISBNs, and list prices</caption>
+      <thead>
+        <tr><th scope="col">Edition</th><th scope="col">ISBN-13</th><th scope="col">List price</th></tr>
+      </thead>
+      <tbody>
+        {book.isbns.map((i) => (
+          <tr>
+            <th scope="row">{FORMAT_LABEL[i.format] ?? i.format}</th>
+            <td class="bs-isbn">{i.isbn}</td>
+            <td>{i.list_price != null ? money(i.list_price) : '\u2014'}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    {book.amazon_url && (
+      <p class="bs-buy">
+        <a href={book.amazon_url} target="_blank" rel="noopener">
+          Buy on Amazon <span aria-hidden="true">&rarr;</span>
+        </a>
+        <span class="bs-note">List prices shown. Retailer pricing varies.</span>
+      </p>
+    )}
+  </section>
+)}
+
+{schema && (
+  <script type="application/ld+json" is:inline set:html={JSON.stringify(schema)} />
+)}
+
+<style>
+  .book-specs {
+    max-width: var(--container);
+    margin: 48px auto;
+    padding: 28px;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--orange);
+    border-radius: var(--radius);
+    background: var(--paper);
+  }
+  .book-specs h2 {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--navy);
+    margin: 0 0 18px;
+  }
+
+  .bs-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 16px 24px;
+    margin: 0 0 24px;
+  }
+  .bs-meta dt {
+    font-size: 11px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--gray);
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  .bs-meta dd { margin: 0; font-size: 14.5px; color: var(--ink); }
+
+  .bs-editions { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  .bs-editions th, .bs-editions td {
+    text-align: left;
+    padding: 9px 12px 9px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .bs-editions thead th {
+    font-size: 11px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--gray);
+    font-weight: 600;
+  }
+  .bs-editions tbody th { font-weight: 600; color: var(--navy); }
+  /* ISBNs are copied more often than read. Tabular figures stop the digits
+     shifting between rows, which makes a mistyped one easier to spot. */
+  .bs-isbn { font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
+
+  .bs-buy { margin: 22px 0 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
+  .bs-buy a {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--orange);
+    color: var(--white);
+    font-weight: 600;
+    font-size: 14.5px;
+    padding: 11px 22px;
+    border-radius: var(--radius);
+    text-decoration: none;
+  }
+  .bs-buy a:hover { filter: brightness(0.92); }
+  .bs-note { font-size: 12.5px; color: var(--gray); }
+
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (max-width: 620px) {
+    .book-specs { padding: 20px; }
+    .bs-editions { font-size: 13.5px; }
+  }
+</style>
