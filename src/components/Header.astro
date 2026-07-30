@@ -153,103 +153,145 @@ const EMAIL = 'info@srjconsultingservices.com';
 </script>
 
 <style>
-  .site-header { position: sticky; top: 0; z-index: 50; box-shadow: 0 1px 0 rgba(32, 24, 104, 0.08); }
+  /* Values below are PRODUCTION'S OWN, lifted verbatim from the child theme
+     stylesheet (srj-consulting style.css, mirrored in migrated-theme.css)
+     after Stephen's July 30 screenshot showed this header drifting from the
+     live site: wrong topbar shade (navy vs navy-deep), cream mainbar where
+     production uses blurred paper-white, 27px/600 wordmark vs 25px/400,
+     15.5px nav vs 14px, and a color-swap hover where production animates an
+     orange underline. Literal hexes, not tokens, so a token edit cannot
+     drift this chrome away from the WP original again. */
+  /* display:contents dissolves the wrapper's box so the two tiers lay out as
+     body-level children, which is what production has (announce and
+     header.nav are siblings in <body>). Without this, .mainbar's sticky
+     would be caged inside the wrapper's own height and stop sticking one
+     header-height into the scroll. */
+  .site-header { display: contents; }
 
-  /* ---- tier 1: topbar ---- */
-  .topbar { background: var(--navy); }
+  /* ---- tier 1: topbar (production .announce) ---- */
+  .topbar { background: #1A1357; color: #fafaf6; padding: 11px 0; font-size: 13px; letter-spacing: .01em; }
   .topbar-inner {
     display: flex; align-items: center; justify-content: space-between;
-    gap: 20px; min-height: 46px; font-size: 13.5px;
+    gap: 30px; flex-wrap: wrap;
   }
-  .topbar-contact { display: flex; align-items: center; gap: 14px; }
-  .topbar-loc { color: rgba(255, 255, 255, 0.55); }
-  .topbar-dot { color: var(--orange); font-size: 15px; }
-  .topbar-contact a { color: var(--white); text-decoration: none; }
-  .topbar-contact a:hover { color: var(--orange); }
+  .topbar-contact { display: flex; align-items: center; gap: 24px; color: rgba(250,250,246,.78); font-family: 'Poppins', sans-serif; font-size: 12.5px; letter-spacing: .02em; }
+  .topbar-loc { color: rgba(250,250,246,.55); }
+  .topbar-dot { color: #F07800; font-size: 9px; }
+  .topbar-contact a { color: rgba(250,250,246,.92); font-weight: 500; text-decoration: none; transition: color .2s ease; display: inline-flex; align-items: center; gap: 7px; }
+  .topbar-contact a:hover { color: #F07800; }
   .topbar-actions { display: flex; align-items: center; gap: 22px; }
   .search-toggle {
-    display: inline-flex; align-items: center; gap: 7px;
-    padding: 6px 14px;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 10px;
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 7px;
-    color: var(--white);
-    font-family: var(--font-body);
-    font-size: 13.5px;
+    border: 1px solid rgba(255,255,255,0.28);
+    border-radius: 4px;
+    color: #ffffff;
+    font-family: 'Poppins', 'Open Sans', sans-serif;
+    font-size: 13px;
+    line-height: 1;
     cursor: pointer;
+    transition: background .15s ease, border-color .15s ease;
   }
-  .search-toggle:hover, .search-toggle[aria-expanded="true"] { border-color: var(--orange); color: var(--orange); }
-  .search-toggle:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+  .search-toggle svg { display: block; width: 14px; height: 14px; }
+  .search-toggle:hover, .search-toggle:focus-visible { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.45); outline: none; }
+  .search-toggle[aria-expanded="true"] { background: #F07800; border-color: #F07800; color: #ffffff; }
   .topbar-cta {
-    color: var(--orange);
-    font-weight: 600;
-    font-size: 12.5px;
-    letter-spacing: 0.14em;
+    font-family: 'Poppins', sans-serif;
+    font-size: 11.5px;
+    letter-spacing: .18em;
     text-transform: uppercase;
+    color: #F07800;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     text-decoration: none;
+    transition: opacity .2s ease;
     white-space: nowrap;
   }
-  .topbar-cta:hover { color: var(--white); }
-  .topbar-cta .arrow { margin-left: 6px; letter-spacing: 0; }
+  .topbar-cta:hover { opacity: .75; }
+  .topbar-cta .arrow { font-size: 14px; letter-spacing: 0; }
 
   /* ---- search panel ---- */
   .search-panel {
-    background: var(--navy-deep);
+    background: #1A1357;
     border-top: 1px solid rgba(255, 255, 255, 0.12);
     padding: 22px 0 26px;
   }
   .search-hint { margin: 10px 0 0; font-size: 12.5px; color: rgba(255, 255, 255, 0.6); }
   /* Pagefind UI variables: brand it rather than shipping the default grey. */
   .search-panel :global(.pagefind-ui) {
-    --pagefind-ui-primary: var(--orange);
-    --pagefind-ui-text: var(--white);
-    --pagefind-ui-background: var(--navy-deep);
+    --pagefind-ui-primary: #F07800;
+    --pagefind-ui-text: #ffffff;
+    --pagefind-ui-background: #1A1357;
     --pagefind-ui-border: rgba(255, 255, 255, 0.25);
-    --pagefind-ui-tag: var(--navy);
+    --pagefind-ui-tag: #201868;
     --pagefind-ui-border-width: 1px;
     --pagefind-ui-border-radius: 8px;
-    --pagefind-ui-font: var(--font-body);
+    --pagefind-ui-font: 'Poppins', sans-serif;
   }
-  .search-panel :global(.pagefind-ui__result-link) { color: var(--orange); }
+  .search-panel :global(.pagefind-ui__result-link) { color: #F07800; }
   .search-panel :global(.pagefind-ui__result-excerpt) { color: rgba(255, 255, 255, 0.8); }
 
-  /* ---- tier 2: main bar ---- */
-  .mainbar { background: var(--cream); }
-  .bar { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-top: 16px; padding-bottom: 16px; }
-  .brand { display: flex; flex-direction: column; gap: 4px; text-decoration: none; }
+  /* ---- tier 2: main bar (production header.nav) ---- */
+  .mainbar {
+    /* Production: the announce bar scrolls away; header.nav alone sticks. */
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(250,250,246,.94);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid #e4e2dc;
+  }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-top: 22px; padding-bottom: 22px; }
+  .brand { display: flex; flex-direction: column; gap: 4px; line-height: 1; text-decoration: none; }
   .brand-line {
-    font-family: var(--font-head);
-    font-weight: 600;
-    font-size: 27px;
-    line-height: 1.1;
-    color: var(--navy);
+    font-family: 'Lora', serif;
+    font-weight: 400;
+    font-size: 25px;
+    line-height: 1;
+    color: #201868;
+    letter-spacing: -0.01em;
   }
-  .brand-line .amp { color: var(--orange); margin-right: 1px; }
+  .brand-line .amp { color: #F07800; font-style: italic; padding: 0 3px; }
   .brand-tag {
-    font-family: var(--font-body);
+    font-family: 'Poppins', sans-serif;
     font-weight: 600;
-    font-size: 10.5px;
-    letter-spacing: 0.22em;
+    font-size: 9.5px;
+    letter-spacing: .26em;
     text-transform: uppercase;
-    color: var(--navy);
-    opacity: 0.85;
+    color: #6b6b78;
+    margin-top: 2px;
   }
-  nav ul { display: flex; gap: 30px; list-style: none; margin: 0; padding: 0; align-items: center; }
+  nav ul { display: flex; gap: 38px; list-style: none; margin: 0; padding: 0; align-items: center; }
   nav a {
-    color: var(--navy);
-    font-size: 15.5px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    color: #3a3a45;
     font-weight: 500;
+    letter-spacing: .01em;
+    position: relative;
+    padding: 6px 0;
     text-decoration: none;
   }
-  nav a:hover, nav a[aria-current="page"] { color: var(--orange); }
+  nav a:hover { color: #201868; }
+  nav a::after {
+    content: ''; position: absolute; left: 0; bottom: 0; width: 0; height: 1px;
+    background: #F07800; transition: width .3s ease;
+  }
+  nav a:hover::after, nav a[aria-current="page"]::after { width: 100%; }
+  nav a[aria-current="page"] { color: #201868; font-weight: 600; }
 
   @media (max-width: 1080px) {
     .topbar-contact { display: none; }
     .topbar-inner { justify-content: flex-end; }
   }
+  @media (max-width: 980px) {
+    nav ul { gap: 24px; }
+  }
   @media (max-width: 860px) {
     .bar { flex-direction: column; align-items: flex-start; gap: 12px; }
     nav ul { gap: 14px 20px; flex-wrap: wrap; }
-    .topbar-cta { letter-spacing: 0.08em; }
+    .brand-line { font-size: 20px; }
+    .brand-tag { font-size: 8.5px; }
   }
 </style>
