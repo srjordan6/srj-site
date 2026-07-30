@@ -8,12 +8,13 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 // BaseLayout, so nothing the Astro layout adds reaches them. Consent and the
 // tracker declarations have to be injected here instead.
 //
-// This imports the SAME consent.ts the Astro components use. Node 22 runs
-// TypeScript directly, so there is one implementation of the consent gate for
-// the whole site rather than a copy in each chrome path. A copy is how the two
-// would drift, and a consent gate that differs between page types is worse than
-// no gate at all, because it looks uniform and is not.
-import { consentBootstrap } from '../src/lib/consent.ts';
+// Imported from the .mjs, NOT from consent.ts. Cloudflare's build image is Node
+// 22.16.0, which cannot import a .ts file: unflagged type stripping only arrived
+// in 22.18. Importing consent.ts here worked locally on 22.22 and failed the
+// Cloudflare build with ERR_UNKNOWN_FILE_EXTENSION, which killed two deploys
+// before the cause was found. consent.ts re-exports this same module, so the
+// Astro components and this script run one implementation of the gate.
+import { consentBootstrap } from '../src/lib/consentBootstrap.mjs';
 
 const UA = { headers: { 'User-Agent': 'Mozilla/5.0 Chrome/126.0' } };
 const get = async (u) => (await fetch(u, UA)).text();
