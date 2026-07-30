@@ -24,7 +24,10 @@
  *   4. otherwise the static handler's own miss behaviour, the 404 page
  */
 
-import { handleContact, handleUpload, type FormEnv } from './forms';
+import {
+  handleContact, handleUpload, handleWorksheetAccess, handleWorksheetConfirm,
+  handleNewsletter, type FormEnv,
+} from './forms';
 
 export interface Env extends FormEnv {
   /** The built site, bound by wrangler's [assets] block. */
@@ -104,14 +107,26 @@ export default {
     const url = new URL(request.url);
 
     // 1. Forms. Checked before assets so a stray file can never shadow them.
-    if (url.pathname === '/api/contact' || url.pathname === '/api/upload') {
-      if (request.method !== 'POST') {
-        return new Response('Method not allowed', { status: 405, headers: { allow: 'POST' } });
+    //
+    // /api/worksheet-confirm is the one GET in the set: it is the signed link
+    // from the gate's confirmation email, so it arrives as a navigation, not a
+    // form post.
+    const POST_ROUTES: Record<string, (r: Request, e: FormEnv) => Promise<Response>> = {
+      '/api/contact': handleContact,
+      '/api/upload': handleUpload,
+      '/api/worksheet-access': handleWorksheetAccess,
+      '/api/newsletter': handleNewsletter,
+    };
+    if (url.pathname in POST_ROUTES || url.pathname === '/api/worksheet-confirm') {
+      const isConfirm = url.pathname === '/api/worksheet-confirm';
+      const allowed = isConfirm ? 'GET' : 'POST';
+      if (request.method !== allowed) {
+        return new Response('Method not allowed', { status: 405, headers: { allow: allowed } });
       }
       try {
-        return url.pathname === '/api/contact'
-          ? await handleContact(request, env)
-          : await handleUpload(request, env);
+        return isConfirm
+          ? await handleWorksheetConfirm(request, env)
+          : await POST_ROUTES[url.pathname](request, env);
       } catch (err) {
         console.error('form handler threw', url.pathname, err);
         return new Response(

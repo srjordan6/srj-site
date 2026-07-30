@@ -1,26 +1,56 @@
 ---
-// Staging placeholder. The real homepage migrates in stage 5;
-// this page exists so the scaffold deploys and the shell is reviewable.
+/**
+ * The homepage, migrated from production.
+ *
+ * Replaces the Session 1 staging placeholder. Same discipline as the 70 pages
+ * in [...slug].astro: title, meta description, canonical, Open Graph, robots
+ * and the full JSON-LD graph are production's own bytes, and the body is the
+ * live front page's <main id="primary" class="site-main homepage"> inner HTML,
+ * extracted 2026-07-30, with theme chrome removed by selector. 796 words, five
+ * sections: the $670K hero, the four margin-erosion patterns, the six service
+ * lines, "the advisory is the product", field notes, and the closing CTA.
+ *
+ * WHY THE CONTENT LIVES IN srj-content/migrated/home.json AND NOT IN THIS
+ * FILE. The other 70 migrated pages render from data, and the homepage follows
+ * the same rule for the same reason: when production's front page changes, the
+ * update is a re-extraction of the JSON, not an edit to code. It is a separate
+ * file rather than an entry in migrated-pages.json because [...slug].astro's
+ * rest parameter cannot own '/' while this file exists, and Astro would treat
+ * the duplicate as a route collision.
+ *
+ * page_css: home-page.css is the one stylesheet WordPress enqueues only on the
+ * front page. It resolves through the same ASSET_BASE mechanism as every other
+ * migrated page's CSS, and was verified serving (200) from the R2 path before
+ * this file shipped.
+ */
 import BaseLayout from '../layouts/BaseLayout.astro';
+import home from '../content/migrated/home.json';
+import { rewriteAssets, rewriteAssetUrl, ASSET_BASE } from '../lib/assets';
+
+const page: any = home;
+const schemaRaw: string[] = (page.schema ?? []).map((s: string) => rewriteAssets(s));
+const body = rewriteAssets(page.main);
+const pageCss: string[] = (page.page_css ?? []).map(
+  (f: string) => `${ASSET_BASE}/wp-content/themes/srj-consulting/assets/css/${f}`,
+);
 ---
 <BaseLayout
-  title="SRJ Consulting & Services LLC | Operator-Led AI Advisory"
-  description="AI advisory, the Operating Discipline for AI Library, and the AI Governance Reference Library. Frisco, Texas."
+  title={page.title}
+  description={page.description}
+  canonical={page.canonical}
+  ogTitle={page.og_title}
+  ogDescription={page.og_description}
+  ogImage={rewriteAssetUrl(page.og_image)}
+  robots={page.robots}
+  rawSchema={schemaRaw}
+  pageCss={pageCss}
 >
-  <section class="hero">
-    <div class="container">
-      <p class="eyebrow">Staging &middot; Session 1 Scaffold</p>
-      <h1>The platform build has begun.</h1>
-      <p class="lede">
-        This is the Astro shell for srjconsultingservices.com: brand tokens, header, footer,
-        SEO surface, and the Organization graph, deployed from git to the Cloudflare edge.
-        Production remains on WordPress until each path passes its parity gates.
-      </p>
-      <a class="btn btn-primary" href="/ai-governance/">AI Governance Library (stage 1 target)</a>
-    </div>
-  </section>
+  <div class="migrated homepage" set:html={body} />
 </BaseLayout>
-<style>
-  .hero { padding: 110px 0 90px; background: linear-gradient(180deg, var(--cream), var(--white)); }
-  .lede { max-width: 62ch; font-size: 19px; color: var(--ink-soft); margin-bottom: 34px; }
+
+<style is:global>
+  /* Same baseline the migrated route gives transplanted markup. */
+  .migrated { width: 100%; }
+  .migrated img { max-width: 100%; height: auto; }
+  .migrated table { max-width: 100%; }
 </style>

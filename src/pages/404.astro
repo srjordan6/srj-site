@@ -1,0 +1,96 @@
+---
+/**
+ * 404 page.
+ *
+ * Before this file existed, a miss returned Astro's empty runtime 404: a blank
+ * body with no navigation, which strands anyone arriving on a mistyped or
+ * retired URL. Pairs with `not_found_handling = "404-page"` in wrangler.toml's
+ * [assets] block, which is what makes the asset layer serve dist/404.html for
+ * paths with no matching file; without that line this page builds but is never
+ * shown.
+ *
+ * Robots noindex: an error page in the index is worse than no page, and the
+ * status code alone does not stop a crawler that reached it through a
+ * soft-linking proxy.
+ *
+ * The links below are the site's real hubs, mirroring the primary nav plus the
+ * two libraries, so the dead end costs one click, not a back-button.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const hubs = [
+  { href: '/services/',      label: 'Services',               sub: 'Six AI advisory service lines' },
+  { href: '/books/',         label: 'Books',                  sub: 'THE OPERATING DISCIPLINE FOR AI LIBRARY' },
+  { href: '/ai-governance/', label: 'AI Governance Library',  sub: 'Laws, frameworks, and standards' },
+  { href: '/ai-resources/',  label: 'AI Resources',           sub: 'Glossary, tools, people, news' },
+  { href: '/insights/',      label: 'Insights',               sub: 'Field notes and analysis' },
+  { href: '/contact/',       label: 'Contact',                sub: 'Reach the practice directly' },
+];
+---
+<BaseLayout
+  title="Page Not Found | SRJ Consulting & Services LLC"
+  description="The page you requested does not exist. Browse the SRJ Consulting service, book, and AI governance libraries."
+  robots="noindex, follow"
+>
+  <section class="nf">
+    <div class="container">
+      <p class="nf-code">404</p>
+      <h1>That page is not here.</h1>
+      <p class="nf-lede">
+        The address may have been mistyped, or the page may have moved during the
+        site's rebuild. Everything on this site is reachable from the six hubs
+        below, or through search in the header.
+      </p>
+      <div class="nf-grid">
+        {hubs.map((h) => (
+          <a class="nf-card" href={h.href}>
+            <span class="nf-card-label">{h.label}</span>
+            <span class="nf-card-sub">{h.sub}</span>
+          </a>
+        ))}
+      </div>
+      <p class="nf-help">
+        Still can't find it? <a href="/contact/">Tell us what you were looking for</a>
+        and we'll point you to it.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf { padding: 90px 0 100px; background: linear-gradient(180deg, var(--cream), var(--white)); }
+  .nf-code {
+    font-family: var(--font-head);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    color: var(--orange);
+    margin: 0 0 10px;
+  }
+  h1 { font-family: var(--font-head); font-size: 40px; color: var(--navy); margin: 0 0 14px; }
+  .nf-lede { max-width: 58ch; font-size: 17px; line-height: 1.6; color: var(--ink-soft, #3a3f4c); margin: 0 0 40px; }
+  .nf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 900px; }
+  .nf-card {
+    display: flex; flex-direction: column; gap: 4px;
+    padding: 18px 20px;
+    background: var(--white);
+    border: 1px solid rgba(32, 24, 104, 0.14);
+    border-left: 4px solid var(--navy);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .nf-card:hover {
+    border-left-color: var(--orange);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(32, 24, 104, 0.10);
+  }
+  .nf-card-label { font-family: var(--font-head); font-weight: 600; font-size: 17px; color: var(--navy); }
+  .nf-card-sub { font-size: 13px; color: var(--gray, #7A8A9E); }
+  .nf-help { margin-top: 36px; font-size: 14.5px; color: var(--ink-soft, #3a3f4c); }
+  .nf-help a { color: var(--orange); font-weight: 600; }
+  @media (max-width: 860px) {
+    .nf-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 32px; }
+  }
+</style>

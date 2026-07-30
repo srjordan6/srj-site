@@ -33,7 +33,13 @@ compatibility_date = "2026-07-01"
 [assets]
 directory = "./dist"
 binding = "ASSETS"
-run_worker_first = ["/wp-content/*", "/api/contact", "/api/upload"]
+run_worker_first = [
+  "/wp-content/*", "/api/contact", "/api/upload",
+  "/api/worksheet-access", "/api/worksheet-confirm", "/api/newsletter",
+]
+# Serve dist/404.html for any path with no matching asset that the Worker
+# does not claim. Without this a miss is a blank Astro-runtime 404.
+not_found_handling = "404-page"
 
 # The migrated WordPress media tree: 1,236 referenced objects, ~278 MB.
 # Uploaded with rclone rather than the dashboard because 901 of the filenames

@@ -27,6 +27,13 @@ export interface FormEnv {
   GOOGLE_SA_KEY: string;
   TURNSTILE_SECRET: string;
   UPLOADS: R2Bucket;
+  /** Beehiiv API key and publication id, for the worksheet gate and the
+      footer newsletter form. Set with wrangler secret put / a plain var. */
+  BEEHIIV_API_KEY: string;
+  BEEHIIV_PUB_ID: string;
+  /** HMAC secret for the worksheet-gate confirmation link. Any long random
+      string; rotating it invalidates unclicked links, nothing else. */
+  GATE_SECRET: string;
 }
 
 /** Uniform reply. Never reveals which check rejected a submission. */
@@ -322,4 +329,258 @@ export async function handleUpload(request: Request, env: FormEnv): Promise<Resp
   }
 
   return ok('Thank you. Your files have been received. We will confirm by email within one business day.');
+}
+
+/* ==========================================================================
+ * Worksheet download gate + newsletter signup.
+ *
+ * THE GATE'S CONTRACT, carried over from WordPress exactly:
+ *   - The panel copy promises "enter your email once ... unlock across the
+ *     site, forever." The cookie is srj_worksheet_access=1, the SAME name
+ *     WordPress sets, so every visitor already unlocked on production stays
+ *     unlocked after cutover without being asked again.
+ *   - No unlock on submit. The cookie is set only by the signed confirmation
+ *     link emailed to the subscriber, same as production's
+ *     inc/beehiiv-integration.php behaviour.
+ *   - Once confirmed, that address is never contacted again from this form.
+ *     The only email this path ever sends is the one confirmation the visitor
+ *     explicitly requested.
+ *
+ * Beehiiv's own double opt-in is overridden OFF for the gate subscription so
+ * exactly one email goes out: ours, carrying the signed link. The newsletter
+ * endpoint does NOT override it: there Beehiiv's confirmation IS the flow, and
+ * the /welcome/ page tells the subscriber to whitelist the sender.
+ * ========================================================================== */
+
+const COOKIE_NAME = 'srj_worksheet_access';
+/** Ten years. "Forever" as far as a cookie can promise it. */
+const COOKIE_MAX_AGE = 315360000;
+/** Confirmation links stay valid for 30 days; resubmitting mints a new one. */
+const LINK_TTL_SECONDS = 30 * 24 * 3600;
+
+const hmacKey = (secret: string) =>
+  crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],
+  );
+
+const hex = (buf: ArrayBuffer) =>
+  [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+
+async function signGate(secret: string, email: string, exp: number): Promise<string> {
+  const key = await hmacKey(secret);
+  return hex(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${email}.${exp}`)));
+}
+
+/** Constant-time-ish compare; both sides are fixed-length hex of our own making. */
+function sigEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+const b64uText = (t: string) =>
+  btoa(unescape(encodeURIComponent(t))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const unb64uText = (t: string) =>
+  decodeURIComponent(escape(atob(t.replace(/-/g, '+').replace(/_/g, '/'))));
+
+/**
+ * Subscribe an address to the Beehiiv publication.
+ *
+ * A failure here is logged and swallowed by the gate path: the visitor asked
+ * for the worksheets, and a CRM hiccup is not a reason to refuse them. The
+ * newsletter path treats failure as failure, because there the subscription
+ * IS the product.
+ */
+async function beehiivSubscribe(
+  env: FormEnv,
+  email: string,
+  utmSource: string,
+  doubleOptOverride: 'on' | 'off' | null,
+  suppressWelcome: boolean,
+): Promise<boolean> {
+  if (!env.BEEHIIV_API_KEY || !env.BEEHIIV_PUB_ID) {
+    console.log('beehiiv: BEEHIIV_API_KEY or BEEHIIV_PUB_ID not set, skipping subscribe');
+    return false;
+  }
+  try {
+    const body: Record<string, unknown> = {
+      email,
+      reactivate_existing: true,
+      utm_source: utmSource,
+      referring_site: 'https://srjconsultingservices.com',
+    };
+    // The gate's one outbound email is ours, so Beehiiv's welcome is suppressed
+    // there. The newsletter path leaves it to the publication's own setting.
+    if (suppressWelcome) body.send_welcome_email = false;
+    if (doubleOptOverride) body.double_opt_override = doubleOptOverride;
+    const res = await fetch(
+      `https://api.beehiiv.com/v2/publications/${env.BEEHIIV_PUB_ID}/subscriptions`,
+      {
+        method: 'POST',
+        headers: {
+          authorization: `Bearer ${env.BEEHIIV_API_KEY}`,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      },
+    );
+    if (!res.ok) {
+      console.log(`beehiiv: subscribe ${res.status} for ${utmSource}: ${(await res.text()).slice(0, 200)}`);
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.log('beehiiv: unreachable', err);
+    return false;
+  }
+}
+
+/**
+ * POST /api/worksheet-access
+ *
+ * Fields: first_name (optional), email, decoy_note, form_elapsed,
+ * cf-turnstile-response, book (display title for the email), return (path to
+ * come back to after confirming).
+ */
+export async function handleWorksheetAccess(request: Request, env: FormEnv): Promise<Response> {
+  const form = await request.formData();
+  const blocked = await gate(form, env, request);
+  if (blocked) return blocked;
+
+  const email = clip(form.get('email'), 200).toLowerCase();
+  const firstName = clip(form.get('first_name'), 100);
+  const book = clip(form.get('book'), 200) || 'this book';
+  if (!looksLikeEmail(email)) return fail(400, 'Please provide a valid email address.');
+
+  if (!env.GATE_SECRET) {
+    console.error('worksheet: GATE_SECRET not set, cannot mint confirmation links');
+    return fail(500, 'The download service is temporarily unavailable. Please email ' + MAILBOX + '.');
+  }
+
+  // Return path: same-origin paths only. Anything else collapses to /books/.
+  let ret = clip(form.get('return'), 300);
+  if (!ret.startsWith('/') || ret.startsWith('//') || ret.includes('://')) ret = '/books/';
+
+  const exp = Math.floor(Date.now() / 1000) + LINK_TTL_SECONDS;
+  const sig = await signGate(env.GATE_SECRET, email, exp);
+  const origin = new URL(request.url).origin;
+  const link =
+    `${origin}/api/worksheet-confirm?e=${b64uText(email)}&x=${exp}` +
+    `&s=${sig}&r=${encodeURIComponent(ret)}`;
+
+  // CRM first, best-effort. Double opt-in overridden off: exactly one email
+  // goes to the visitor, and it is ours below.
+  await beehiivSubscribe(env, email, 'worksheet-gate', 'off', true);
+
+  const text = [
+    firstName ? `${firstName},` : 'Hello,',
+    '',
+    "One click and every book's worksheets and templates on srjconsultingservices.com unlock for you, permanently.",
+    '',
+    'Unlock the downloads:',
+    link,
+    '',
+    `You requested this on the ${book} page. If you didn't, ignore this email and nothing happens. You won't hear from this form again.`,
+    '',
+    'SRJ Consulting & Services LLC',
+    'srjconsultingservices.com',
+  ].join('\n');
+
+  try {
+    await sendMail(env, {
+      to: email,
+      fromName: 'SRJ Consulting & Services',
+      subject: 'Confirm your email to unlock the worksheets',
+      text,
+    });
+    console.log(`worksheet: confirmation sent to ${email} for ${book}`);
+  } catch (err) {
+    console.error('worksheet confirmation send failed', err);
+    return fail(500, 'The confirmation email could not be sent. Please email ' + MAILBOX + '.');
+  }
+
+  return ok('Check your inbox: click the confirmation link we just sent and the downloads unlock, permanently.');
+}
+
+/**
+ * GET /api/worksheet-confirm
+ *
+ * The signed link from the email. Verifies, sets the ten-year cookie, and
+ * returns the visitor to the book page they came from.
+ */
+export async function handleWorksheetConfirm(request: Request, env: FormEnv): Promise<Response> {
+  const url = new URL(request.url);
+  const e = url.searchParams.get('e') ?? '';
+  const x = Number(url.searchParams.get('x') ?? '');
+  const s = url.searchParams.get('s') ?? '';
+  let r = url.searchParams.get('r') ?? '/books/';
+  if (!r.startsWith('/') || r.startsWith('//') || r.includes('://')) r = '/books/';
+
+  const plain = (msg: string, status: number) =>
+    new Response(msg, { status, headers: { 'content-type': 'text/plain; charset=utf-8' } });
+
+  if (!env.GATE_SECRET) return plain('Service unavailable.', 500);
+  if (!e || !s || !Number.isFinite(x)) return plain('This link is incomplete. Please use the link from the email.', 400);
+  if (x < Math.floor(Date.now() / 1000)) {
+    return plain('This link has expired. Submit the form on any book page and a fresh one will be sent.', 400);
+  }
+
+  let email = '';
+  try { email = unb64uText(e); } catch { return plain('This link is malformed.', 400); }
+
+  const expect = await signGate(env.GATE_SECRET, email, x);
+  if (!sigEqual(expect, s)) {
+    console.log('worksheet: bad signature on confirm');
+    return plain('This link could not be verified. Please use the exact link from the email.', 400);
+  }
+
+  console.log(`worksheet: confirmed ${email}`);
+  return new Response(null, {
+    status: 302,
+    headers: {
+      location: `${r}${r.includes('?') ? '&' : '?'}unlocked=1`,
+      'set-cookie':
+        `${COOKIE_NAME}=1; Max-Age=${COOKIE_MAX_AGE}; Path=/; Secure; SameSite=Lax`,
+      'cache-control': 'no-store',
+    },
+  });
+}
+
+/**
+ * POST /api/newsletter
+ *
+ * The footer signup on every page. Honeypot and timing apply; Turnstile does
+ * NOT: putting a widget in the footer of 300 static pages is a page-weight tax
+ * on every visitor, and Beehiiv's own double opt-in already means a junk
+ * address that never confirms costs nothing. The subscription here is created
+ * WITHOUT overriding double opt-in, so Beehiiv sends its confirmation and the
+ * client redirects to /welcome/, which tells the subscriber to whitelist the
+ * sender. Same flow WordPress ran.
+ */
+export async function handleNewsletter(request: Request, env: FormEnv): Promise<Response> {
+  const form = await request.formData();
+
+  const where = '/api/newsletter';
+  const trap = clip(form.get('decoy_note'));
+  if (trap) {
+    console.log(`gate: honeypot filled on ${where}`);
+    return ok('Thank you. Check your inbox to confirm your subscription.');
+  }
+  const elapsed = Number(clip(form.get('form_elapsed')));
+  if (Number.isFinite(elapsed) && elapsed >= 0 && elapsed < 2000) {
+    console.log(`gate: too fast on ${where}, ${elapsed}ms`);
+    return ok('Thank you. Check your inbox to confirm your subscription.');
+  }
+
+  const email = clip(form.get('email'), 200).toLowerCase();
+  if (!looksLikeEmail(email)) return fail(400, 'Please provide a valid email address.');
+
+  const subscribed = await beehiivSubscribe(env, email, 'website-footer', null, false);
+  if (!subscribed) {
+    return fail(500, 'The signup service is temporarily unavailable. Please try again shortly.');
+  }
+  console.log(`newsletter: subscribed ${email}`);
+  return ok('Almost there: check your inbox and confirm your subscription.');
 }

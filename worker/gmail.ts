@@ -167,10 +167,19 @@ export interface Mail {
   text: string;
   /** Where a human reply should go. Not the envelope sender. */
   replyTo?: string;
+  /**
+   * Recipient. Defaults to MAILBOX (form notifications). The worksheet gate
+   * sets it to the visitor's address for the confirmation email. Nothing else
+   * should: this Worker is not a general-purpose sender, and the only outbound
+   * mail to visitors is the one they explicitly request by submitting the gate.
+   */
+  to?: string;
+  /** Display name on From. Defaults to the forms identity. */
+  fromName?: string;
 }
 
 /**
- * Send from SENDER to MAILBOX.
+ * Send from SENDER to mail.to, defaulting to MAILBOX.
  *
  * replyTo carries the visitor's address rather than From, deliberately. Forging
  * From would break DMARC alignment and land the mail in spam. The message comes
@@ -183,8 +192,8 @@ export async function sendMail(
   const token = await accessToken(env.GOOGLE_SA_EMAIL, env.GOOGLE_SA_KEY);
 
   const headers = [
-    `From: SRJ Website Forms <${SENDER}>`,
-    `To: ${MAILBOX}`,
+    `From: ${mail.fromName ?? 'SRJ Website Forms'} <${SENDER}>`,
+    `To: ${mail.to ?? MAILBOX}`,
     mail.replyTo ? `Reply-To: ${mail.replyTo}` : '',
     `Subject: ${encodeSubject(mail.subject)}`,
     'MIME-Version: 1.0',

@@ -17,6 +17,13 @@
 // Home is reached through the brand mark, which is how production does it too.
 // If this list changes, check it against the live site rather than editing from
 // memory, because the failure is silent: the nav still renders, it is just wrong.
+//
+// SEARCH, added 2026-07-30. Production's header carries a search toggle opening
+// a panel (WordPress + Relevanssi). Here the toggle opens a panel backed by
+// Pagefind, whose index is already generated at build time (`pagefind --site
+// dist` in the build script) and was shipping unused. The UI script and CSS
+// load lazily on first open, so the 300 pages that never see a search pay
+// nothing for it.
 const nav = [
   { href: '/about/',        label: 'About' },
   { href: '/services/',     label: 'Services' },
@@ -40,10 +47,86 @@ const current = Astro.url.pathname;
         {nav.map((n) => (
           <li><a href={n.href} aria-current={current === n.href ? 'page' : undefined}>{n.label}</a></li>
         ))}
+        <li>
+          <button type="button" class="search-toggle" aria-expanded="false" aria-controls="srj-search-panel" aria-label="Search this site">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" width="18" height="18">
+              <circle cx="11" cy="11" r="7"></circle>
+              <line x1="21" y1="21" x2="16.3" y2="16.3"></line>
+            </svg>
+          </button>
+        </li>
       </ul>
     </nav>
   </div>
+  <div id="srj-search-panel" class="search-panel" hidden>
+    <div class="container">
+      <div id="srj-search-box"></div>
+      <p class="search-hint">Searches every page: governance library, books, services, glossary, tools, insights.</p>
+    </div>
+  </div>
 </header>
+
+<script is:inline>
+// Lazy Pagefind. The index and UI assets live under /pagefind/ in the build
+// output; nothing is fetched until the first open. Escape closes, and focus
+// lands in the input on open.
+(function () {
+  var toggle = document.querySelector('.search-toggle');
+  var panel = document.getElementById('srj-search-panel');
+  if (!toggle || !panel) return;
+  var loaded = false;
+
+  function loadPagefind() {
+    if (loaded) return Promise.resolve();
+    loaded = true;
+    return new Promise(function (resolve) {
+      var css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = '/pagefind/pagefind-ui.css';
+      document.head.appendChild(css);
+      var s = document.createElement('script');
+      s.src = '/pagefind/pagefind-ui.js';
+      s.onload = function () {
+        /* global PagefindUI */
+        new PagefindUI({
+          element: '#srj-search-box',
+          showSubResults: true,
+          showImages: false,
+          translations: { placeholder: 'Search srjconsultingservices.com' },
+        });
+        resolve();
+      };
+      s.onerror = function () {
+        panel.querySelector('#srj-search-box').textContent =
+          'Search could not load. Please try again, or browse from the navigation above.';
+        resolve();
+      };
+      document.head.appendChild(s);
+    });
+  }
+
+  function openPanel() {
+    panel.hidden = false;
+    toggle.setAttribute('aria-expanded', 'true');
+    loadPagefind().then(function () {
+      var input = panel.querySelector('input');
+      if (input) input.focus();
+    });
+  }
+  function closePanel() {
+    panel.hidden = true;
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+
+  toggle.addEventListener('click', function () {
+    panel.hidden ? openPanel() : closePanel();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !panel.hidden) { closePanel(); toggle.focus(); }
+  });
+})();
+</script>
+
 <style>
   .site-header { background: var(--navy); position: sticky; top: 0; z-index: 50; }
   .bar { display: flex; align-items: center; justify-content: space-between; height: 66px; }
@@ -51,8 +134,35 @@ const current = Astro.url.pathname;
   .brand-srj { font-family: var(--font-head); font-weight: 700; font-size: 26px; color: var(--white); }
   .brand-srj::after { content: ''; display: inline-block; width: 8px; height: 8px; margin-left: 2px; background: var(--orange); }
   .brand-rest { font-family: var(--font-body); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--cream); opacity: .85; }
-  nav ul { display: flex; gap: 26px; list-style: none; margin: 0; padding: 0; }
+  nav ul { display: flex; gap: 26px; list-style: none; margin: 0; padding: 0; align-items: center; }
   nav a { color: var(--white); font-size: 14.5px; font-weight: 500; text-decoration: none; opacity: .92; }
   nav a:hover, nav a[aria-current="page"] { color: var(--orange); opacity: 1; }
+  .search-toggle {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; padding: 0;
+    background: transparent; border: 0; border-radius: 6px;
+    color: var(--white); opacity: .92; cursor: pointer;
+  }
+  .search-toggle:hover, .search-toggle[aria-expanded="true"] { color: var(--orange); opacity: 1; }
+  .search-toggle:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+  .search-panel {
+    background: var(--navy-deep);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 22px 0 26px;
+  }
+  .search-hint { margin: 10px 0 0; font-size: 12.5px; color: rgba(255, 255, 255, 0.6); }
+  /* Pagefind UI variables: brand it rather than shipping the default grey. */
+  .search-panel :global(.pagefind-ui) {
+    --pagefind-ui-primary: var(--orange);
+    --pagefind-ui-text: var(--white);
+    --pagefind-ui-background: var(--navy-deep);
+    --pagefind-ui-border: rgba(255, 255, 255, 0.25);
+    --pagefind-ui-tag: var(--navy);
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 8px;
+    --pagefind-ui-font: var(--font-body);
+  }
+  .search-panel :global(.pagefind-ui__result-link) { color: var(--orange); }
+  .search-panel :global(.pagefind-ui__result-excerpt) { color: rgba(255, 255, 255, 0.8); }
   @media (max-width: 860px) { nav ul { gap: 16px; flex-wrap: wrap; } .bar { height: auto; padding: 12px 24px; flex-direction: column; gap: 8px; } }
 </style>
