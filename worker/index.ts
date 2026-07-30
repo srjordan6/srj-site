@@ -106,6 +106,19 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
+    // 0. Canonical host. WordPress 301'd www to the apex, and the whole site
+    //    assumes one host: canonical tags are absolute apex URLs, and the
+    //    worksheet-unlock cookie is host-only, minted on the apex by the
+    //    confirmation link. Serving www as a second first-class host broke
+    //    exactly that: Stephen confirmed on the apex, browsed on www, and the
+    //    library stayed locked with the cookie sitting on the other host
+    //    (July 30, first gate test after cutover). One permanent redirect
+    //    restores the WP behaviour and retires the cookie split.
+    if (url.hostname === 'www.srjconsultingservices.com') {
+      url.hostname = 'srjconsultingservices.com';
+      return Response.redirect(url.toString(), 301);
+    }
+
     // 1. Forms. Checked before assets so a stray file can never shadow them.
     //
     // /api/worksheet-confirm is the one GET in the set: it is the signed link
