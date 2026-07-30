@@ -67,3 +67,32 @@ export function rewriteAssetUrl(url?: string): string | undefined {
   }
   return url;
 }
+
+/**
+ * Make every internal link in a block of body HTML root-relative.
+ *
+ * The migrated pages carry production's own markup, and production emits
+ * absolute internal hrefs: 334 of them across 66 of the 70 pages, plus three
+ * on the homepage, as surveyed July 30, 2026. On staging every one of those
+ * links jumps the visitor to the live WordPress site mid-navigation; after
+ * cutover they would still work, which is exactly why the leak was invisible
+ * to parity checks and had to be caught by clicking.
+ *
+ * Scope is deliberately narrow: only href attributes, matched with their
+ * quote, so the JSON-LD schema graphs are untouched. Schema @id and url
+ * values are SUPPOSED to be absolute canonical srjconsultingservices.com
+ * URLs — rewriting those would break entity identity, not fix a link. That
+ * is why this is a separate function applied only to page.main and never to
+ * page.schema.
+ *
+ * The content files stay verbatim production bytes (parity rule); the
+ * normalisation happens at render, same as the wp-content rewrite above.
+ */
+export function rewriteInternalLinks(html: string): string {
+  if (!html) return html;
+  return html
+    .replaceAll(`href="${LEGACY_ORIGIN}/`, `href="/`)
+    .replaceAll(`href='${LEGACY_ORIGIN}/`, `href='/`)
+    .replaceAll(`href="//srjconsultingservices.com/`, `href="/`)
+    .replaceAll(`href="${LEGACY_ORIGIN}"`, `href="/"`);
+}

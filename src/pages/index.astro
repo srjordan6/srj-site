@@ -25,11 +25,11 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import home from '../content/migrated/home.json';
-import { rewriteAssets, rewriteAssetUrl, ASSET_BASE } from '../lib/assets';
+import { rewriteAssets, rewriteAssetUrl, rewriteInternalLinks, ASSET_BASE } from '../lib/assets';
 
 const page: any = home;
 const schemaRaw: string[] = (page.schema ?? []).map((s: string) => rewriteAssets(s));
-const body = rewriteAssets(page.main);
+const body = rewriteInternalLinks(rewriteAssets(page.main));
 const pageCss: string[] = (page.page_css ?? []).map(
   (f: string) => `${ASSET_BASE}/wp-content/themes/srj-consulting/assets/css/${f}`,
 );

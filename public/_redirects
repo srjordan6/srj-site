@@ -1,4 +1,97 @@
+# Redirect map — the single source for every redirect on this site.
+#
+# Served by Cloudflare's static-asset layer as real 301s. History: the July 28
+# staging test found _redirects ignored (all four rules 404ed), and the rules
+# moved into astro.config.mjs `redirects`. That was the wrong lesson from a
+# transient result: Astro static `redirects` emit meta-refresh HTML pages that
+# serve as 200s (soft redirects), while this file — retested July 30 — now
+# yields true 301s (proven by /ai-governance/.../dcam-2/). So everything is
+# consolidated here and astro.config.mjs no longer declares redirects.
+#
+# Sources of these rules:
+#   1. The four original governance/glossary rules (below, unchanged).
+#   2. The seven rules formerly in astro.config.mjs.
+#   3. The full WordPress Redirection plugin export of July 30, 2026
+#      (C:\SRJ Website Code Archive\redirects.json, 53 rules), reconciled:
+#      disabled rules dropped (ids 26, 32, 35); duplicate sources collapsed to
+#      the rule WordPress actually fires (lowest position; ids 9, 18, 41, 43,
+#      44, 45, 46 dropped); absolute srjconsultingservices.com targets made
+#      root-relative so they hold on staging and production alike; the
+#      "Ignore Case" garbage in id 2's target stripped.
+#
+# Every source was verified 404 on staging before being claimed (no rule
+# shadows a live page), and every target verified 200, with one exception:
+# ids 1-2 targeted /ai-business-enablement-audit/, a WordPress top-level page
+# that does not exist on this site, so both are flattened to the canonical
+# service URL.
+#
+# Deliberately preserved production chains (do not "fix" these):
+#   /ai-glossary/ -> /resources/ai-glossary/ -> /ai-resources/ai-glossary/
+#   /services/ai-it-security-audit/ -> /books/.../ai-it-security-audit/
+#     -> /services/risk-governance-security/ai-it-security-audit/
+# Both reproduce WordPress's own hop count so crawlers see no change at
+# cutover, the same reasoning recorded for /ai-glossary/ in v1.15.
+#
+# Production oddity preserved for parity: /srj-biography/ -> /insights/ is the
+# rule WordPress fires (position 13, 8 hits); its /about/ twin never ran.
+
+# --- governance duplicates + glossary move (original four) ---
 /ai-governance/data-management-frameworks/dcam-2/ /ai-governance/data-management-frameworks/dcam/ 301
 /ai-governance/sector-rules/ecoa-ai-2/ /ai-governance/sector-rules/ecoa-ai/ 301
 /ai-governance/vendor-disclosure/aibom-2/ /ai-governance/vendor-disclosure/aibom/ 301
 /resources/ai-glossary/ /ai-resources/ai-glossary/ 301
+
+# --- formerly in astro.config.mjs ---
+/home/ / 301
+/ai-glossary/ /resources/ai-glossary/ 301
+/resources/subscribe-to-tax-calendar/ /insights/ 301
+/resources/tax-rates/ /insights/ 301
+/resources/ /ai-resources/ 301
+
+# --- WordPress Redirection export, July 30, 2026 ---
+/ai-business.php /services/business-services/ai-business-enablement-audit/ 301
+/ai-business /services/business-services/ai-business-enablement-audit/ 301
+/ai-business/ /services/business-services/ai-business-enablement-audit/ 301
+/all-services/ /services/ 301
+/library /books/ 301
+/library/ /books/ 301
+/library/enablement/ /books/ 301
+/my-mission/ /about/ 301
+/srj-biography/ /insights/ 301
+/industries-we-serve/ /industries/ 301
+/hospitality/ /industries/ 301
+/blog/ /insights/ 301
+/blog/* /insights/ 301
+/press-releases/ /insights/ 301
+/newsletter-archives/2024/5/ /newsletter/ 301
+/newsletter-archives/ /insights/ 301
+/books/the-ai-risk-governance-review/ /books/ai-business-services/the-ai-risk-governance-review/ 301
+/books/ai-business-services/the-ai-risk-governance-review/the-ai-it-security-audit/ /books/ai-risk-governance-security/the-ai-it-security-audit/ 301
+/books/ai-business-services/the-ai-risk-governance-review/the-ai-it-security-implementation-strategy/ /books/ai-risk-governance-security/the-ai-it-security-implementation-strategy/ 301
+/services/ai-business-enablement-audit/ /services/business-services/ai-business-enablement-audit/ 301
+/services/ai-efficiency-process/ /services/business-services/ai-efficiency-process/ 301
+/services/ai-readiness-performance/ /services/business-services/ai-readiness-performance/ 301
+/services/business-services/risk-governance-security/ /services/risk-governance-security/ 301
+/services/ai-security-implementation/ /services/risk-governance-security/ai-security-implementation/ 301
+/services/ai-it-security-audit/ /books/ai-risk-governance-security/ai-it-security-audit/ 301
+/services/ai-risk-governance-review/ /services/business-services/ai-risk-governance-review/ 301
+/services/risk-governance-security/the-ai-it-security-audit/ /books/ai-risk-governance-security/the-ai-it-security-audit/ 301
+/books/ai-risk-governance-security/ai-it-security-audit/ /services/risk-governance-security/ai-it-security-audit/ 301
+/bookkeeping-services/ /services/ 301
+/succession-planning/ /services/ 301
+/portal/ /client-upload/ 301
+/services/risk-governance-security-3/secure-by-design/ /services/risk-governance-security/secure-by-design/ 301
+/services/risk-governance-security-3/application-security/ /services/risk-governance-security/application-security/ 301
+/services/risk-governance-security-3/cloud-infrastructure-security/ /services/risk-governance-security/cloud-infrastructure-security/ 301
+/books/ai-risk-governance-security-2/the-secure-by-design/ /books/ai-risk-governance-security/the-secure-by-design/ 301
+/books/ai-risk-governance-security-2/the-application-security/ /books/ai-risk-governance-security/the-application-security/ 301
+/books/ai-risk-governance-security-2/the-cloud-infrastructure-security/ /books/ai-risk-governance-security/the-cloud-infrastructure-security/ 301
+/ai-it-security-implementation-strategy/ /services/risk-governance-security/ai-security-implementation/ 301
+/ai-readiness-performance-assessment/ /services/business-services/ai-readiness-performance/ 301
+/ai-efficiency-process-optimization/ /services/business-services/ai-efficiency-process/ 301
+/ai-readiness-assessment/ /ai-maturity-assessment/ 301
+/applications/applications-outcomestar/ /applications/outcomestar/ 301
+/services/business-services/ai-readiness-performance-assessment/ /services/business-services/ai-readiness-performance/ 301
+/dora/ /ai-governance/dora/ 301
+/eu-product-liability/ /ai-governance/eu-product-liability/ 301
+/nis2/ /ai-governance/nis2/ 301
