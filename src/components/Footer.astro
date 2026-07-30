@@ -322,18 +322,25 @@ const NEWSLETTER_URL = 'https://srj-consulting-services.beehiiv.com';
   .f-grid li a:hover { color: var(--orange); }
 
   /* Nested sub-item: indented with a rotated arrow marker, carried from the
-     WordPress footer's .footer-firm-sub. */
+     WordPress footer's .footer-firm-sub.
+
+     The character is written literally rather than as a CSS escape. An earlier
+     version used content: '\\21B3', which in an Astro style block emits a real
+     backslash followed by 21B3, so every sub-item rendered the visible text
+     "\21B3" beside its link instead of the arrow. Escaping across two layers is
+     not worth the ambiguity when the glyph can just be typed. */
   .f-grid li.sub {
     padding-left: 16px;
     position: relative;
   }
   .f-grid li.sub::before {
-    content: '\\21B3';
+    content: '↳';
     position: absolute;
     left: 0;
     color: var(--orange);
     opacity: 0.7;
     font-size: 12px;
+    line-height: 1.6;
   }
   .f-grid li.sub a { font-size: 13px; color: rgba(255, 255, 255, 0.72); }
 

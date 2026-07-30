@@ -3,25 +3,111 @@
 // Everything below this layer per the July 27 IA decision, with one
 // exception fixed by the same decision: /ai-governance/ stays at root
 // and is featured here as the flagship card.
+//
+// TWO SECTIONS, matching the structure of the WordPress /resources/ page:
+// "Free AI Tools" for the reference material the practice maintains, and
+// "Reading and Updates" for the things a visitor reads rather than looks up.
+// The WordPress page had both; the first version of this hub had only the
+// first, which left Insights, the newsletter, the press kit and the FAQ with
+// no route in from the Resources hub at all.
+//
+// NO NEW URLS. Every href below already exists and already answers 200. Six
+// point at pages the replatform built (/ai-resources/*), five at pages in the
+// 138-URL production inventory (/ai-governance/, /ai-governance/sources/,
+// /insights/, /newsletter/, /press/, /faq/). Nothing here invents a path or
+// contradicts the site tracker: a card is a route in, not a new destination.
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
-const sections = [
-  { href: '/ai-governance/', title: 'AI Governance Reference Library', desc: 'Laws, regulations, standards, and enforcement, maintained against primary sources. The flagship: 60+ pages, 82,000+ words.', live: true, flagship: true },
-  { href: '/ai-resources/ai-glossary/', title: 'AI Glossary', desc: '522 terms across governance, security, and operations, defined in plain business English.', live: true, note: 'Each term with a worked example and, where citable, its origin.' },
-  { href: '/ai-resources/ai-news/', title: 'AI News', desc: 'What\u2019s happening in the world of AI: the day\u2019s top stories ranked by breadth of global coverage, each with its own page and sources.', live: true, note: 'Refreshed every morning by the pipeline.' },
-  { href: '/ai-resources/ai-people/', title: 'AI Movers and Shakers', desc: 'The movers and shakers in the world of AI: verified one-page profiles with legacy, achievements, timelines, and primary sources.', live: true, note: 'Profiles added as they are verified.' },
+const freeTools = [
+  {
+    href: '/ai-governance/',
+    title: 'AI Governance Reference Library',
+    desc: 'Laws, regulations, standards, and enforcement, maintained against primary sources. The flagship: 60+ pages, 82,000+ words.',
+    live: true,
+    flagship: true,
+  },
+  {
+    href: '/ai-resources/ai-glossary/',
+    title: 'AI Glossary',
+    desc: '522 terms across governance, security, and operations, defined in plain business English.',
+    live: true,
+    note: 'Each term with a worked example and, where citable, its origin.',
+  },
+  {
+    href: '/ai-resources/ai-news/',
+    title: 'AI News',
+    desc: 'What\u2019s happening in the world of AI: the day\u2019s top stories ranked by breadth of global coverage, each with its own page and sources.',
+    live: true,
+    note: 'Refreshed every morning by the pipeline.',
+  },
+  {
+    href: '/ai-resources/ai-people/',
+    title: 'AI Movers and Shakers',
+    desc: 'The movers and shakers in the world of AI: verified one-page profiles with legacy, achievements, timelines, and primary sources.',
+    live: true,
+    note: 'Profiles added as they are verified.',
+  },
   // Replaced the AI News Events card, which duplicated AI News: both promised
-  // "what happened recently" and a reader could not tell which to click. Sources
-  // is the opposite of news and the better companion to it, the primary-document
-  // layer that news coverage is explicitly NOT admissible against.
-  { href: '/ai-governance/sources/', title: 'Sources', desc: 'The primary documents behind the library: statutes, regulator publications, and standards, linked to the actual text rather than an issuing body\u2019s homepage.', live: true, note: 'Press is inadmissible as evidence here.' },
-  { href: '/ai-resources/ai-tools/', title: 'AI Tools', desc: 'The 320-tool catalog: vendors, categories, home jurisdictions, and verified official URLs for the AI tools market.', live: true, note: 'Per-tool profiles added as they are verified.' },
-  { href: '/ai-resources/everything-else/', title: 'Everything Else', desc: 'Every verified resource that fits nowhere else, collected widely, published only when verified.', live: false, note: 'Grows with the platform.' },
+  // "what happened recently" and a reader could not tell which to click.
+  // Sources is the opposite of news and the better companion to it, the
+  // primary-document layer that news coverage is explicitly NOT admissible
+  // against.
+  {
+    href: '/ai-governance/sources/',
+    title: 'AI Sources',
+    desc: 'The primary documents behind the library: statutes, regulator publications, and standards, linked to the actual text rather than an issuing body\u2019s homepage.',
+    live: true,
+    note: 'Press is inadmissible as evidence here.',
+  },
+  {
+    href: '/ai-resources/ai-tools/',
+    title: 'AI Tools',
+    desc: 'The 320-tool catalog: vendors, categories, home jurisdictions, and verified official URLs for the AI tools market.',
+    live: true,
+    note: 'Per-tool profiles added as they are verified.',
+  },
+  {
+    href: '/ai-resources/everything-else/',
+    title: 'Everything else AI',
+    desc: 'Every verified resource that fits nowhere else, collected widely, published only when verified.',
+    live: false,
+    note: 'Grows with the platform.',
+  },
+];
+
+// Things a visitor reads rather than looks up. All four are existing pages in
+// the production inventory; this section is a route in, not a relocation.
+const readingAndUpdates = [
+  {
+    href: '/insights/',
+    title: 'Insights',
+    desc: 'Field notes from active client engagements, framework analysis, and the reasoning behind the operating discipline.',
+    live: true,
+  },
+  {
+    href: '/newsletter/',
+    title: 'The AI Operating System\u2122 Newsletter',
+    desc: 'Biweekly framework analysis, new templates, and field notes. No software pitches.',
+    live: true,
+    note: 'Free, unsubscribe anytime.',
+  },
+  {
+    href: '/press/',
+    title: 'Press and Media Kit',
+    desc: 'Bios, company fact sheet, and brand assets, generated on demand.',
+    live: true,
+  },
+  {
+    href: '/faq/',
+    title: 'Frequently Asked Questions',
+    desc: 'Direct answers on how the practice works, what an engagement looks like, and where AI governance obligations actually bite.',
+    live: true,
+  },
 ];
 ---
 <BaseLayout
   title="AI Resources | SRJ Consulting & Services"
-  description="The SRJ AI resource collection: the AI Governance Reference Library, AI glossary, verified AI news, people, events, and tools."
+  description="The SRJ AI resource collection: the AI Governance Reference Library, AI glossary, verified AI news, people, sources, and tools, plus insights and the newsletter."
 >
   <section class="hub-hero">
     <div class="container">
@@ -34,10 +120,26 @@ const sections = [
       </p>
     </div>
   </section>
-  <section class="container">
+
+  <section class="container hub-section">
+    <h2 class="sec-head">Free AI Tools</h2>
     <div class="grid">
-      {sections.map((s) => (
+      {freeTools.map((s) => (
         <a class={`card ${s.flagship ? 'flag' : ''}`} href={s.href}>
+          <h3>{s.title}</h3>
+          <p>{s.desc}</p>
+          {s.live ? <span class="badge live">Live</span> : <span class="badge">Coming online</span>}
+          {s.note && <span class="note">{s.note}</span>}
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="container hub-section">
+    <h2 class="sec-head">Reading and Updates</h2>
+    <div class="grid">
+      {readingAndUpdates.map((s) => (
+        <a class="card" href={s.href}>
           <h3>{s.title}</h3>
           <p>{s.desc}</p>
           {s.live ? <span class="badge live">Live</span> : <span class="badge">Coming online</span>}
@@ -50,6 +152,30 @@ const sections = [
 <style>
   .hub-hero { background: linear-gradient(180deg, var(--cream), var(--white)); padding: 84px 0 48px; border-bottom: 1px solid var(--line); margin-bottom: 48px; }
   .lede { max-width: 68ch; font-size: 19px; color: var(--ink-soft); margin: 0; }
+
+  /* Section heading. Small caps and an orange rule rather than a large serif
+     title: these label two groups within one page, and at h1 weight they would
+     compete with the page title for what the page is about. */
+  .hub-section { margin-bottom: 52px; }
+  .sec-head {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--navy);
+    margin: 0 0 6px;
+  }
+  .sec-head::after {
+    content: '';
+    display: block;
+    width: 44px;
+    height: 3px;
+    background: var(--orange);
+    margin-top: 10px;
+    margin-bottom: 26px;
+  }
+
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 22px; }
   .card { display: block; padding: 26px; border: 1px solid var(--line); border-radius: var(--radius); text-decoration: none; background: var(--white); transition: box-shadow .15s ease, transform .15s ease; }
   .card:hover { box-shadow: var(--shadow-card); transform: translateY(-2px); }
@@ -58,5 +184,5 @@ const sections = [
   .card p { font-size: 14.5px; color: var(--ink-soft); margin: 0 0 14px; }
   .badge { display: inline-block; font-size: 11.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--gray); border: 1px solid var(--line); padding: 3px 10px; border-radius: 20px; margin-right: 10px; }
   .badge.live { color: var(--white); background: var(--orange); border-color: var(--orange); }
-  .note { font-size: 12.5px; color: var(--gray); }
+  .note { display: inline-block; font-size: 12.5px; color: var(--gray); }
 </style>
