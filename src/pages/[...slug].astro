@@ -141,6 +141,15 @@ for (const s of page.schema ?? []) {
     // Raw string was not parseable JSON; the derived trail is the fallback.
   }
 }
+// WordPress put per-page classes on <body> via body_class, and one page
+// stylesheet depends on it: every rule in about-page.css is scoped under
+// .about-page-gutenberg, so without the class the whole file is inert and
+// the About page renders as bare baseline (reported by Stephen July 30).
+// The class goes on the wrapper instead of body; descendant selectors don't
+// care which ancestor carries it. The other page stylesheets (blog-post,
+// contact, schedule, welcome) scope on classes present in their own markup
+// and need nothing.
+const wrapperClass = page.path === '/about/' ? 'migrated about-page-gutenberg' : 'migrated';
 ---
 <BaseLayout
   title={title}
@@ -155,7 +164,7 @@ for (const s of page.schema ?? []) {
   crumbs={prodCrumbs}
   crumbName={page.h1 || title}
 >
-  <div class="migrated" set:html={body} />
+  <div class={wrapperClass} set:html={body} />
   {/* Bibliographic specs and Book/Offer schema for the nine book detail pages.
       Renders nothing on any other path, and nothing for a forthcoming title,
       which has no ISBN, price, or availability to assert.
