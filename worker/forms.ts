@@ -57,6 +57,33 @@ const clip = (v: FormDataEntryValue | null, max = 4000): string =>
 const looksLikeEmail = (s: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s);
 
 /**
+ * The visitor's name, as the forms actually send it.
+ *
+ * The contact and upload forms carry first_name + last_name fields (the same
+ * split production's WPForms used), but the first version of these handlers
+ * read a single `name` field that no form sends. Every real submission came
+ * back "Please provide your name and a message" with the name sitting right
+ * there in first_name (Stephen, July 30, first live submission after
+ * cutover). Reads the split fields first and falls back to `name` so any
+ * future single-field form also works.
+ */
+const fullName = (form: FormData): string => {
+  const joined = [clip(form.get('first_name'), 100), clip(form.get('last_name'), 100)]
+    .filter(Boolean)
+    .join(' ');
+  return joined || clip(form.get('name'), 200);
+};
+
+/**
+ * The forms carry an email_confirm field. When present it must match, or the
+ * typo the field exists to catch goes uncaught into the reply-to.
+ */
+const emailMismatch = (form: FormData, email: string): boolean => {
+  const confirm = clip(form.get('email_confirm'), 200).toLowerCase();
+  return Boolean(confirm) && confirm !== email.toLowerCase();
+};
+
+/**
  * Verify a Turnstile token.
  *
  * The error codes are logged. Cloudflare tells you precisely why a token was
@@ -182,7 +209,7 @@ export async function handleContact(request: Request, env: FormEnv): Promise<Res
   const blocked = await gate(form, env, request);
   if (blocked) return blocked;
 
-  const name = clip(form.get('name'), 200);
+  const name = fullName(form);
   const email = clip(form.get('email'), 200);
   const company = clip(form.get('company'), 200);
   const phone = clip(form.get('phone'), 60);
@@ -196,6 +223,7 @@ export async function handleContact(request: Request, env: FormEnv): Promise<Res
 
   if (!name || !message) return fail(400, 'Please provide your name and a message.');
   if (!looksLikeEmail(email)) return fail(400, 'Please provide a valid email address.');
+  if (emailMismatch(form, email)) return fail(400, 'The email addresses do not match.');
 
   const body = [
     'New contact form submission',
@@ -242,7 +270,7 @@ export async function handleUpload(request: Request, env: FormEnv): Promise<Resp
   const blocked = await gate(form, env, request);
   if (blocked) return blocked;
 
-  const name = clip(form.get('name'), 200);
+  const name = fullName(form);
   const email = clip(form.get('email'), 200);
   const company = clip(form.get('company'), 200);
   const reference = clip(form.get('reference'), 200);
@@ -258,6 +286,7 @@ export async function handleUpload(request: Request, env: FormEnv): Promise<Resp
     return fail(400, 'Please confirm the files contain no PHI or regulated health information.');
   }
   if (!looksLikeEmail(email)) return fail(400, 'Please provide a valid email address.');
+  if (emailMismatch(form, email)) return fail(400, 'The email addresses do not match.');
 
   const files = form.getAll('files').filter((f): f is File => f instanceof File && f.size > 0);
   if (!files.length) return fail(400, 'Please choose at least one file to upload.');
@@ -330,6 +359,7 @@ export async function handleUpload(request: Request, env: FormEnv): Promise<Resp
 
   return ok('Thank you. Your files have been received. We will confirm by email within one business day.');
 }
+
 
 /* ==========================================================================
  * Worksheet download gate + newsletter signup.
