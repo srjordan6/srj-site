@@ -26,7 +26,17 @@
   --shadow-card: 0 18px 50px -18px rgba(32, 24, 104, 0.22);
 }
 
-/* reset-lite */
+/* reset-lite + element defaults.
+   INSIDE @layer srj-base ON PURPOSE. Layered rules lose to every unlayered
+   rule regardless of specificity or load order. The 70 migrated pages carry
+   markup authored against the WordPress theme, and this bundle loads AFTER
+   their stylesheets, so before the layer existed these bare element rules
+   (body 17px, the h1 clamp up to 56px) beat the migrated baseline on every
+   tie and the pages rendered oversized in the wrong face. Governance and
+   native pages are unaffected: nothing unlayered competes there, and layered
+   rules still apply wherever they are uncontested. The :root variables stay
+   unlayered above because components read them everywhere. */
+@layer srj-base {
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 body {
@@ -60,3 +70,4 @@ a:hover { color: var(--orange); }
 .btn:hover { transform: translateY(-1px); }
 .btn-primary { background: var(--orange); color: var(--white); }
 .btn-ghost   { background: transparent; color: var(--navy); border: 2px solid var(--navy); }
+}

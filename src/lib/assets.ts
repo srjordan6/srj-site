@@ -96,3 +96,30 @@ export function rewriteInternalLinks(html: string): string {
     .replaceAll(`href="//srjconsultingservices.com/`, `href="/`)
     .replaceAll(`href="${LEGACY_ORIGIN}"`, `href="/"`);
 }
+
+/**
+ * Give each consent-gated YouTube frame its production thumbnail.
+ *
+ * On WordPress, Complianz replaced the blocked iframe with the video's own
+ * thumbnail, served FIRST-PARTY from
+ * /wp-content/uploads/complianz/placeholders/youtube{ID}-maxresdefault.webp —
+ * cached on the site's own server, so showing it makes no third-party request
+ * and is consent-safe. The migration's consent-frame markup kept the gate but
+ * dropped the poster, so the four book-page videos rendered as a bare grey box
+ * (reported by Stephen, July 30).
+ *
+ * All four placeholder images were verified serving 200 from the R2 proxy
+ * before this shipped. The image path is derived from the video ID in the
+ * embed URL, which is exactly how Complianz names them. If a future video's
+ * placeholder is missing from R2, the background silently no-ops and the frame
+ * falls back to the plain gate — degraded, not broken. Styling for the poster
+ * variant lives in src/styles/srj-consent.css under [data-consent-frame][data-poster].
+ */
+export function decorateConsentFrames(html: string): string {
+  if (!html) return html;
+  return html.replace(
+    /<div data-consent-frame="marketing" data-frame-src="https:\/\/www\.youtube-nocookie\.com\/embed\/([A-Za-z0-9_-]{6,})[^"]*"/g,
+    (m, id) =>
+      `${m} data-poster style="background-image:url('/wp-content/uploads/complianz/placeholders/youtube${id}-maxresdefault.webp')"`,
+  );
+}

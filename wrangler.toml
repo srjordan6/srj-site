@@ -30,6 +30,13 @@ compatibility_date = "2026-07-01"
 # /api/glossary.json, /api/tools.json and /api/laws.json are deliberately NOT
 # listed: those are static build artifacts and should be served straight from
 # the asset layer without waking the Worker.
+# Workers Logs: persistent, dashboard-queryable logs (Workers & Pages ->
+# srj-site -> Logs). Enabled July 30 to capture the worksheet gate's
+# `turnstile: rejected, codes=[...]` line without having to time a live
+# tail against a manual form submission.
+[observability]
+enabled = true
+
 [assets]
 directory = "./dist"
 binding = "ASSETS"
