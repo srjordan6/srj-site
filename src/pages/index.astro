@@ -25,6 +25,7 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import home from '../content/migrated/home.json';
+import mainClasses from '../content/migrated/main-classes.json';
 import { rewriteAssets, rewriteAssetUrl, rewriteInternalLinks, ASSET_BASE } from '../lib/assets';
 
 const page: any = home;
@@ -50,7 +51,7 @@ const pageCss: string[] = [
   rawSchema={schemaRaw}
   pageCss={pageCss}
 >
-  <div class="migrated homepage" set:html={body} />
+  <div class={['migrated', (mainClasses as any).classes['/'] ?? 'homepage'].join(' ')} set:html={body} />
 </BaseLayout>
 
 <style is:global>

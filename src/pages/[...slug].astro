@@ -32,6 +32,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import BookSpecs from '../components/BookSpecs.astro';
 import migrated from '../content/migrated/migrated-pages.json';
+import mainClasses from '../content/migrated/main-classes.json';
 import { rewriteAssets, rewriteAssetUrl, rewriteInternalLinks, ASSET_BASE } from '../lib/assets';
 import type { Crumb } from '../lib/pageSchema';
 
@@ -141,15 +142,17 @@ for (const s of page.schema ?? []) {
     // Raw string was not parseable JSON; the derived trail is the fallback.
   }
 }
-// WordPress put per-page classes on <body> via body_class, and one page
-// stylesheet depends on it: every rule in about-page.css is scoped under
-// .about-page-gutenberg, so without the class the whole file is inert and
-// the About page renders as bare baseline (reported by Stephen July 30).
-// The class goes on the wrapper instead of body; descendant selectors don't
-// care which ancestor carries it. The other page stylesheets (blog-post,
-// contact, schedule, welcome) scope on classes present in their own markup
-// and need nothing.
-const wrapperClass = page.path === '/about/' ? 'migrated about-page-gutenberg' : 'migrated';
+// Classes production's <main> element carried, per path. The extractor strips
+// the <main> wrapper as theme chrome, and its classes went with it — which
+// left every stylesheet scoped under them inert: about-page.css entirely
+// under .about-page-gutenberg, the book hero/body styles in migrated-theme.css
+// under .book-detail, and so on (About and the book detail pages both
+// rendered as bare baseline, reported by Stephen July 30). The map is
+// harvested live from production (srj-content migrated/main-classes.json);
+// paths absent from it are templates that emit no <main> at all, whose styles
+// bind to classes present in their own markup.
+const wrapperClass = ['migrated', (mainClasses as any).classes[page.path] ?? '']
+  .filter(Boolean).join(' ');
 ---
 <BaseLayout
   title={title}
