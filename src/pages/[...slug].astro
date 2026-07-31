@@ -190,6 +190,9 @@ const mainClass = (mainClasses as any).classes[page.path] ?? '';
       tolerance. Checked, not assumed: on a shorter page 52 words would breach
       it. */}
   <BookSpecs path={page.path} />
+{/* Keep the header's top portion pinned on the contact page, Stephen's
+    July 31 directive, so the booking flow never loses the chrome. */}
+{page.path === '/contact/' && <style is:global set:html={'header.site-header{position:sticky;top:0;z-index:999}'}></style>}
 </BaseLayout>
 
 <style is:global>
