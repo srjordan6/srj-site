@@ -126,9 +126,22 @@ const NEWSLETTER_URL = 'https://srj-consulting-services.beehiiv.com';
         </ul>
       </div>
 
-      {/* Column 2: Explore. Each header is itself a destination. */}
+      {/* Column 2: Explore. Each header is itself a destination. Free AI
+          Resources leads the column, Stephen's July 31 directive; the group is
+          load-bearing as the governance library's sitewide internal link. */}
       <nav aria-label="Explore">
-        <h3><a href="/services/">Services</a></h3>
+        <h3><a href="/ai-resources/">Free AI Resources</a></h3>
+        <ul>
+          <li class="sub"><a href="/ai-resources/ai-glossary/">01. AI Glossary</a></li>
+          <li class="sub"><a href="/ai-governance/">02. AI Governance Reference Library</a></li>
+          <li class="sub"><a href="/ai-governance/ai-lawsuits/">03. AI Lawsuit Database</a></li>
+          <li class="sub"><a href="/ai-resources/ai-people/">04. AI Movers and Shakers</a></li>
+          <li class="sub"><a href="/ai-resources/ai-news/">05. AI News Daily Briefing</a></li>
+          <li class="sub"><a href="/ai-governance/sources/">06. AI Sources</a></li>
+          <li class="sub"><a href="/ai-resources/ai-tools/">07. AI Tools Directory</a></li>
+          <li class="sub"><a href="/ai-resources/ai-vendor-news/">08. AI Vendor News</a></li>
+        </ul>
+        <h3 class="spaced"><a href="/services/">Services</a></h3>
         <ul>
           <li class="sub"><a href="/services/business-services/">AI Business Services</a></li>
           <li class="sub"><a href="/services/risk-governance-security/">AI Risk Governance &amp; Security</a></li>
@@ -147,22 +160,6 @@ const NEWSLETTER_URL = 'https://srj-consulting-services.beehiiv.com';
         <ul>
           <li class="sub"><a href="/books/ai-business-services/">AI Business Services</a></li>
           <li class="sub"><a href="/books/ai-risk-governance-security/">AI Risk Governance &amp; Security</a></li>
-        </ul>
-
-        {/* This group is load-bearing: without it the governance library has no
-            sitewide internal link. Rebuilt July 31, 2026 as the full Free AI
-            Resources index, A to Z, matching the on-page panel. Insights moved
-            to the Firm column so its archive keeps a sitewide internal link. */}
-        <h3 class="spaced"><a href="/ai-resources/">Free AI Resources</a></h3>
-        <ul>
-          <li class="sub"><a href="/ai-resources/ai-glossary/">01. AI Glossary</a></li>
-          <li class="sub"><a href="/ai-governance/">02. AI Governance Reference Library</a></li>
-          <li class="sub"><a href="/ai-governance/ai-lawsuits/">03. AI Lawsuit Database</a></li>
-          <li class="sub"><a href="/ai-resources/ai-people/">04. AI Movers and Shakers</a></li>
-          <li class="sub"><a href="/ai-resources/ai-news/">05. AI News Daily Briefing</a></li>
-          <li class="sub"><a href="/ai-governance/sources/">06. AI Sources</a></li>
-          <li class="sub"><a href="/ai-resources/ai-tools/">07. AI Tools Directory</a></li>
-          <li class="sub"><a href="/ai-resources/ai-vendor-news/">08. AI Vendor News</a></li>
         </ul>
       </nav>
 
@@ -200,6 +197,21 @@ const NEWSLETTER_URL = 'https://srj-consulting-services.beehiiv.com';
       </div>
     </div>
 
+  <div class="f-translate">
+    {/* Language selection, Stephen's July 31 directive: Google Website
+        Translator element, client-side, free, no API key. Sets no marketing
+        cookies and only activates on use. */}
+    <div id="google_translate_element"></div>
+  </div>
+  <script is:inline>
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement(
+        { pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE },
+        'google_translate_element'
+      );
+    }
+  </script>
+  <script is:inline defer src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     <div class="f-bottom">
       <div>&copy; {year} SRJ Consulting &amp; Services LLC. All rights reserved.</div>
       <div class="f-legal">
@@ -475,6 +487,8 @@ const NEWSLETTER_URL = 'https://srj-consulting-services.beehiiv.com';
   .f-cta .arrow { margin-left: 7px; }
 
   /* ---- bottom bar ---- */
+  .f-translate { margin: 26px 0 6px; }
+  .f-translate .goog-te-gadget { color: rgba(255,255,255,.7); font-family: inherit; }
   .f-bottom {
     display: flex;
     justify-content: space-between;
