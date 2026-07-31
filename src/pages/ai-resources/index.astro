@@ -135,7 +135,8 @@ const readingAndUpdates = [
     </div>
   </section>
 
-  <section class="container hub-section">
+  <section class="container hub-section cols">
+  <div class="main-col">
     <h2 class="sec-head">Free AI Tools</h2>
     <div class="grid">
       {freeTools.map((s) => (
@@ -158,6 +159,8 @@ const readingAndUpdates = [
         )
       ))}
     </div>
+  </div>
+  <aside class="side-rail"><FreeAIResources current="" /></aside>
   </section>
 
   <section class="container hub-section">
@@ -174,9 +177,12 @@ const readingAndUpdates = [
     </div>
   </section>
 
-  <section class="far-wrap"><div class="container"><FreeAIResources current="" /></div></section>
 </BaseLayout>
 <style>
+  .cols { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 44px; align-items: start; }
+  .main-col { min-width: 0; }
+  .side-rail { position: sticky; top: 20px; }
+  @media (max-width: 960px) { .cols { grid-template-columns: 1fr; } .side-rail { position: static; } }
   .hub-hero { background: linear-gradient(180deg, var(--cream), var(--white)); padding: 84px 0 48px; border-bottom: 1px solid var(--line); margin-bottom: 48px; }
   .lede { max-width: 68ch; font-size: 19px; color: var(--ink-soft); margin: 0; }
 

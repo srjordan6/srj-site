@@ -123,7 +123,8 @@ const schema = [
   </section>
 
   <section class="longform">
-    <div class="container">
+    <div class="container cols">
+    <div class="main-col">
       {/* AEO: one self-contained paragraph that answers the page's question with
           no surrounding context needed. This is the unit an answer engine lifts. */}
       <div class="answer">
@@ -218,12 +219,16 @@ const schema = [
         </a>
       </div>
     </div>
+    <aside class="side-rail"><FreeAIResources current="glossary" /></aside>
+    </div>
   </section>
-
-  <section class="far-wrap"><div class="container"><FreeAIResources current="glossary" /></div></section>
 </BaseLayout>
 
 <style>
+  .cols { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 44px; align-items: start; }
+  .main-col { min-width: 0; }
+  .side-rail { position: sticky; top: 20px; }
+  @media (max-width: 960px) { .cols { grid-template-columns: 1fr; } .side-rail { position: static; } }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .hero { padding: 64px 0 34px; background: linear-gradient(180deg, var(--cream), var(--white)); }
   .longform { padding: 0 0 100px; }
