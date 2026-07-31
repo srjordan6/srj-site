@@ -2,6 +2,7 @@
 // Placeholder pages for sections that come online with the pipeline
 // (ai-news, ai-people, ai-events) or at stage 2 (glossary, everything-else).
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import FreeAIResources from '../../components/FreeAIResources.astro';
 // news.json is published daily by the pipeline into srj-content; absent
 // until the first publish, so the glob tolerates emptiness.
 const newsFiles = import.meta.glob('../../content/news/news.json', { eager: true });
@@ -44,6 +45,8 @@ const { title, desc, body, link, linkText } = Astro.props;
       </div>
     </section>
   )}
+
+  <section class="far-wrap"><div class="container"><FreeAIResources current="" /></div></section>
 </BaseLayout>
 <style>
   .hero { padding: 100px 0 120px; background: linear-gradient(180deg, var(--cream), var(--white)); }

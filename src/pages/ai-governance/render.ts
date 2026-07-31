@@ -6,6 +6,12 @@ import hubTpl from '../../templates/gov-hub.tpl.html?raw';
 import { govSchema } from '../../lib/govSchema';
 import { entityNodes, webPageNode } from '../../lib/entityGraph';
 import { rewriteAssets } from '../../lib/assets';
+import { hubSection, type Case } from './ai-lawsuits/caseHtml';
+
+// The lawsuits feed is optional at build time; the hub section renders only
+// when publish_lawsuits has shipped lawsuits.json into srj-content.
+const lawMods = import.meta.glob('../../content/lawsuits/lawsuits.json', { eager: true });
+const lawDoc = (Object.values(lawMods)[0] as any)?.default as { cases: Case[] } | undefined;
 
 const SITE = 'https://srjconsultingservices.com';
 const esc = (s: string) => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -81,5 +87,6 @@ export function hubHtml(): string {
   // The transplanted chrome loads seven stylesheets and three favicons from the
   // WordPress origin. Repointed at the asset bucket here, alongside the body,
   // so the governance pages do not go unstyled the moment the domain moves.
-  return rewriteAssets(tpl.replace('{{JSONLD}}', ld));
+  const lawsuits = lawDoc?.cases?.length ? hubSection(lawDoc.cases) : '';
+  return rewriteAssets(tpl.replace('{{JSONLD}}', ld).replace('{{LAWSUITS}}', lawsuits));
 }

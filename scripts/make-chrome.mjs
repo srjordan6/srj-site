@@ -302,6 +302,39 @@ async function buildHub() {
 }
 
 mkdirSync('src/templates', { recursive: true });
+
+// ---------------------------------------------------------------------------
+// RETIRED AS A DEFAULT, July 31, 2026. The refresh below was built for the
+// WordPress era: fetch the live WP page, sanitize it, slot it, commit. After
+// the July 30 cutover the live site IS this build's own output, so refetching
+// is circular: it wipes any committed template edit that has not deployed yet
+// and re-injects tracker declarations on top of the ones already in the page
+// (the sanitize patterns strip WP-era script tags, not the text/plain
+// declarations this script itself adds), which is how a build briefly carried
+// 20 tracker declarations per template instead of 12.
+//
+// The committed .tpl.html files are now the single source of truth. This
+// script only verifies they exist and still carry their content slots. Set
+// CHROME_REFRESH=1 to run the legacy fetch deliberately, e.g. against an
+// archived WP copy; never against the live Astro site.
+// ---------------------------------------------------------------------------
+if (process.env.CHROME_REFRESH !== '1') {
+  const { readFileSync } = await import('node:fs');
+  const need = {
+    'src/templates/gov-detail.tpl.html': ['{{JSONLD}}', '{{BODY}}', '{{BREADCRUMBS}}', '{{H1}}', '{{CHILDREN}}', '{{KW}}'],
+    'src/templates/gov-hub.tpl.html': ['{{JSONLD}}'],
+  };
+  let ok = true;
+  for (const [f, slots] of Object.entries(need)) {
+    try {
+      const t = readFileSync(f, 'utf8');
+      const missing = slots.filter((p) => !t.includes(p));
+      if (missing.length) { console.error(`${f}: missing slots ${missing.join(', ')}`); ok = false; }
+      else console.log(`${f}: committed source of truth, ${t.length} bytes, slots ok`);
+    } catch { console.error(`${f}: MISSING`); ok = false; }
+  }
+  process.exit(ok ? 0 : 1);
+}
 // The fetch is a best-effort refresh: Sucuri may block the CI container's
 // requests, so committed templates are the fallback. A failed fetch keeps
 // the last committed capture and the build proceeds.

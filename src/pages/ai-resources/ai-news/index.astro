@@ -15,6 +15,7 @@
 // The per-story "Why it matters" slot already exists and renders from s.Why
 // when the pipeline supplies it.
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import FreeAIResources from '../../../components/FreeAIResources.astro';
 import { itemList, faqPage, collectionPage } from '../../../lib/pageSchema';
 import {
   groupByCategory, categoryOf, topEntities, summaryParagraph, readingMinutes, titleCase,
@@ -224,6 +225,7 @@ const schema = [
             indicators are not shown because this pipeline does not collect them.
           </p>
         </div>
+        <FreeAIResources current="news" />
       </aside>
     </div>
   </section>

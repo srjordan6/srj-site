@@ -1,0 +1,80 @@
+---
+// The Free AI Resources panel: the cross-promotion box Stephen specified for
+// the governance hub and every page under AI Resources, styled to match the
+// AI Business Services panel on the service pages (cream card, eyebrow,
+// numbered rows, navy consultation CTA). The row for the current section
+// renders in orange, matching the service panel's active state.
+//
+// Copy is approved master copy; do not edit item wording without approval.
+interface Props { current?: string }
+const { current } = Astro.props;
+const items = [
+  { key: 'governance', n: '01', label: 'AI Governance Reference Library', href: '/ai-governance/' },
+  { key: 'lawsuits', n: '02', label: 'AI Lawsuit Database', href: '/ai-governance/ai-lawsuits/' },
+  { key: 'news', n: '03', label: 'AI News Daily Briefing', href: '/ai-resources/ai-news/' },
+  { key: 'tools', n: '04', label: 'AI Tools Directory', href: '/ai-resources/ai-tools/' },
+  { key: 'glossary', n: '05', label: 'AI Glossary', href: '/ai-resources/ai-glossary/' },
+  { key: 'people', n: '06', label: 'AI Movers and Shakers', href: '/ai-resources/ai-people/' },
+  { key: 'everything', n: '07', label: 'Everything else AI', href: '/ai-resources/everything-else-ai/' },
+];
+---
+<div class="free-ai-resources">
+  <p class="far-eyebrow">Free AI Resources</p>
+  <ul class="far-list">
+    {items.map((it) => (
+      <li class={it.key === current ? 'is-current' : ''}>
+        <a href={it.href}>{it.n}. {it.label}</a>
+      </li>
+    ))}
+  </ul>
+  <a class="far-cta" href="/schedule-consultation/">Schedule a Free AI Consultation</a>
+</div>
+
+<style>
+  .free-ai-resources {
+    background: #FFF6EC;
+    border: 1px solid #F0D6B0;
+    border-radius: 6px;
+    padding: 26px 24px;
+    margin: 24px 0;
+  }
+  .far-eyebrow {
+    font-family: Poppins, sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #201868;
+    margin: 0 0 6px;
+  }
+  .far-list { list-style: none; margin: 0; padding: 0; }
+  .far-list li { border-top: 1px solid #E8E0D4; }
+  .far-list li:first-child { border-top: 1px solid #E8E0D4; }
+  .far-list a {
+    display: block;
+    padding: 13px 0;
+    font-family: Poppins, sans-serif;
+    font-size: 16px;
+    line-height: 1.45;
+    color: #2C2C2A;
+    text-decoration: none;
+  }
+  .far-list a:hover { color: #F07800; }
+  .far-list li.is-current a { color: #F07800; font-weight: 600; }
+  .far-cta {
+    display: block;
+    margin-top: 18px;
+    background: #201868;
+    color: #FFFFFF;
+    text-align: center;
+    font-family: Poppins, sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 16px 18px;
+    text-decoration: none;
+    border-radius: 2px;
+  }
+  .far-cta:hover { background: #1A1357; }
+</style>

@@ -27,6 +27,7 @@
 // filters on term text. All three are progressive enhancement: with JavaScript
 // off every term is still present and readable.
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import FreeAIResources from '../../../components/FreeAIResources.astro';
 import data from '../../../content/resources/glossary.json';
 import { definedTermSet, faqPage, collectionPage } from '../../../lib/pageSchema';
 
@@ -218,6 +219,8 @@ const schema = [
       </div>
     </div>
   </section>
+
+  <section class="far-wrap"><div class="container"><FreeAIResources current="glossary" /></div></section>
 </BaseLayout>
 
 <style>

@@ -2,6 +2,7 @@
 // One-page profile: header + fact box, hook, achievements, timeline,
 // signature quote, sources. Modular sections, sidebar callouts.
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import FreeAIResources from '../../../components/FreeAIResources.astro';
 export async function getStaticPaths() {
   const mods = import.meta.glob('../../../content/people/*.json', { eager: true });
   const entries = Object.entries(mods);
@@ -82,6 +83,7 @@ const desc = p.stub
           <blockquote>&ldquo;{p.quote.text}&rdquo;</blockquote>
           <p class="qctx">{p.quote.context}</p>
         </div>
+        <FreeAIResources current="people" />
       </aside>
       )}
     </div>

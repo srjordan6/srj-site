@@ -17,6 +17,7 @@
 // same rule the profiles themselves follow: a person with too thin a public
 // record stays a stub rather than getting invented content.
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import FreeAIResources from '../../../components/FreeAIResources.astro';
 import { itemList, faqPage, collectionPage } from '../../../lib/pageSchema';
 
 const mods = import.meta.glob('../../../content/people/*.json', { eager: true });
@@ -161,6 +162,8 @@ const schema = [
       </section>
     </div>
   </section>
+
+  <section class="far-wrap"><div class="container"><FreeAIResources current="people" /></div></section>
 </BaseLayout>
 <style>
   .hero { padding: 64px 0 40px; background: linear-gradient(180deg, var(--cream), var(--white)); }

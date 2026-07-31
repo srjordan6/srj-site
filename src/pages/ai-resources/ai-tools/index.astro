@@ -22,6 +22,7 @@
 // collation. Anchors match the governance page so any existing deep link into a
 // category still lands.
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import FreeAIResources from '../../../components/FreeAIResources.astro';
 import data from '../../../content/resources/tools.json';
 import profileDoc from '../../../content/resources/tool-profiles.json';
 import { itemList, faqPage, collectionPage } from '../../../lib/pageSchema';
@@ -214,6 +215,8 @@ const schema = [
       </div>
     </div>
   </section>
+
+  <section class="far-wrap"><div class="container"><FreeAIResources current="tools" /></div></section>
 </BaseLayout>
 
 <style>

@@ -10,6 +10,7 @@
 // separately. "Why it matters" renders from s.Why when the pipeline supplies
 // analysis, and is otherwise absent rather than guessed.
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import FreeAIResources from '../../../components/FreeAIResources.astro';
 import { itemList, collectionPage } from '../../../lib/pageSchema';
 import { categoryOf, coverageByDay, readingMinutes, titleCase, type Story } from '../../../lib/newsTopics';
 
@@ -196,6 +197,7 @@ const schema = [
             {story.Orgs.length > 0 && <p class="wl"><span>Organizations</span>{story.Orgs.map(titleCase).join(', ')}</p>}
           </div>
         )}
+        <FreeAIResources current="news" />
       </aside>
     </div>
   </section>

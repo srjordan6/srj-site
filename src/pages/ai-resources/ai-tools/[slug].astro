@@ -24,6 +24,7 @@
 // those are per-vendor per-date facts and a compliance practice publishing a
 // wrong one about a named vendor is a different class of error from a typo.
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import FreeAIResources from '../../../components/FreeAIResources.astro';
 import { faqPage, itemList, collectionPage } from '../../../lib/pageSchema';
 import profileDoc from '../../../content/resources/tool-profiles.json';
 import catalog from '../../../content/resources/tools.json';
@@ -506,6 +507,7 @@ const fmt = (n: number) => Math.round(n).toLocaleString('en-US');
           )}
           <p class="asof">Profile current as of {asOf}. Verify pricing and certifications with the vendor.</p>
         </div>
+        <FreeAIResources current="tools" />
       </aside>
 
       <div class="main">

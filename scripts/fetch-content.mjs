@@ -35,7 +35,9 @@ const REQUIRED = 'governance';
 //   migrated    - the 68 Stage 2 pages lifted verbatim from production
 //   books       - bibliographic facts from press_books, for the specs block and
 //                 Book/Offer schema on the nine book detail pages
-const DIRS = ['news', 'people', 'resources', 'leaderboard', 'legislation', 'migrated', 'books'];
+//   lawsuits    - AI Lawsuit Database, written nightly by publish_lawsuits
+//   intel       - AI watch feed for Everything else AI, written by publish_intel
+const DIRS = ['news', 'people', 'resources', 'leaderboard', 'legislation', 'migrated', 'books', 'lawsuits', 'intel'];
 
 const sibling = `../srj-content/${REQUIRED}`;
 

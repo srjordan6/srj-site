@@ -17,14 +17,24 @@
 // /insights/, /newsletter/, /press/, /faq/). Nothing here invents a path or
 // contradicts the site tracker: a card is a route in, not a new destination.
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import FreeAIResources from '../../components/FreeAIResources.astro';
 
 const freeTools = [
+  // Flagship card. Renamed July 31, 2026 from "AI Governance Reference
+  // Library" to "The AI Lawsuit & Policy Hub" when the AI Lawsuit Database
+  // shipped alongside the library: one destination, two halves, so the card
+  // carries a link to each. Rendered separately below because sub-links
+  // cannot nest inside the <a> the other cards use.
   {
     href: '/ai-governance/',
-    title: 'AI Governance Reference Library',
-    desc: 'Laws, regulations, standards, and enforcement, maintained against primary sources. The flagship: 60+ pages, 82,000+ words.',
+    title: 'The AI Lawsuit & Policy Hub',
+    desc: 'Laws, regulations, standards, and enforcement, maintained against primary sources, alongside active AI lawsuits tracked against live court dockets. The flagship: 60+ pages, 82,000+ words.',
     live: true,
     flagship: true,
+    links: [
+      { href: '/ai-governance/', label: 'AI Governance' },
+      { href: '/ai-governance/ai-lawsuits/', label: 'AI Legal Cases' },
+    ],
   },
   {
     href: '/ai-resources/ai-glossary/',
@@ -125,12 +135,23 @@ const readingAndUpdates = [
     <h2 class="sec-head">Free AI Tools</h2>
     <div class="grid">
       {freeTools.map((s) => (
-        <a class={`card ${s.flagship ? 'flag' : ''}`} href={s.href}>
-          <h3>{s.title}</h3>
-          <p>{s.desc}</p>
-          {s.live ? <span class="badge live">Live</span> : <span class="badge">Coming online</span>}
-          {s.note && <span class="note">{s.note}</span>}
-        </a>
+        s.links ? (
+          <div class={`card ${s.flagship ? 'flag' : ''}`}>
+            <h3><a class="card-title-link" href={s.href}>{s.title}</a></h3>
+            <p>{s.desc}</p>
+            {s.live ? <span class="badge live">Live</span> : <span class="badge">Coming online</span>}
+            <span class="card-links">
+              {s.links.map((l) => <a class="card-link" href={l.href}>{l.label} &rarr;</a>)}
+            </span>
+          </div>
+        ) : (
+          <a class={`card ${s.flagship ? 'flag' : ''}`} href={s.href}>
+            <h3>{s.title}</h3>
+            <p>{s.desc}</p>
+            {s.live ? <span class="badge live">Live</span> : <span class="badge">Coming online</span>}
+            {s.note && <span class="note">{s.note}</span>}
+          </a>
+        )
       ))}
     </div>
   </section>
@@ -148,6 +169,8 @@ const readingAndUpdates = [
       ))}
     </div>
   </section>
+
+  <section class="far-wrap"><div class="container"><FreeAIResources current="" /></div></section>
 </BaseLayout>
 <style>
   .hub-hero { background: linear-gradient(180deg, var(--cream), var(--white)); padding: 84px 0 48px; border-bottom: 1px solid var(--line); margin-bottom: 48px; }
@@ -181,6 +204,11 @@ const readingAndUpdates = [
   .card:hover { box-shadow: var(--shadow-card); transform: translateY(-2px); }
   .card.flag { border: 2px solid var(--orange); grid-column: 1 / -1; background: linear-gradient(135deg, var(--cream), var(--white)); }
   .card h3 { font-size: 20px; margin-bottom: 8px; }
+  .card-title-link { color: inherit; text-decoration: none; }
+  .card-title-link:hover { color: var(--orange); }
+  .card-links { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 12px; }
+  .card-link { font-family: Poppins, sans-serif; font-size: 14px; font-weight: 600; color: var(--navy); text-decoration: none; }
+  .card-link:hover { color: var(--orange); }
   .card p { font-size: 14.5px; color: var(--ink-soft); margin: 0 0 14px; }
   .badge { display: inline-block; font-size: 11.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--gray); border: 1px solid var(--line); padding: 3px 10px; border-radius: 20px; margin-right: 10px; }
   .badge.live { color: var(--white); background: var(--orange); border-color: var(--orange); }

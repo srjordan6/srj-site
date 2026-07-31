@@ -1,0 +1,136 @@
+---
+// Everything else AI: the daily AI watch feed. New models, tools,
+// terminology, and vendor announcements spotted by the srj-pipeline intel
+// stage (Hugging Face releases plus vendor feeds), published to srj-content
+// as intel/intel.json by publish_intel.
+//
+// The feed is optional at build time: before the first publish, or on a day
+// the feed is empty, the page renders an honest empty state rather than
+// failing the build or inventing content.
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import FreeAIResources from '../../../components/FreeAIResources.astro';
+import { collectionPage } from '../../../lib/pageSchema';
+
+type Item = {
+  kind: string; name: string; vendor: string | null; url: string | null;
+  summary: string | null; source: string; discovered_at: string;
+};
+
+const mods = import.meta.glob('../../../content/intel/intel.json', { eager: true });
+const doc: any = Object.values(mods)[0]?.default ?? null;
+const items: Item[] = (doc?.items ?? []).map((i: any) => ({ ...i }));
+
+const KIND_LABEL: Record<string, string> = {
+  model: 'New model', tool: 'New tool', term: 'New term',
+  dataset: 'New dataset', 'vendor-news': 'Vendor news',
+};
+const kindLabel = (k: string) => KIND_LABEL[k] || k;
+
+const fmt = (d: string) => {
+  const dt = new Date(d);
+  return isNaN(dt.getTime()) ? d : dt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+};
+
+// Group by discovery day, newest first, so the page reads as a running log.
+const byDay = new Map<string, Item[]>();
+for (const it of items) {
+  const day = (it.discovered_at || '').slice(0, 10);
+  if (!byDay.has(day)) byDay.set(day, []);
+  byDay.get(day)!.push(it);
+}
+const days = [...byDay.keys()].sort().reverse();
+
+const SITE = 'https://srjconsultingservices.com';
+const url = `${SITE}/ai-resources/everything-else-ai/`;
+const title = 'Everything Else AI | New Models, Tools, and Terminology';
+const description = 'A running watch feed of newly released AI models, tools, datasets, and terminology, gathered daily from Hugging Face and vendor announcements.';
+const schema = [collectionPage({ url, name: title, description })];
+---
+<BaseLayout title={title} description={description} schema={schema} crumbName="Everything Else AI">
+  <section class="hero">
+    <div class="container">
+      <h1>Everything else AI</h1>
+      <p class="dateline">
+        A daily watch on what is new across the AI landscape: models, tools, datasets, and the
+        terminology arriving with them. Gathered automatically each day from Hugging Face releases
+        and vendor announcements{doc?.generated && <> · last updated {fmt(doc.generated)}</>}.
+      </p>
+    </div>
+  </section>
+
+  <section class="body">
+    <div class="container cols">
+      <div class="main">
+        {days.length === 0 && (
+          <div class="empty">
+            <p>The watch feed publishes daily. Today's scan has not landed yet, so check back
+            shortly, or start with the <a href="/ai-resources/ai-news/">AI News Daily Briefing</a>
+            for what is happening across the field right now.</p>
+          </div>
+        )}
+        {days.map((day) => (
+          <div class="day">
+            <h2>{fmt(day)}</h2>
+            <ul class="feed">
+              {byDay.get(day)!.map((it) => (
+                <li>
+                  <span class={`kind kind-${it.kind}`}>{kindLabel(it.kind)}</span>
+                  <div class="item-body">
+                    <p class="item-name">
+                      {it.url
+                        ? <a href={it.url} target="_blank" rel="noopener">{it.name}</a>
+                        : it.name}
+                      {it.vendor && <span class="vendor"> · {it.vendor}</span>}
+                    </p>
+                    {it.summary && <p class="item-sum">{it.summary}</p>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <aside class="side">
+        <div class="note">
+          <p class="box-label">About this feed</p>
+          <p>Entries are machine-gathered and link to the original source. Anything that graduates
+          into the reference material proper lands in the
+          <a href="/ai-resources/ai-tools/">AI Tools Directory</a> or the
+          <a href="/ai-resources/ai-glossary/">AI Glossary</a> after review.</p>
+        </div>
+        <FreeAIResources current="everything" />
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero { padding: 60px 0 30px; background: linear-gradient(180deg, var(--cream), var(--white)); }
+  .dateline { color: var(--gray); font-size: 15px; line-height: 1.7; max-width: 760px; }
+  .body { padding: 30px 0 70px; }
+  .cols { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 44px; align-items: start; }
+  @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+  .empty { background: var(--cream); border: 1px solid #F0D6B0; border-radius: 6px; padding: 26px; font-family: Poppins, sans-serif; font-size: 15px; line-height: 1.7; }
+  .empty a { color: var(--orange); text-decoration: none; }
+  .empty a:hover { text-decoration: underline; }
+  .day h2 { font-family: Lora, serif; font-size: 22px; color: var(--navy); margin: 30px 0 14px; padding-bottom: 8px; border-bottom: 2px solid var(--orange); }
+  .day:first-of-type h2 { margin-top: 0; }
+  .feed { list-style: none; margin: 0; padding: 0; }
+  .feed li { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #EFE6D8; }
+  .feed li:last-child { border-bottom: 0; }
+  .kind { flex: 0 0 auto; font-family: Poppins, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: var(--navy); border-radius: 3px; padding: 4px 8px; margin-top: 2px; }
+  .kind-model { background: var(--orange); }
+  .kind-tool { background: var(--navy); }
+  .kind-term { background: #7A8A9E; }
+  .kind-dataset { background: #1A1357; }
+  .item-body { min-width: 0; }
+  .item-name { font-family: Poppins, sans-serif; font-size: 15px; font-weight: 600; color: var(--navy); margin: 0; overflow-wrap: anywhere; }
+  .item-name a { color: var(--navy); text-decoration: none; }
+  .item-name a:hover { color: var(--orange); }
+  .vendor { color: var(--gray); font-weight: 400; }
+  .item-sum { font-family: Poppins, sans-serif; font-size: 14px; line-height: 1.6; color: #1A1A2E; margin: 4px 0 0; }
+  .side .note { background: #fff; border: 1px solid #E2D4C2; border-radius: 6px; padding: 20px 22px; margin: 0 0 24px; font-family: Poppins, sans-serif; font-size: 14px; line-height: 1.65; }
+  .side .note a { color: var(--orange); text-decoration: none; }
+  .side .note a:hover { text-decoration: underline; }
+  .box-label { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--orange); margin: 0 0 8px; }
+</style>
