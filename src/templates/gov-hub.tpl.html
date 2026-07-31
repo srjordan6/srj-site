@@ -864,7 +864,6 @@ body.home{background-color:#ffffff!important}
             <li><a href="/industries/">Industries</a></li>
             <li><a href="/books/">Books</a></li>
             <li><a href="/ai-resources/">AI Resources</a></li>
-            <li><a href="/faq/">FAQ</a></li>
             <li><a href="/contact/">Contact</a></li>
           </ul>
         </nav>
@@ -891,7 +890,6 @@ body.home{background-color:#ffffff!important}
         <li><a href="/industries/">Industries</a></li>
         <li><a href="/books/">Books</a></li>
         <li><a href="/ai-resources/">AI Resources</a></li>
-        <li><a href="/faq/">FAQ</a></li>
         <li><a href="/contact/">Contact</a></li>
       </ul>
       <a href="/schedule-consultation/" target="_blank" rel="noopener" class="srj-mobile-cta">Schedule a Free AI Consultation</a>
@@ -1127,7 +1125,11 @@ body.home{background-color:#ffffff!important}
    on desktop, stacked on narrow viewports so the panel follows the lede rather
    than squeezing beside it. The directory below is untouched and still spans
    the full container width. */
-.srjgov-tophead { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 36px; align-items: start; margin: 0 0 8px; }
+/* July 31 2026: hub widened to match the detail pages. The 880px container
+   left dead whitespace on both sides at desktop widths; the hub now uses the
+   full 1290px content width with the index rail at 320px. */
+.longform .container { max-width: 1290px; }
+.srjgov-tophead { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 48px; align-items: start; margin: 0 0 8px; }
 .srjgov-tophead-main { min-width: 0; }
 .srjgov-tophead-aside { min-width: 0; }
 .srjgov-tophead-aside .free-ai-resources { margin: 0; }
@@ -1539,6 +1541,11 @@ body.home{background-color:#ffffff!important}
             <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
           </a>
         </div>
+
+        <h5 style="margin-top:26px">Client Resources</h5>
+        <ul>
+          <li><a href="/client-upload/">Secure File Upload</a></li>
+        </ul>
       </div>
 
       <div>
@@ -1558,12 +1565,16 @@ body.home{background-color:#ffffff!important}
           <li class="footer-firm-sub"><a href="/books/ai-business-services/">AI Business Services</a></li>
           <li class="footer-firm-sub"><a href="/books/ai-risk-governance-security/">AI Risk Governance &amp; Security</a></li>
         </ul>
-        <h5 style="margin-top:24px"><a href="/ai-resources/" style="color:inherit;text-decoration:none">Resources</a></h5>
+        <h5 style="margin-top:24px"><a href="/ai-resources/" style="color:inherit;text-decoration:none">Free AI Resources</a></h5>
         <ul>
-          <li class="footer-firm-sub"><a href="/ai-governance/">AI Governance Library</a></li>
-          <li class="footer-firm-sub"><a href="/ai-governance/ai-tools/">AI Tools Catalog</a></li>
-          <li class="footer-firm-sub"><a href="/resources/ai-glossary/">AI Glossary</a></li>
-          <li class="footer-firm-sub"><a href="/insights/">Insights</a></li>
+          <li class="footer-firm-sub"><a href="/ai-resources/ai-glossary/">01. AI Glossary</a></li>
+          <li class="footer-firm-sub"><a href="/ai-governance/">02. AI Governance Reference Library</a></li>
+          <li class="footer-firm-sub"><a href="/ai-governance/ai-lawsuits/">03. AI Lawsuit Database</a></li>
+          <li class="footer-firm-sub"><a href="/ai-resources/ai-people/">04. AI Movers and Shakers</a></li>
+          <li class="footer-firm-sub"><a href="/ai-resources/ai-news/">05. AI News Daily Briefing</a></li>
+          <li class="footer-firm-sub"><a href="/ai-governance/sources/">06. AI Sources</a></li>
+          <li class="footer-firm-sub"><a href="/ai-resources/ai-tools/">07. AI Tools Directory</a></li>
+          <li class="footer-firm-sub"><a href="/ai-resources/ai-vendor-news/">08. AI Vendor News</a></li>
         </ul>
       </div>
 
@@ -1572,13 +1583,10 @@ body.home{background-color:#ffffff!important}
         <ul>
           <li><a href="/about/">About Stephen R. Jordan</a></li>
           <li><a href="/newsletter/">Newsletter</a></li>
+          <li><a href="/insights/">Insights</a></li>
           <li><a href="/faq/">FAQ</a></li>
           <li><a href="/press/">Press &amp; Media Kit</a></li>
           <li><a href="/contact/">Contact</a></li>
-        </ul>
-        <h5 style="margin-top:30px">Client Resources</h5>
-        <ul>
-          <li><a href="/client-upload/">Secure File Upload</a></li>
         </ul>
       </div>
 
