@@ -122,7 +122,8 @@ const schema = [
   </section>
 
   <section class="grid-wrap">
-    <div class="container">
+    <div class="container cols">
+    <div class="main-col">
       {/* AEO: one self-contained paragraph answering the page's own question,
           readable with no surrounding context. This is the unit that gets lifted. */}
       <div class="answer">
@@ -161,11 +162,18 @@ const schema = [
         ))}
       </section>
     </div>
+    {/* Stephen's July 31 directive: the Free AI Resources index sits top-right
+        on every AI page, not at the page tail. Sticky rail, stacking under
+        960px. */}
+    <aside class="side-rail"><FreeAIResources current="people" /></aside>
+    </div>
   </section>
-
-  <section class="far-wrap"><div class="container"><FreeAIResources current="people" /></div></section>
 </BaseLayout>
 <style>
+  .cols { display: grid; grid-template-columns: minmax(0,1fr) 320px; gap: 44px; align-items: start; }
+  .main-col { min-width: 0; }
+  .side-rail { position: sticky; top: 20px; }
+  @media (max-width: 960px) { .cols { grid-template-columns: 1fr; } .side-rail { position: static; } }
   .hero { padding: 64px 0 40px; background: linear-gradient(180deg, var(--cream), var(--white)); }
   .lede { font-size: 21px; color: var(--ink-soft); font-style: italic; }
   .stamp { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--orange); font-weight: 600; }
