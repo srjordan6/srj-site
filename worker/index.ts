@@ -34,6 +34,8 @@ export interface Env extends FormEnv {
   ASSETS: Fetcher;
   /** The migrated WordPress media tree. Public-readable content. */
   MEDIA: R2Bucket;
+  /** Bearer token gating /api/archive corpus writes from the pipeline cron. */
+  ARCHIVE_TOKEN?: string;
 }
 
 /**
@@ -117,6 +119,30 @@ export default {
     if (url.hostname === 'www.srjconsultingservices.com') {
       url.hostname = 'srjconsultingservices.com';
       return Response.redirect(url.toString(), 301);
+    }
+
+    // 0b. Corpus archive writes from the srj-pipeline cron. PUT-only, bearer
+    // gated, and confined to corpus/ keys in the PRIVATE uploads bucket:
+    // archived bodies are third-party press held for internal analysis, and
+    // must never land anywhere publicly readable (srj-assets is public).
+    if (url.pathname === '/api/archive') {
+      if (request.method !== 'PUT') {
+        return new Response('Method not allowed', { status: 405, headers: { allow: 'PUT' } });
+      }
+      const auth = request.headers.get('authorization') ?? '';
+      if (!env.ARCHIVE_TOKEN || auth !== `Bearer ${env.ARCHIVE_TOKEN}`) {
+        return new Response('Unauthorized', { status: 401 });
+      }
+      const key = url.searchParams.get('key') ?? '';
+      if (!/^corpus\/[A-Za-z0-9._/-]+$/.test(key) || key.includes('..')) {
+        return new Response('Bad key', { status: 400 });
+      }
+      await env.UPLOADS.put(key, request.body, {
+        httpMetadata: { contentType: request.headers.get('content-type') ?? 'application/octet-stream' },
+      });
+      return new Response(JSON.stringify({ ok: true, key }), {
+        headers: { 'content-type': 'application/json; charset=utf-8' },
+      });
     }
 
     // 1. Forms. Checked before assets so a stray file can never shadow them.

@@ -33,6 +33,9 @@ export type Story = {
   Orgs: string[];
   Articles: { Title: string; URL: string; Domain: string; Date: string }[];
   Why?: string | null;
+  Summary?: string | null;
+  SummaryURL?: string | null;
+  SummaryDomain?: string | null;
 };
 
 // Order matters: the first category with a hit wins, so the more specific

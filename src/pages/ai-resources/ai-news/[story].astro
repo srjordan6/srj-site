@@ -89,7 +89,23 @@ const schema = [
   <section class="body">
     <div class="container cols">
       <div class="main">
-        <!-- 2. Why it matters, when the pipeline supplies it. Never invented. -->
+        <!-- 2. The story. Written by the pipeline in its own words from the
+             lead article's text, a summary rather than a reproduction. Absent,
+             never invented, when the pipeline has not summarized it yet. -->
+        {story.Summary && (
+          <div class="story-summary" id="the-story">
+            <h2>The story</h2>
+            {story.Summary.split('\n').filter((p: string) => p.trim()).map((p: string) => <p>{p}</p>)}
+            {story.SummaryURL && (
+              <p class="summary-attribution">
+                Summarized from reporting first published by {story.SummaryDomain}.
+                <a href={story.SummaryURL} rel="nofollow noopener" target="_blank">Read the original coverage.</a>
+              </p>
+            )}
+          </div>
+        )}
+
+        <!-- 2b. Why it matters, when the pipeline supplies it. Never invented. -->
         {story.Why && (
           <div class="why" id="why">
             <p class="box-label">Why it matters</p>
@@ -152,6 +168,7 @@ const schema = [
         <div class="panel sticky">
           <p class="box-label">On this page</p>
           <ul class="toc">
+            {story.Summary && <li><a href="#the-story">The story</a></li>}
             {story.Why && <li><a href="#why">Why it matters</a></li>}
             <li><a href="#coverage">Coverage</a></li>
             {timeline.length > 0 && <li><a href="#timeline">Coverage timeline</a></li>}
@@ -205,7 +222,10 @@ const schema = [
   .why p { font-family: Poppins, sans-serif; font-size: 16px; line-height: 1.7; color: #2C2C2A; margin: 0; }
 
   .lead { font-family: Poppins, sans-serif; font-size: 15px; line-height: 1.7; color: #2C2C2A; max-width: 70ch; }
-  #coverage, #timeline { scroll-margin-top: 80px; }
+  #coverage, #timeline, #the-story { scroll-margin-top: 80px; }
+  .story-summary { margin: 0 0 2rem; }
+  .story-summary p { font-size: 1.05rem; line-height: 1.7; }
+  .summary-attribution { font-size: 0.85rem; color: var(--gray, #7A8A9E); }
 
   .cov { list-style: none; margin: 0; padding: 0; max-width: 780px; }
   .cov li { padding: 13px 0; border-bottom: 1px solid #e8e6e0; }
