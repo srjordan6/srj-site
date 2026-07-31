@@ -45,12 +45,12 @@ const EMAIL = 'info@srjconsultingservices.com';
   <div class="topbar">
     <div class="container topbar-inner">
       <div class="topbar-contact">
-        {/* Language selection leads the topbar, Stephen's July 31 directive;
-            replaces the location label. Styled below to tame the stock
-            Google widget. */}
-        <div id="google_translate_element" class="topbar-translate"></div>
-        <a href={`tel:${PHONE_TEL}`}>{PHONE_DISPLAY}</a>
-        <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
+        {/* Language selection owns the topbar left, Stephen's July 31
+            directive: a type-ahead input (datalist) driving a hidden Google
+            Translate combo, replacing the unreadable stock widget. Phone and
+            email removed from the topbar on the same instruction; they remain
+            in the footer Contact column. */}
+        <span class="topbar-translate"><input id="srj-lang-input" list="srj-langs" placeholder="Language" autocomplete="off" aria-label="Translate this page" /><datalist id="srj-langs"></datalist><span id="google_translate_element" class="gt-hidden"></span></span>
       </div>
       <div class="topbar-actions">
         <button type="button" class="search-toggle" aria-expanded="false" aria-controls="srj-search-panel">
@@ -298,26 +298,16 @@ const EMAIL = 'info@srjconsultingservices.com';
   }
 </style>
 <script is:inline>
-  function googleTranslateElementInit() {
-    new google.translate.TranslateElement(
-      { pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE },
-      'google_translate_element'
-    );
-  }
+  function googleTranslateElementInit(){new google.translate.TranslateElement({pageLanguage:'en'},'google_translate_element')}
 </script>
 <script is:inline defer src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script is:inline>
+  (function(){var langs={"Afrikaans":"af","Albanian":"sq","Arabic":"ar","Bengali":"bn","Bulgarian":"bg","Chinese (Simplified)":"zh-CN","Chinese (Traditional)":"zh-TW","Croatian":"hr","Czech":"cs","Danish":"da","Dutch":"nl","English":"en","Estonian":"et","Filipino":"tl","Finnish":"fi","French":"fr","German":"de","Greek":"el","Gujarati":"gu","Hebrew":"iw","Hindi":"hi","Hungarian":"hu","Indonesian":"id","Italian":"it","Japanese":"ja","Kannada":"kn","Korean":"ko","Latvian":"lv","Lithuanian":"lt","Malay":"ms","Marathi":"mr","Norwegian":"no","Persian":"fa","Polish":"pl","Portuguese":"pt","Punjabi":"pa","Romanian":"ro","Russian":"ru","Serbian":"sr","Slovak":"sk","Slovenian":"sl","Spanish":"es","Swahili":"sw","Swedish":"sv","Tamil":"ta","Telugu":"te","Thai":"th","Turkish":"tr","Ukrainian":"uk","Urdu":"ur","Vietnamese":"vi"};var dl=document.getElementById("srj-langs");if(dl){Object.keys(langs).forEach(function(n){var o=document.createElement("option");o.value=n;dl.appendChild(o);});}var inp=document.getElementById("srj-lang-input");function combo(){return document.querySelector("select.goog-te-combo");}function apply(){if(!inp)return;var c=langs[inp.value];if(!c){return;}var tries=0;(function go(){var s=combo();if(s){s.value=c;s.dispatchEvent(new Event("change"));}else if(tries++<10){setTimeout(go,400);}})();}if(inp){inp.addEventListener("change",apply);}})();
+</script>
 <style is:global>
-  /* Tame the stock Google Translate widget into the topbar. */
-  .topbar-translate { display: inline-flex; align-items: center; min-height: 22px; }
-  .topbar-translate .goog-te-gadget-simple {
-    background: transparent; border: 1px solid rgba(255,255,255,.35); border-radius: 5px;
-    padding: 1px 8px; line-height: 1.4; font-size: 12.5px;
-  }
-  .topbar-translate .goog-te-gadget-simple img { display: none; }
-  .topbar-translate .goog-te-gadget-simple .goog-te-menu-value,
-  .topbar-translate .goog-te-gadget-simple .goog-te-menu-value span { color: #fff !important; }
-  .topbar-translate .goog-te-gadget-simple .goog-te-menu-value span[style] { color: rgba(255,255,255,.55) !important; }
-  /* Suppress the injected top banner so the layout never jumps. */
-  body { top: 0 !important; }
-  .goog-te-banner-frame, #goog-gt-tt { display: none !important; }
+  .topbar-translate{display:inline-flex;align-items:center}
+  .topbar-translate input{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.35);border-radius:5px;color:#fff;font:12.5px/1.5 inherit;padding:2px 9px;width:150px}
+  .topbar-translate input::placeholder{color:rgba(255,255,255,.65)}
+  .gt-hidden{position:absolute !important;left:-9999px;top:0;visibility:hidden}
+  body{top:0 !important}.goog-te-banner-frame,#goog-gt-tt{display:none !important}
 </style>
