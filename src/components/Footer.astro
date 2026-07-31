@@ -197,21 +197,6 @@ const NEWSLETTER_URL = 'https://srj-consulting-services.beehiiv.com';
       </div>
     </div>
 
-  <div class="f-translate">
-    {/* Language selection, Stephen's July 31 directive: Google Website
-        Translator element, client-side, free, no API key. Sets no marketing
-        cookies and only activates on use. */}
-    <div id="google_translate_element"></div>
-  </div>
-  <script is:inline>
-    function googleTranslateElementInit() {
-      new google.translate.TranslateElement(
-        { pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.SIMPLE },
-        'google_translate_element'
-      );
-    }
-  </script>
-  <script is:inline defer src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     <div class="f-bottom">
       <div>&copy; {year} SRJ Consulting &amp; Services LLC. All rights reserved.</div>
       <div class="f-legal">
@@ -487,8 +472,6 @@ const NEWSLETTER_URL = 'https://srj-consulting-services.beehiiv.com';
   .f-cta .arrow { margin-left: 7px; }
 
   /* ---- bottom bar ---- */
-  .f-translate { margin: 26px 0 6px; }
-  .f-translate .goog-te-gadget { color: rgba(255,255,255,.7); font-family: inherit; }
   .f-bottom {
     display: flex;
     justify-content: space-between;
