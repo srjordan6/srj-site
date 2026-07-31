@@ -866,7 +866,7 @@ body.home{background-color:#ffffff!important}
             <li><a href="/applications/">Applications</a></li>
             <li><a href="/industries/">Industries</a></li>
             <li><a href="/books/">Books</a></li>
-            <li><a href="/ai-resources/">Resources</a></li>
+            <li><a href="/ai-resources/">AI Resources</a></li>
             <li><a href="/faq/">FAQ</a></li>
             <li><a href="/contact/">Contact</a></li>
           </ul>
@@ -893,7 +893,7 @@ body.home{background-color:#ffffff!important}
         <li><a href="/applications/">Applications</a></li>
         <li><a href="/industries/">Industries</a></li>
         <li><a href="/books/">Books</a></li>
-        <li><a href="/ai-resources/">Resources</a></li>
+        <li><a href="/ai-resources/">AI Resources</a></li>
         <li><a href="/faq/">FAQ</a></li>
         <li><a href="/contact/">Contact</a></li>
       </ul>
@@ -950,12 +950,12 @@ body.home{background-color:#ffffff!important}
     
 <div class="srj-search-panel" id="srj-site-search-panel" aria-hidden="true" role="search">
   <div class="container">
-    <form method="get" class="srj-search-form" action="https://srjconsultingservices.com/">
+    <form method="get" class="srj-search-form" action="/search/">
       <label for="srj-site-search-input" class="screen-reader-text">Search</label>
       <input
         type="search"
         id="srj-site-search-input"
-        name="s"
+        name="q"
         value=""
         placeholder="Search books, services, AI governance topics, insights..."
         autocomplete="off"
@@ -1047,7 +1047,8 @@ body.home{background-color:#ffffff!important}
     </section>
     
 <section class="longform">
-  <div class="container">
+  <div class="container srjgov-cols">
+  <div class="srjgov-main">
 
           {{SUBTITLE}}
     
@@ -1061,6 +1062,18 @@ body.home{background-color:#ffffff!important}
       <a class="srjgov-cta-btn" href="https://aiauditforcompanies.com/startaiaudit/" target="_blank" rel="noopener">Start or finish your AI Audit &rarr;</a>
     </div>
 <style>
+/* Two-column governance layout (July 31, 2026): the reading column plus a
+   right rail carrying the Free AI Resources index at the top of the page,
+   reclaiming the side whitespace the old 860px single column left unused.
+   Overrides the max-width set in both srj-ai-governance-styles blocks. */
+.longform .container.srjgov-cols { max-width: 1290px; display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 48px; align-items: start; }
+.srjgov-main { min-width: 0; max-width: 860px; }
+.srjgov-rail { position: sticky; top: 24px; }
+.srjgov-rail .free-ai-resources { margin: 0; }
+@media (max-width: 980px) {
+  .longform .container.srjgov-cols { grid-template-columns: 1fr; }
+  .srjgov-rail { position: static; }
+}
 /* Free AI Resources cross-promotion panel, matching the service-page card. */
 .free-ai-resources { background: #FFF6EC; border: 1px solid #F0D6B0; border-radius: 6px; padding: 26px 24px; margin: 24px 0; }
 .far-eyebrow { font-family: Poppins, sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 0.14em; text-transform: uppercase; color: #201868; margin: 0 0 6px; }
@@ -1072,19 +1085,23 @@ body.home{background-color:#ffffff!important}
 .far-cta { display: block; margin-top: 18px; background: #201868; color: #FFFFFF !important; text-align: center; font-family: Poppins, sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; padding: 16px 18px; text-decoration: none; border-radius: 2px; }
 .far-cta:hover { background: #1A1357; }
 </style>
+</div>
+<aside class="srjgov-rail">
 <div class="free-ai-resources">
   <p class="far-eyebrow">Free AI Resources</p>
   <ul class="far-list">
-    <li class="is-current"><a href="/ai-governance/">01. AI Governance Reference Library</a></li>
-    <li><a href="/ai-governance/ai-lawsuits/">02. AI Lawsuit Database</a></li>
-    <li><a href="/ai-resources/ai-news/">03. AI News Daily Briefing</a></li>
-    <li><a href="/ai-resources/ai-tools/">04. AI Tools Directory</a></li>
-    <li><a href="/ai-resources/ai-glossary/">05. AI Glossary</a></li>
-    <li><a href="/ai-resources/ai-people/">06. AI Movers and Shakers</a></li>
-    <li><a href="/ai-resources/everything-else-ai/">07. Everything else AI</a></li>
+    <li><a href="/ai-resources/ai-glossary/">01. AI Glossary</a></li>
+    <li class="is-current"><a href="/ai-governance/">02. AI Governance Reference Library</a></li>
+    <li><a href="/ai-governance/ai-lawsuits/">03. AI Lawsuit Database</a></li>
+    <li><a href="/ai-resources/ai-people/">04. AI Movers and Shakers</a></li>
+    <li><a href="/ai-resources/ai-news/">05. AI News Daily Briefing</a></li>
+    <li><a href="/ai-governance/sources/">06. AI Sources</a></li>
+    <li><a href="/ai-resources/ai-tools/">07. AI Tools Directory</a></li>
+    <li><a href="/ai-resources/ai-vendor-news/">08. AI Vendor News</a></li>
   </ul>
   <a class="far-cta" href="/schedule-consultation/">Schedule a Free AI Consultation</a>
 </div>
+</aside>
 
   </div>
 </section>

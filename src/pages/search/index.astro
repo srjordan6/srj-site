@@ -1,0 +1,92 @@
+---
+// /search/ — the full-page site search, backed by Pagefind.
+//
+// WHY THIS PAGE EXISTS. The governance pages carry the transplanted WordPress
+// chrome, whose search form posted to the WordPress origin with ?s= — a
+// Relevanssi endpoint that no longer exists on the static site, so submitting
+// it landed on the homepage and read as "search is broken." Those forms now
+// submit here with ?q= (?s= also accepted for anything old), and this page
+// runs the same Pagefind index the header panel uses.
+//
+// THE INDEX IS REBUILT ON EVERY DEPLOY, and every srj-content push (the
+// nightly pipeline included) triggers a deploy, so the index tracks the daily
+// news, vendor, lawsuit, and intel content without any manual step.
+//
+// data-pagefind-ignore keeps this page out of its own index.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const title = 'Search | SRJ Consulting & Services';
+const description =
+  'Search srjconsultingservices.com: the AI Governance Reference Library, books, services, ' +
+  'glossary, tools, news, and insights.';
+---
+<BaseLayout title={title} description={description} crumbName="Search">
+  <section class="search-page" data-pagefind-ignore>
+    <div class="container">
+      <h1>Search the site</h1>
+      <p class="lede">
+        Every page is searchable: the governance library, books, services, glossary, tools,
+        news, vendor announcements, and insights. The index is rebuilt with every content
+        update, so today's additions are in it.
+      </p>
+      <div id="srj-search-page-box"></div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script is:inline>
+// Load Pagefind, then seed the query from ?q= (or legacy ?s=) so a submitted
+// form lands on live results, not an empty box.
+(function () {
+  var css = document.createElement('link');
+  css.rel = 'stylesheet';
+  css.href = '/pagefind/pagefind-ui.css';
+  document.head.appendChild(css);
+
+  var s = document.createElement('script');
+  s.src = '/pagefind/pagefind-ui.js';
+  s.onload = function () {
+    /* global PagefindUI */
+    new PagefindUI({
+      element: '#srj-search-page-box',
+      showSubResults: true,
+      showImages: false,
+      translations: { placeholder: 'Search srjconsultingservices.com' },
+    });
+    var params = new URLSearchParams(location.search);
+    var q = params.get('q') || params.get('s') || '';
+    var input = document.querySelector('#srj-search-page-box input');
+    if (input) {
+      if (q) {
+        input.value = q;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      input.focus();
+    }
+  };
+  s.onerror = function () {
+    document.getElementById('srj-search-page-box').textContent =
+      'Search could not load. Please try again, or browse from the navigation above.';
+  };
+  document.head.appendChild(s);
+})();
+</script>
+
+<style>
+  .search-page { padding: 64px 0 110px; min-height: 60vh; }
+  h1 { font-family: Lora, serif; color: var(--navy); }
+  .lede { max-width: 68ch; font-size: 16px; color: var(--ink-soft); margin: 0 0 28px; }
+  #srj-search-page-box { max-width: 820px; }
+  #srj-search-page-box :global(.pagefind-ui) {
+    --pagefind-ui-primary: #F07800;
+    --pagefind-ui-text: #2C2C2A;
+    --pagefind-ui-background: #ffffff;
+    --pagefind-ui-border: #e4e2dc;
+    --pagefind-ui-tag: #201868;
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 8px;
+    --pagefind-ui-font: 'Poppins', sans-serif;
+  }
+  #srj-search-page-box :global(.pagefind-ui__result-link) { color: #201868; }
+  #srj-search-page-box :global(.pagefind-ui__result-link:hover) { color: #F07800; }
+</style>

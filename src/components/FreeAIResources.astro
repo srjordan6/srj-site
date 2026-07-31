@@ -8,14 +8,17 @@
 // Copy is approved master copy; do not edit item wording without approval.
 interface Props { current?: string }
 const { current } = Astro.props;
+// Ordered A to Z per Stephen's July 31, 2026 ruling; AI Vendor News replaces
+// Everything else AI (renamed, same feed, new URL with a 301 from the old).
 const items = [
-  { key: 'governance', n: '01', label: 'AI Governance Reference Library', href: '/ai-governance/' },
-  { key: 'lawsuits', n: '02', label: 'AI Lawsuit Database', href: '/ai-governance/ai-lawsuits/' },
-  { key: 'news', n: '03', label: 'AI News Daily Briefing', href: '/ai-resources/ai-news/' },
-  { key: 'tools', n: '04', label: 'AI Tools Directory', href: '/ai-resources/ai-tools/' },
-  { key: 'glossary', n: '05', label: 'AI Glossary', href: '/ai-resources/ai-glossary/' },
-  { key: 'people', n: '06', label: 'AI Movers and Shakers', href: '/ai-resources/ai-people/' },
-  { key: 'everything', n: '07', label: 'Everything else AI', href: '/ai-resources/everything-else-ai/' },
+  { key: 'glossary', n: '01', label: 'AI Glossary', href: '/ai-resources/ai-glossary/' },
+  { key: 'governance', n: '02', label: 'AI Governance Reference Library', href: '/ai-governance/' },
+  { key: 'lawsuits', n: '03', label: 'AI Lawsuit Database', href: '/ai-governance/ai-lawsuits/' },
+  { key: 'people', n: '04', label: 'AI Movers and Shakers', href: '/ai-resources/ai-people/' },
+  { key: 'news', n: '05', label: 'AI News Daily Briefing', href: '/ai-resources/ai-news/' },
+  { key: 'sources', n: '06', label: 'AI Sources', href: '/ai-governance/sources/' },
+  { key: 'tools', n: '07', label: 'AI Tools Directory', href: '/ai-resources/ai-tools/' },
+  { key: 'vendor', n: '08', label: 'AI Vendor News', href: '/ai-resources/ai-vendor-news/' },
 ];
 ---
 <div class="free-ai-resources">

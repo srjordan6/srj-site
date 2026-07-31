@@ -95,3 +95,8 @@
 /dora/ /ai-governance/dora/ 301
 /eu-product-liability/ /ai-governance/eu-product-liability/ 301
 /nis2/ /ai-governance/nis2/ 301
+
+# July 31, 2026: Everything else AI renamed AI Vendor News. Old feed URL and
+# the never-launched hub placeholder both 301 to the new section.
+/ai-resources/everything-else-ai/ /ai-resources/ai-vendor-news/ 301
+/ai-resources/everything-else/ /ai-resources/ai-vendor-news/ 301

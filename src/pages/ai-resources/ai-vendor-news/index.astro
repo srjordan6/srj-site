@@ -1,0 +1,317 @@
+---
+// AI Vendor News: announcements straight from the AI vendors themselves,
+// gathered daily by the srj-pipeline intel stage from vendor feeds and
+// published to srj-content as intel/intel.json by publish_intel.
+//
+// Renamed from "Everything else AI" (July 31, 2026): every item the feed has
+// ever produced is kind 'vendor-news', so the page now says what it is. The
+// old URL, /ai-resources/everything-else-ai/, 301s here via public/_redirects.
+//
+// STRUCTURE mirrors the AI News Daily Briefing: operational header, a
+// paragraph summary, per-vendor sections, a numbers dashboard, and a sticky
+// contents rail. Slots the pipeline does not fill (per-item summaries, a
+// big-picture block) are absent rather than invented, and render the moment
+// real data arrives.
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import FreeAIResources from '../../../components/FreeAIResources.astro';
+import { itemList, faqPage, collectionPage } from '../../../lib/pageSchema';
+
+type Item = {
+  kind: string; name: string; vendor: string | null; url: string | null;
+  summary: string | null; source: string; discovered_at: string;
+};
+
+const mods = import.meta.glob('../../../content/intel/intel.json', { eager: true });
+const doc: any = Object.values(mods)[0]?.default ?? null;
+const items: Item[] = (doc?.items ?? [])
+  .map((i: any) => ({ ...i }))
+  .sort((a: Item, b: Item) => (b.discovered_at || '').localeCompare(a.discovered_at || ''));
+
+const slugify = (s: string) =>
+  s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+const fmt = (d: string) => {
+  const dt = new Date(d);
+  return isNaN(dt.getTime())
+    ? d
+    : dt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+};
+
+// Group by vendor, largest first, so the page reads like the briefing's
+// category sections: one section per vendor, newest announcements first.
+const byVendor = new Map<string, Item[]>();
+for (const it of items) {
+  const v = it.vendor || 'Other vendors';
+  if (!byVendor.has(v)) byVendor.set(v, []);
+  byVendor.get(v)!.push(it);
+}
+const vendors = [...byVendor.entries()]
+  .map(([name, list]) => ({ name, slug: slugify(name), list }))
+  .sort((a, b) => b.list.length - a.list.length);
+
+const latest = items[0] ?? null;
+const newestDay = latest ? fmt(latest.discovered_at) : null;
+const top5 = items.slice(0, 5);
+
+// Deterministic one-paragraph summary from the data itself: counts and names,
+// nothing editorialized.
+const summary = items.length
+  ? `The feed is tracking ${items.length} announcements from ${vendors.length} ` +
+    `${vendors.length === 1 ? 'vendor' : 'vendors'}: ` +
+    vendors.map((v) => `${v.name} (${v.list.length})`).join(', ') +
+    `. The most recent entry arrived ${newestDay}. Every item links to the vendor's own ` +
+    `announcement, unedited.`
+  : '';
+
+const generated = doc?.generated ? new Date(doc.generated) : null;
+const stamp = generated ? `${generated.toUTCString().slice(0, 22)} UTC` : null;
+
+const SITE = 'https://srjconsultingservices.com';
+const url = `${SITE}/ai-resources/ai-vendor-news/`;
+const title = 'AI Vendor News: Announcements from AI Vendors | SRJ';
+const description =
+  'AI vendor announcements gathered daily from the vendors\u2019 own feeds: ' +
+  'OpenAI, Hugging Face, Google DeepMind, and more, each linked to the original source.';
+
+const faqs = [
+  {
+    q: 'Where do these announcements come from?',
+    a: 'Directly from each vendor\u2019s own published feed. The pipeline checks the feeds ' +
+       'daily and records what is new; nothing here is rewritten, ranked editorially, or ' +
+       'sourced from press coverage.',
+  },
+  {
+    q: 'How is this different from the AI News Daily Briefing?',
+    a: 'The Daily Briefing tracks what the world\u2019s press is covering, ranked by breadth of ' +
+       'independent coverage. This page tracks what the vendors themselves are saying, in ' +
+       'their own words, whether or not anyone covers it. One is the outside view, the other ' +
+       'the inside view.',
+  },
+  {
+    q: 'Is a vendor announcement treated as fact?',
+    a: 'No. A vendor announcement is the vendor\u2019s claim about its own product or plans. ' +
+       'Anything that enters the AI Governance Reference Library or the AI Tools Directory is ' +
+       'first verified independently; announcements here are leads, never evidence.',
+  },
+];
+
+const schema = [
+  collectionPage({ url, name: 'AI Vendor News', description }),
+  itemList({
+    url,
+    name: 'AI vendor announcements',
+    description,
+    items: items.slice(0, 50).map((it) => ({
+      name: it.name,
+      url: it.url || url,
+      description: `${it.vendor || 'Vendor'} announcement, ${fmt(it.discovered_at)}.`,
+    })),
+  }),
+  faqPage(url, faqs),
+];
+---
+<BaseLayout title={title} description={description} schema={schema} crumbName="AI Vendor News">
+  <!-- 1. Header and operational context -->
+  <section class="hero">
+    <div class="container">
+      <h1>AI Vendor News</h1>
+      <p class="dateline">
+        <strong>Vendor feed</strong>
+        {stamp && <> · last updated {stamp}</>}
+        {items.length > 0 && <> · {items.length} announcements tracked</>}
+      </p>
+      {vendors.length > 0 && (
+        <div class="pills" aria-label="Vendors in the feed">
+          <span class="pill-label">In the feed</span>
+          {vendors.map((v) => <a class="pill" href={`#${v.slug}`}>{v.name}</a>)}
+        </div>
+      )}
+    </div>
+  </section>
+
+  <section class="body">
+    <div class="container cols">
+      <div class="main">
+        {items.length === 0 && (
+          <div class="empty">
+            <p>The vendor feed publishes daily. Today's scan has not landed yet, so check back
+            shortly, or start with the <a href="/ai-resources/ai-news/">AI News Daily Briefing</a>
+            for what is happening across the field right now.</p>
+          </div>
+        )}
+
+        {items.length > 0 && (
+          <div class="answer" id="summary">
+            <p class="answer-label">The feed in one paragraph</p>
+            <p>{summary}</p>
+          </div>
+        )}
+
+        {top5.length > 0 && (
+          <ol class="top5">
+            {top5.map((it) => (
+              <li>
+                {it.url
+                  ? <a href={it.url} rel="noopener nofollow" target="_blank">{it.name}</a>
+                  : <span class="t5plain">{it.name}</span>}
+                <span class="t5meta">{it.vendor} · {fmt(it.discovered_at)}</span>
+              </li>
+            ))}
+          </ol>
+        )}
+
+        <!-- Per-vendor sections, the briefing's category pattern -->
+        {vendors.map((v) => (
+          <section class="cat" id={v.slug}>
+            <h2>{v.name} <span class="count">{v.list.length}</span></h2>
+            <p class="cat-blurb">
+              Announcements from {v.name}'s own feed, newest first.
+              <a class="vendor-page-link" href={`/ai-resources/ai-vendor-news/${v.slug}/`}>Full {v.name} feed &rarr;</a>
+            </p>
+            <div class="rule"></div>
+            <ul class="feed">
+              {v.list.slice(0, 10).map((it) => (
+                <li>
+                  <p class="item-name">
+                    {it.url
+                      ? <a href={it.url} rel="noopener nofollow" target="_blank">{it.name}</a>
+                      : it.name}
+                  </p>
+                  <span class="item-meta">{fmt(it.discovered_at)}</span>
+                  {it.summary && <p class="item-sum">{it.summary}</p>}
+                </li>
+              ))}
+            </ul>
+            {v.list.length > 10 && (
+              <a class="more" href={`/ai-resources/ai-vendor-news/${v.slug}/`}>
+                All {v.list.length} {v.name} announcements &rarr;
+              </a>
+            )}
+          </section>
+        ))}
+
+        <section class="faq" id="faq">
+          <h2>Frequently asked questions</h2>
+          <div class="rule"></div>
+          {faqs.map((f) => (
+            <div class="faq-item">
+              <h3>{f.q}</h3>
+              <p>{f.a}</p>
+            </div>
+          ))}
+        </section>
+
+        <p class="note">
+          Announcements are the vendor's own claims, never evidence. Where a product or claim
+          touches a law, framework, or requirement, the authoritative treatment lives in the
+          <a href="/ai-governance/">AI Governance Reference Library</a>. Anything that graduates
+          into the reference material lands in the
+          <a href="/ai-resources/ai-tools/">AI Tools Directory</a> or the
+          <a href="/ai-resources/ai-glossary/">AI Glossary</a> after review.
+        </p>
+      </div>
+
+      <!-- Dashboard and sticky contents -->
+      <aside class="side">
+        <div class="panel sticky">
+          <p class="box-label">On this page</p>
+          <ul class="toc">
+            <li><a href="#summary">The feed in one paragraph</a></li>
+            {vendors.map((v) => <li><a href={`#${v.slug}`}>{v.name} ({v.list.length})</a></li>)}
+            <li><a href="#faq">FAQ</a></li>
+          </ul>
+        </div>
+
+        <div class="panel">
+          <p class="box-label">Feed numbers</p>
+          <table class="dash">
+            <tbody>
+              <tr><th scope="row">Announcements tracked</th><td>{items.length}</td></tr>
+              <tr><th scope="row">Vendors active</th><td>{vendors.length}</td></tr>
+              {vendors[0] && <tr><th scope="row">Most active vendor</th><td>{vendors[0].name}</td></tr>}
+              {newestDay && <tr><th scope="row">Newest entry</th><td>{newestDay}</td></tr>}
+            </tbody>
+          </table>
+          <p class="dash-note">
+            Counts are measured from the feed itself. Per-announcement analysis is not shown
+            because the pipeline does not collect it yet.
+          </p>
+        </div>
+        <FreeAIResources current="vendor" />
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero { padding: 60px 0 30px; background: linear-gradient(180deg, var(--cream), var(--white)); }
+  .dateline { color: var(--gray); font-size: 14px; letter-spacing: .02em; }
+  .dateline strong { color: var(--navy); }
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 12px; }
+  .pill-label { font-family: Poppins, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--orange); margin-right: 4px; }
+  .pill { display: inline-block; background: #201868; color: #fff; font-family: Poppins, sans-serif; font-size: 12px; padding: 4px 12px; border-radius: 999px; text-decoration: none; }
+  .pill:hover { background: var(--orange); }
+
+  .body { padding: 10px 0 110px; }
+  .cols { display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 44px; align-items: start; }
+  @media (max-width: 960px) { .cols { grid-template-columns: 1fr; } }
+
+  .box-label { font-family: Poppins, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--orange); margin: 0 0 10px; }
+
+  .empty { background: var(--cream); border: 1px solid #F0D6B0; border-radius: 6px; padding: 26px; font-family: Poppins, sans-serif; font-size: 15px; line-height: 1.7; }
+  .empty a { color: var(--orange); text-decoration: none; }
+  .empty a:hover { text-decoration: underline; }
+
+  .answer { background: #FFF6EC; border: 1px solid #F0D6B0; border-radius: 6px; padding: 22px 26px; margin: 0 0 18px; }
+  .answer p { font-family: Poppins, sans-serif; font-size: 16px; line-height: 1.75; color: #2C2C2A; margin: 0; }
+  .answer-label { font-size: 11px !important; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #F07800; margin: 0 0 8px !important; }
+
+  .top5 { margin: 0 0 46px; padding-left: 22px; }
+  .top5 li { margin: 0 0 10px; }
+  .top5 a, .t5plain { font-family: Lora, serif; font-size: 17px; color: var(--navy); text-decoration: none; }
+  .top5 a:hover { color: var(--orange); }
+  .t5meta { display: block; font-family: Poppins, sans-serif; font-size: 12.5px; color: var(--gray); }
+
+  .cat { margin: 0 0 44px; scroll-margin-top: 80px; }
+  .cat h2 { font-family: Lora, serif; font-size: 25px; color: #201868; margin: 0 0 2px; font-weight: 600; }
+  .cat .count { font-family: Poppins, sans-serif; font-size: 13px; color: #fff; background: var(--orange); border-radius: 999px; padding: 2px 9px; vertical-align: middle; margin-left: 6px; }
+  .cat-blurb { font-family: Poppins, sans-serif; font-size: 13.5px; color: var(--gray); margin: 0 0 8px; }
+  .vendor-page-link { color: var(--navy); text-decoration: none; font-weight: 600; margin-left: 6px; }
+  .vendor-page-link:hover { color: var(--orange); }
+  .rule { width: 56px; height: 3px; background: #F07800; margin: 0 0 20px; }
+
+  .feed { list-style: none; margin: 0; padding: 0; }
+  .feed li { padding: 12px 0; border-bottom: 1px solid #EFE6D8; }
+  .feed li:last-child { border-bottom: 0; }
+  .item-name { font-family: Poppins, sans-serif; font-size: 15px; font-weight: 600; color: var(--navy); margin: 0; overflow-wrap: anywhere; }
+  .item-name a { color: var(--navy); text-decoration: none; }
+  .item-name a:hover { color: var(--orange); }
+  .item-meta { font-family: Poppins, sans-serif; font-size: 12.5px; color: var(--gray); }
+  .item-sum { font-family: Poppins, sans-serif; font-size: 14px; line-height: 1.6; color: #1A1A2E; margin: 4px 0 0; }
+  .more { font-family: Poppins, sans-serif; font-size: 13.5px; color: var(--navy); text-decoration: none; font-weight: 600; }
+  .more:hover { color: var(--orange); }
+
+  .side { display: flex; flex-direction: column; gap: 20px; }
+  .panel { border: 1px solid #e6e4de; border-radius: 10px; padding: 18px 20px; background: #fafaf6; }
+  .sticky { position: sticky; top: 20px; }
+  .toc { list-style: none; margin: 0; padding: 0; }
+  .toc li { margin: 0 0 7px; }
+  .toc a { font-family: Poppins, sans-serif; font-size: 13.5px; color: var(--navy); text-decoration: none; }
+  .toc a:hover { color: var(--orange); }
+  .dash { width: 100%; border-collapse: collapse; }
+  .dash th, .dash td { font-family: Poppins, sans-serif; font-size: 13.5px; padding: 7px 0; border-bottom: 1px solid #eceae4; text-align: left; }
+  .dash th { color: var(--gray); font-weight: 500; }
+  .dash td { color: var(--navy); font-weight: 700; text-align: right; }
+  .dash tr:last-child th, .dash tr:last-child td { border-bottom: none; }
+  .dash-note { font-family: Poppins, sans-serif; font-size: 12px; line-height: 1.5; color: var(--gray); margin: 10px 0 0; font-style: italic; }
+
+  .faq { margin: 46px 0 0; scroll-margin-top: 80px; }
+  .faq h2 { font-family: Lora, serif; font-size: 25px; color: #201868; margin: 0 0 4px; font-weight: 600; }
+  .faq-item { padding: 16px 0; border-bottom: 1px solid #EDEBE5; }
+  .faq-item:last-child { border-bottom: none; }
+  .faq-item h3 { font-family: Lora, serif; font-size: 19px; font-weight: 700; color: #201868; margin: 0 0 6px; }
+  .faq-item p { font-family: Poppins, sans-serif; font-size: 14.5px; line-height: 1.7; color: #2C2C2A; margin: 0; max-width: 74ch; }
+
+  .note { margin-top: 34px; font-size: 14px; color: var(--gray); font-style: italic; max-width: 68ch; }
+  .note a { color: var(--navy); }
+</style>

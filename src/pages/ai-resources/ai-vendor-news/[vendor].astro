@@ -1,0 +1,241 @@
+---
+// One page per vendor, built to the same daily-briefing structure as the AI
+// Vendor News hub: operational header, key numbers, a day-grouped feed of that
+// vendor's announcements, and a sticky contents rail.
+//
+// WHY PER-VENDOR, NOT PER-ANNOUNCEMENT. The pipeline records only a title,
+// vendor, URL, and discovery date for each item, no summaries and no coverage
+// data. A page per announcement would be a headline and one link, hundreds of
+// times over: thin content that helps no reader and hurts the domain. A page
+// per vendor carries the vendor's whole feed and grows richer as the pipeline
+// starts capturing summaries. Per-announcement pages come when there is enough
+// verified data to fill them.
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import FreeAIResources from '../../../components/FreeAIResources.astro';
+import { itemList, collectionPage } from '../../../lib/pageSchema';
+
+type Item = {
+  kind: string; name: string; vendor: string | null; url: string | null;
+  summary: string | null; source: string; discovered_at: string;
+};
+
+const slugify = (s: string) =>
+  s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+export async function getStaticPaths() {
+  // Astro executes getStaticPaths in isolation from the rest of the
+  // frontmatter, so module-level helpers are out of scope here. Redefined
+  // locally; must stay identical to the module-level slugify below.
+  // (Caught by the July 31 local build: "slugify is not defined".)
+  const slugify = (s: string) =>
+    s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  const mods = import.meta.glob('../../../content/intel/intel.json', { eager: true });
+  const doc: any = Object.values(mods)[0]?.default ?? null;
+  const items: Item[] = (doc?.items ?? []).map((i: any) => ({ ...i }));
+  const byVendor = new Map<string, Item[]>();
+  for (const it of items) {
+    const v = it.vendor || 'Other vendors';
+    if (!byVendor.has(v)) byVendor.set(v, []);
+    byVendor.get(v)!.push(it);
+  }
+  return [...byVendor.entries()].map(([name, list]) => ({
+    params: { vendor: slugify(name) },
+    props: { vendorName: name, list, generated: doc?.generated ?? null },
+  }));
+}
+
+const { vendorName, list, generated } = Astro.props;
+
+const items: Item[] = [...list].sort(
+  (a, b) => (b.discovered_at || '').localeCompare(a.discovered_at || '')
+);
+
+const fmt = (d: string) => {
+  const dt = new Date(d);
+  return isNaN(dt.getTime())
+    ? d
+    : dt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
+};
+
+// Day-grouped, newest first, the running-log shape the briefing uses.
+const byDay = new Map<string, Item[]>();
+for (const it of items) {
+  const day = (it.discovered_at || '').slice(0, 10);
+  if (!byDay.has(day)) byDay.set(day, []);
+  byDay.get(day)!.push(it);
+}
+const days = [...byDay.keys()].sort().reverse();
+
+const newest = items[0] ? fmt(items[0].discovered_at) : null;
+const oldest = items[items.length - 1] ? fmt(items[items.length - 1].discovered_at) : null;
+const stamp = generated ? `${new Date(generated).toUTCString().slice(0, 22)} UTC` : null;
+
+const SITE = 'https://srjconsultingservices.com';
+const vslug = slugify(vendorName);
+const url = `${SITE}/ai-resources/ai-vendor-news/${vslug}/`;
+const title = `${vendorName} Announcements | AI Vendor News | SRJ`.slice(0, 62);
+const description =
+  (`${vendorName} announcements gathered daily from the vendor's own feed: ` +
+   `${items.length} entries, each linked to the original source.`).slice(0, 160);
+
+const schema = [
+  collectionPage({ url, name: `${vendorName} announcements`, description }),
+  itemList({
+    url,
+    name: `${vendorName} announcements`,
+    description,
+    items: items.slice(0, 50).map((it) => ({
+      name: it.name,
+      url: it.url || url,
+      description: `${vendorName} announcement, ${fmt(it.discovered_at)}.`,
+    })),
+  }),
+];
+---
+<BaseLayout
+  title={title}
+  description={description}
+  schema={schema}
+  crumbs={[
+    { name: 'Home', url: '/' },
+    { name: 'AI Resources', url: '/ai-resources/' },
+    { name: 'AI Vendor News', url: '/ai-resources/ai-vendor-news/' },
+    { name: vendorName },
+  ]}
+>
+  <!-- 1. Header and operational context -->
+  <section class="hero">
+    <div class="container">
+      <h1>{vendorName} announcements</h1>
+      <p class="dateline">
+        <strong>Vendor feed</strong>
+        {stamp && <> · last updated {stamp}</>}
+        · {items.length} {items.length === 1 ? 'announcement' : 'announcements'} tracked
+      </p>
+      <div class="pills">
+        <a class="pill pill-cat" href="/ai-resources/ai-vendor-news/">AI Vendor News</a>
+        <span class="pill">{vendorName}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="body">
+    <div class="container cols">
+      <div class="main">
+        <div class="answer" id="summary">
+          <p class="answer-label">This feed in one paragraph</p>
+          <p>
+            {items.length} announcements from {vendorName}'s own published feed,
+            {oldest && newest && oldest !== newest && <> spanning {oldest} to {newest},</>}
+            {oldest && newest && oldest === newest && <> all discovered {newest},</>}
+            each linked to the original source, unedited. Announcements are the vendor's
+            own claims, never independent verification.
+          </p>
+        </div>
+
+        {days.map((day) => (
+          <section class="cat" id={`d-${day}`}>
+            <h2>{fmt(day)} <span class="count">{byDay.get(day)!.length}</span></h2>
+            <div class="rule"></div>
+            <ul class="feed">
+              {byDay.get(day)!.map((it) => (
+                <li>
+                  <p class="item-name">
+                    {it.url
+                      ? <a href={it.url} rel="noopener nofollow" target="_blank">{it.name}</a>
+                      : it.name}
+                  </p>
+                  {it.summary && <p class="item-sum">{it.summary}</p>}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+
+        <p class="note">
+          Where a {vendorName} product or claim touches a law, framework, or requirement, the
+          authoritative treatment lives in the
+          <a href="/ai-governance/">AI Governance Reference Library</a>, verified against
+          primary sources. For the tools market view, see the
+          <a href="/ai-resources/ai-tools/">AI Tools Directory</a>.
+        </p>
+      </div>
+
+      <!-- Dashboard and contents -->
+      <aside class="side">
+        <div class="panel sticky">
+          <p class="box-label">On this page</p>
+          <ul class="toc">
+            <li><a href="#summary">This feed in one paragraph</a></li>
+            {days.slice(0, 12).map((day) => (
+              <li><a href={`#d-${day}`}>{fmt(day)} ({byDay.get(day)!.length})</a></li>
+            ))}
+            <li><a href="/ai-resources/ai-vendor-news/">Back to AI Vendor News</a></li>
+          </ul>
+        </div>
+
+        <div class="panel">
+          <p class="box-label">Key numbers</p>
+          <table class="dash">
+            <tbody>
+              <tr><th scope="row">Announcements</th><td>{items.length}</td></tr>
+              <tr><th scope="row">Days with entries</th><td>{days.length}</td></tr>
+              {newest && <tr><th scope="row">Newest entry</th><td>{newest}</td></tr>}
+              {oldest && <tr><th scope="row">Oldest entry</th><td>{oldest}</td></tr>}
+            </tbody>
+          </table>
+        </div>
+        <FreeAIResources current="vendor" />
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero { padding: 56px 0 30px; background: linear-gradient(180deg, var(--cream), var(--white)); }
+  h1 { max-width: 24ch; line-height: 1.2; }
+  .dateline { color: var(--gray); font-size: 14px; }
+  .dateline strong { color: var(--navy); }
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .pill { display: inline-block; background: #201868; color: #fff; font-family: Poppins, sans-serif; font-size: 12px; padding: 4px 12px; border-radius: 999px; }
+  .pill-cat { background: var(--orange); text-decoration: none; }
+
+  .body { padding: 10px 0 110px; }
+  .cols { display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 44px; align-items: start; }
+  @media (max-width: 960px) { .cols { grid-template-columns: 1fr; } }
+
+  .box-label { font-family: Poppins, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--orange); margin: 0 0 10px; }
+
+  .answer { background: #FFF6EC; border: 1px solid #F0D6B0; border-radius: 6px; padding: 22px 26px; margin: 0 0 28px; scroll-margin-top: 80px; }
+  .answer p { font-family: Poppins, sans-serif; font-size: 16px; line-height: 1.75; color: #2C2C2A; margin: 0; }
+  .answer-label { font-size: 11px !important; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #F07800; margin: 0 0 8px !important; }
+
+  .cat { margin: 0 0 36px; scroll-margin-top: 80px; }
+  .cat h2 { font-family: Lora, serif; font-size: 22px; color: #201868; margin: 0 0 2px; font-weight: 600; }
+  .cat .count { font-family: Poppins, sans-serif; font-size: 13px; color: #fff; background: var(--orange); border-radius: 999px; padding: 2px 9px; vertical-align: middle; margin-left: 6px; }
+  .rule { width: 56px; height: 3px; background: #F07800; margin: 0 0 16px; }
+
+  .feed { list-style: none; margin: 0; padding: 0; }
+  .feed li { padding: 12px 0; border-bottom: 1px solid #EFE6D8; }
+  .feed li:last-child { border-bottom: 0; }
+  .item-name { font-family: Poppins, sans-serif; font-size: 15px; font-weight: 600; color: var(--navy); margin: 0; overflow-wrap: anywhere; }
+  .item-name a { color: var(--navy); text-decoration: none; }
+  .item-name a:hover { color: var(--orange); }
+  .item-sum { font-family: Poppins, sans-serif; font-size: 14px; line-height: 1.6; color: #1A1A2E; margin: 4px 0 0; }
+
+  .note { margin-top: 34px; font-size: 14px; color: var(--gray); font-style: italic; max-width: 68ch; }
+  .note a { color: var(--navy); }
+
+  .side { display: flex; flex-direction: column; gap: 20px; }
+  .panel { border: 1px solid #e6e4de; border-radius: 10px; padding: 18px 20px; background: #fafaf6; }
+  .sticky { position: sticky; top: 20px; }
+  .toc { list-style: none; margin: 0; padding: 0; }
+  .toc li { margin: 0 0 7px; }
+  .toc a { font-family: Poppins, sans-serif; font-size: 13.5px; color: var(--navy); text-decoration: none; }
+  .toc a:hover { color: var(--orange); }
+  .dash { width: 100%; border-collapse: collapse; }
+  .dash th, .dash td { font-family: Poppins, sans-serif; font-size: 13.5px; padding: 7px 0; border-bottom: 1px solid #eceae4; text-align: left; }
+  .dash th { color: var(--gray); font-weight: 500; }
+  .dash td { color: var(--navy); font-weight: 700; text-align: right; }
+  .dash tr:last-child th, .dash tr:last-child td { border-bottom: none; }
+</style>

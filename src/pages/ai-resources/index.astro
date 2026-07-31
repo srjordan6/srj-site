@@ -36,6 +36,8 @@ const freeTools = [
       { href: '/ai-governance/ai-lawsuits/', label: 'AI Legal Cases' },
     ],
   },
+  // Cards below the flagship run A to Z, matching the Free AI Resources index
+  // ordering (Stephen's July 31, 2026 ruling).
   {
     href: '/ai-resources/ai-glossary/',
     title: 'AI Glossary',
@@ -44,18 +46,18 @@ const freeTools = [
     note: 'Each term with a worked example and, where citable, its origin.',
   },
   {
-    href: '/ai-resources/ai-news/',
-    title: 'AI News',
-    desc: 'What\u2019s happening in the world of AI: the day\u2019s top stories ranked by breadth of global coverage, each with its own page and sources.',
-    live: true,
-    note: 'Refreshed every morning by the pipeline.',
-  },
-  {
     href: '/ai-resources/ai-people/',
     title: 'AI Movers and Shakers',
     desc: 'The movers and shakers in the world of AI: verified one-page profiles with legacy, achievements, timelines, and primary sources.',
     live: true,
     note: 'Profiles added as they are verified.',
+  },
+  {
+    href: '/ai-resources/ai-news/',
+    title: 'AI News',
+    desc: 'What\u2019s happening in the world of AI: the day\u2019s top stories ranked by breadth of global coverage, each with its own page and sources.',
+    live: true,
+    note: 'Refreshed every morning by the pipeline.',
   },
   // Replaced the AI News Events card, which duplicated AI News: both promised
   // "what happened recently" and a reader could not tell which to click.
@@ -76,12 +78,14 @@ const freeTools = [
     live: true,
     note: 'Per-tool profiles added as they are verified.',
   },
+  // Renamed from "Everything else AI" July 31, 2026: the intel feed is
+  // vendor announcements, so the card now says what the section is.
   {
-    href: '/ai-resources/everything-else/',
-    title: 'Everything else AI',
-    desc: 'Every verified resource that fits nowhere else, collected widely, published only when verified.',
-    live: false,
-    note: 'Grows with the platform.',
+    href: '/ai-resources/ai-vendor-news/',
+    title: 'AI Vendor News',
+    desc: 'Announcements straight from the AI vendors themselves, gathered daily from their own feeds and linked to the original source.',
+    live: true,
+    note: 'Refreshed daily by the pipeline.',
   },
 ];
 

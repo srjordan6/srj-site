@@ -15,8 +15,10 @@ export function getStaticPaths() {
     // /ai-governance/ai-tools/, which is what migration gate 1 requires. The
     // /ai-resources/ aliases 301 to those paths from public/_redirects, so the
     // hub keeps working without creating a second copy of either page.
+    // 'everything-else' removed July 31, 2026: the section became AI Vendor
+    // News at /ai-resources/ai-vendor-news/; the old placeholder URL 301s
+    // there from public/_redirects.
     { params: { section: 'ai-events' }, props: { title: 'AI News Events', desc: 'Dates with legal consequence.', body: 'Effective dates, comment deadlines, compliance windows, and hearings, each verified against the issuing body. The dates that appear here are the dates the graph can prove.' } },
-    { params: { section: 'everything-else' }, props: { title: 'Everything Else', desc: 'The long tail, verified.', body: 'Every verified resource that fits nowhere else. Collected as widely as possible, published only when verified, this section grows with the platform.' } },
   ];
 }
 const { title, desc, body, link, linkText } = Astro.props;

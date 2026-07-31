@@ -5,7 +5,7 @@
   "description": "srjconsultingservices.com - static site (Astro on Cloudflare Pages)",
   "scripts": {
     "dev": "astro dev",
-    "build": "node scripts/fetch-content.mjs && node scripts/make-chrome.mjs && astro build && pagefind --site dist",
+    "build": "node scripts/fetch-content.mjs && node scripts/make-chrome.mjs && astro build && pagefind --site dist --force-language en",
     "preview": "astro preview"
   },
   "dependencies": {
