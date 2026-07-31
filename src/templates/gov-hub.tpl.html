@@ -1121,7 +1121,28 @@ body.home{background-color:#ffffff!important}
 .far-list li.is-current a { color: #F07800; font-weight: 600; }
 .far-cta { display: block; margin-top: 18px; background: #201868; color: #FFFFFF !important; text-align: center; font-family: Poppins, sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase; padding: 16px 18px; text-decoration: none; border-radius: 2px; }
 .far-cta:hover { background: #1A1357; }
+
+/* Top band (v1.95). The Free AI Resources index moved out of the page tail and
+   into an aside at the upper right, beside the section opener. Two-column grid
+   on desktop, stacked on narrow viewports so the panel follows the lede rather
+   than squeezing beside it. The directory below is untouched and still spans
+   the full container width. */
+.srjgov-tophead { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 36px; align-items: start; margin: 0 0 8px; }
+.srjgov-tophead-main { min-width: 0; }
+.srjgov-tophead-aside { min-width: 0; }
+.srjgov-tophead-aside .free-ai-resources { margin: 0; }
+/* These two are centred, max-width-capped blocks in the single-column layout.
+   Inside the band they fill the left cell instead. */
+.srjgov-tophead .srjgov-tldr { max-width: none; margin: 24px 0 26px; }
+.srjgov-tophead .srjgov-lead { max-width: none; margin: 0; text-align: left; }
+@media (max-width: 900px) {
+  .srjgov-tophead { grid-template-columns: 1fr; gap: 26px; }
+  .srjgov-tophead .srjgov-lead { text-align: center; }
+}
     </style>
+
+    <div class="srjgov-tophead">
+      <div class="srjgov-tophead-main">
 
     <h2 class="srjlaw-section-h" id="ai-governance-library">1. AI Governance</h2>
 
@@ -1131,6 +1152,25 @@ body.home{background-color:#ffffff!important}
     </div>
 
     <p class="srjgov-lead">The line-by-line mapping between these frameworks and SRJ's operating artifacts is Appendix L of <a href="/books/ai-business-services/the-ai-risk-governance-review/"><em>The AI Risk &amp; Governance Review</em>&trade;</a>, Volume III of <a href="/books/"><em>The Operating Discipline for AI Library</em>&trade;</a>.</p>
+
+      </div>
+
+      <aside class="srjgov-tophead-aside">
+        <div class="free-ai-resources">
+          <p class="far-eyebrow">Free AI Resources</p>
+          <ul class="far-list">
+            <li class="is-current"><a href="/ai-governance/">01. AI Governance Reference Library</a></li>
+            <li><a href="/ai-governance/ai-lawsuits/">02. AI Lawsuit Database</a></li>
+            <li><a href="/ai-resources/ai-news/">03. AI News Daily Briefing</a></li>
+            <li><a href="/ai-resources/ai-tools/">04. AI Tools Directory</a></li>
+            <li><a href="/ai-resources/ai-glossary/">05. AI Glossary</a></li>
+            <li><a href="/ai-resources/ai-people/">06. AI Movers and Shakers</a></li>
+            <li><a href="/ai-resources/everything-else-ai/">07. Everything else AI</a></li>
+          </ul>
+          <a class="far-cta" href="/schedule-consultation/">Schedule a Free AI Consultation</a>
+        </div>
+      </aside>
+    </div>
 
     <div class="srjgov-updates">
       <div class="srjgov-updates-head">
@@ -1449,18 +1489,6 @@ body.home{background-color:#ffffff!important}
                 </li>
                           </ul>
                   </div>
-              <div class="srjgov-dir-cat">
-          <p class="srjgov-dir-cat-title">
-            <a href="/ai-governance/ai-tools/">AI Tools</a>
-          </p>
-                      <p class="srjgov-dir-cat-sub">The Reference Catalog Behind an AI Tool Inventory</p>
-                            </div>
-              <div class="srjgov-dir-cat">
-          <p class="srjgov-dir-cat-title">
-            <a href="/ai-governance/sources/">Sources &amp; References</a>
-          </p>
-                      <p class="srjgov-dir-cat-sub">The Complete Bibliography of the AI Governance Reference Library</p>
-                            </div>
           </div>
 
 {{LAWSUITS}}
@@ -1470,19 +1498,6 @@ body.home{background-color:#ffffff!important}
       <p>The AI Business Enablement Audit&trade; measures your organization against every framework in this library and delivers a defensible governance dossier. Start or finish your audit below.</p>
       <a class="srjgov-cta-btn" href="https://aiauditforcompanies.com/startaiaudit/" target="_blank" rel="noopener">Start or finish your AI Audit &rarr;</a>
     </div>
-<div class="free-ai-resources">
-  <p class="far-eyebrow">Free AI Resources</p>
-  <ul class="far-list">
-    <li class="is-current"><a href="/ai-governance/">01. AI Governance Reference Library</a></li>
-    <li><a href="/ai-governance/ai-lawsuits/">02. AI Lawsuit Database</a></li>
-    <li><a href="/ai-resources/ai-news/">03. AI News Daily Briefing</a></li>
-    <li><a href="/ai-resources/ai-tools/">04. AI Tools Directory</a></li>
-    <li><a href="/ai-resources/ai-glossary/">05. AI Glossary</a></li>
-    <li><a href="/ai-resources/ai-people/">06. AI Movers and Shakers</a></li>
-    <li><a href="/ai-resources/everything-else-ai/">07. Everything else AI</a></li>
-  </ul>
-  <a class="far-cta" href="/schedule-consultation/">Schedule a Free AI Consultation</a>
-</div>
 
   </div>
 </section>
