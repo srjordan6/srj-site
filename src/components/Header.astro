@@ -314,5 +314,8 @@ const EMAIL = 'info@srjconsultingservices.com';
   .topbar-translate input{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.35);border-radius:5px;color:#fff;font-weight:700;font-size:12.5px;line-height:1.5;font-family:inherit;padding:2px 9px;width:150px}
   .topbar-translate input::placeholder{color:rgba(255,255,255,.65)}
   .gt-hidden{position:absolute !important;left:-9999px;top:0;visibility:hidden}
-  body{top:0 !important}.goog-te-banner-frame,#goog-gt-tt{display:none !important}
+  body{top:0 !important;position:static !important}.goog-te-banner-frame,#goog-gt-tt,iframe.skiptranslate{display:none !important}
+  /* The topbar carries Search and the language selector; it stays pinned so
+     translation (or anything else) can never scroll it out of reach. */
+  .topbar{position:sticky;top:0;z-index:1100}
 </style>
