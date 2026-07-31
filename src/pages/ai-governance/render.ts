@@ -6,7 +6,7 @@ import hubTpl from '../../templates/gov-hub.tpl.html?raw';
 import { govSchema } from '../../lib/govSchema';
 import { entityNodes, webPageNode } from '../../lib/entityGraph';
 import { rewriteAssets } from '../../lib/assets';
-import { hubSection, type Case } from './ai-lawsuits/caseHtml';
+import { type Case } from './ai-lawsuits/caseHtml';
 
 // The lawsuits feed is optional at build time; the hub section renders only
 // when publish_lawsuits has shipped lawsuits.json into srj-content.
@@ -64,8 +64,28 @@ export function detailHtml(entry: any, bySlug: Record<string, any>): string {
     : rewriteAssets(html.replace(/[ \t]*<meta\s+name=["']description["'][^>]*>\s*\n?/i, ''));
 }
 
+// July 31 2026, Stephen's directive: the hub directory lists its category
+// cards in alphabetical order. Sorted here at build time rather than by
+// hand-reordering the template, so the order survives future template
+// refreshes and newly added categories land in the right place by default.
+// Plain lowercase comparison, not localeCompare, so the order is stable
+// across build environments.
+function alphabetizeDir(html: string): string {
+  const openIdx = html.indexOf('<div class="srjgov-dir">');
+  if (openIdx === -1) return html;
+  const seg = html.slice(openIdx);
+  const cards = seg.match(/<div class="srjgov-dir-cat">[\s\S]*?<\/div>\s*?\n/g);
+  if (!cards || cards.length < 2) return html;
+  const key = (c: string) => (c.match(/href="[^"]+">([^<]+)<\/a>/)?.[1] || '').trim().toLowerCase();
+  const sorted = [...cards].sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0));
+  const start = seg.indexOf(cards[0]);
+  const last = cards[cards.length - 1];
+  const end = seg.indexOf(last) + last.length;
+  return html.slice(0, openIdx) + seg.slice(0, start) + sorted.join('') + seg.slice(end);
+}
+
 export function hubHtml(): string {
-  const tpl = hubTpl;
+  const tpl = alphabetizeDir(hubTpl);
   const url = SITE + '/ai-governance/';
 
   // The hub emitted only a hand-rolled Organization node and breadcrumbs, so it
@@ -87,6 +107,8 @@ export function hubHtml(): string {
   // The transplanted chrome loads seven stylesheets and three favicons from the
   // WordPress origin. Repointed at the asset bucket here, alongside the body,
   // so the governance pages do not go unstyled the moment the domain moves.
-  const lawsuits = lawDoc?.cases?.length ? hubSection(lawDoc.cases) : '';
-  return rewriteAssets(tpl.replace('{{JSONLD}}', ld).replace('{{LAWSUITS}}', lawsuits));
+  // July 31 2026, Stephen's directive: the AI Legal Cases section no longer
+  // shows on the hub. The database itself is untouched and stays linked from
+  // the Free AI Resources index (03. AI Lawsuit Database) sitewide.
+  return rewriteAssets(tpl.replace('{{JSONLD}}', ld));
 }
