@@ -335,8 +335,17 @@ const EMAIL = 'info@srjconsultingservices.com';
   nav a[aria-current="page"] { color: #201868; font-weight: 600; }
 
   @media (max-width: 1080px) {
-    .topbar-contact { display: none; }
-    .topbar-inner { justify-content: flex-end; }
+    /* This used to hide .topbar-contact wholesale, from the era when it held
+       phone and email. Since July 31 its only content is the language
+       selector, which mobile visitors need most, so it compacts instead of
+       disappearing (the bug: the selector simply did not exist below 1081px). */
+    .topbar-contact { gap: 12px; }
+    .topbar-translate input { width: 116px; font-size: 12px; }
+  }
+  @media (max-width: 640px) {
+    /* The consultation CTA also lives in the hamburger panel, so on phones
+       the topbar copy yields its space to the selector and search. */
+    .topbar-cta { display: none; }
   }
   /* ---- hamburger + slide-in panel, visual twin of the governance pages ---- */
   .srj-nav-toggle { display: none; position: relative; z-index: 160; -webkit-appearance: none; appearance: none; background: transparent; border: 0; cursor: pointer; padding: 8px; margin: -8px; line-height: 0; }
