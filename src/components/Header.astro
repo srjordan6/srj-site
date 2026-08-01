@@ -89,9 +89,60 @@ const EMAIL = 'info@srjconsultingservices.com';
           ))}
         </ul>
       </nav>
+      {/* Hamburger, mobile only. Same ids, classes, and behavior as the
+          governance templates so the whole site opens one identical menu. */}
+      <button class="srj-nav-toggle" id="srj-nav-toggle" type="button"
+        aria-label="Open menu" aria-expanded="false" aria-controls="srj-mobile-panel">
+        <span class="srj-nav-toggle-bars" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </span>
+      </button>
     </div>
   </div>
 </header>
+
+<div class="srj-mobile-scrim" id="srj-mobile-scrim"></div>
+<nav class="srj-mobile-panel" id="srj-mobile-panel" aria-label="Mobile navigation" aria-hidden="true">
+  <div class="srj-mobile-panel-head">
+    <span class="srj-mobile-panel-label">Menu</span>
+    <button class="srj-mobile-close" id="srj-mobile-close" type="button" aria-label="Close menu">&#215;</button>
+  </div>
+  <ul class="srj-mobile-links">
+    {nav.map((n) => (
+      <li><a href={n.href} aria-current={current === n.href ? 'page' : undefined}>{n.label}</a></li>
+    ))}
+  </ul>
+  <a href="/schedule-consultation/" class="srj-mobile-cta">Schedule a Free AI Consultation</a>
+</nav>
+
+<script is:inline>
+(function () {
+  var toggle = document.getElementById('srj-nav-toggle');
+  var panel  = document.getElementById('srj-mobile-panel');
+  var scrim  = document.getElementById('srj-mobile-scrim');
+  var closeBtn = document.getElementById('srj-mobile-close');
+  if (!toggle || !panel || !scrim) return;
+  function setOpen(open) {
+    panel.classList.toggle('is-open', open);
+    scrim.classList.toggle('is-open', open);
+    toggle.classList.toggle('is-open', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+    document.body.classList.toggle('srj-menu-open', open);
+  }
+  toggle.addEventListener('click', function () { setOpen(!panel.classList.contains('is-open')); });
+  scrim.addEventListener('click', function () { setOpen(false); });
+  if (closeBtn) closeBtn.addEventListener('click', function () { setOpen(false); });
+  panel.addEventListener('click', function (e) { if (e.target.closest('a')) setOpen(false); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && panel.classList.contains('is-open')) setOpen(false);
+  });
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 980 && panel.classList.contains('is-open')) setOpen(false);
+  });
+})();
+</script>
 
 <script is:inline>
 // Lazy Pagefind. The index and UI assets live under /pagefind/ in the build
@@ -287,14 +338,44 @@ const EMAIL = 'info@srjconsultingservices.com';
     .topbar-contact { display: none; }
     .topbar-inner { justify-content: flex-end; }
   }
+  /* ---- hamburger + slide-in panel, visual twin of the governance pages ---- */
+  .srj-nav-toggle { display: none; position: relative; z-index: 160; -webkit-appearance: none; appearance: none; background: transparent; border: 0; cursor: pointer; padding: 8px; margin: -8px; line-height: 0; }
+  .srj-nav-toggle-bars { display: flex; flex-direction: column; justify-content: center; gap: 5px; width: 26px; height: 18px; }
+  .srj-nav-toggle-bars span { display: block; width: 100%; height: 2px; border-radius: 2px; background: #201868; transition: transform .28s ease, opacity .18s ease, background .28s ease; }
+  .srj-nav-toggle.is-open .srj-nav-toggle-bars span { background: #FFFFFF; }
+  .srj-nav-toggle.is-open .srj-nav-toggle-bars span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .srj-nav-toggle.is-open .srj-nav-toggle-bars span:nth-child(2) { opacity: 0; }
+  .srj-nav-toggle.is-open .srj-nav-toggle-bars span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .srj-mobile-scrim { position: fixed; inset: 0; z-index: 99998; background: rgba(16,12,52,.6); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .3s ease, visibility .3s ease; }
+  .srj-mobile-scrim.is-open { opacity: 1; visibility: visible; pointer-events: auto; }
+  .srj-mobile-panel { position: fixed; top: 0; right: 0; z-index: 99999; display: flex; flex-direction: column; width: min(86vw, 380px); height: 100%; padding: 0 0 28px; background: #201868; box-shadow: -18px 0 50px rgba(0,0,0,.32); transform: translateX(100%); visibility: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch; transition: transform .32s cubic-bezier(.4,0,.2,1), visibility .32s ease; }
+  .srj-mobile-panel.is-open { transform: translateX(0); visibility: visible; }
+  .srj-mobile-panel-head { display: flex; align-items: center; justify-content: space-between; padding: 26px 26px 18px; border-bottom: 1px solid rgba(255,255,255,.12); }
+  .srj-mobile-panel-label { font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; color: rgba(255,255,255,.5); }
+  .srj-mobile-close { -webkit-appearance: none; appearance: none; background: transparent; border: 0; cursor: pointer; color: #FFFFFF; font-size: 30px; line-height: 1; padding: 0 4px; margin: -6px -6px -6px 0; transition: color .18s ease; }
+  .srj-mobile-close:hover { color: #F07800; }
+  .srj-mobile-close:focus-visible { outline: 2px solid #F07800; outline-offset: 3px; }
+  .srj-mobile-links { flex: 1; list-style: none; margin: 0; padding: 12px 0; }
+  .srj-mobile-links li { margin: 0; }
+  .srj-mobile-links a { display: block; padding: 14px 26px; border-left: 3px solid transparent; font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 500; letter-spacing: .01em; color: rgba(255,255,255,.85); transition: color .18s ease, background .18s ease, border-color .18s ease; }
+  .srj-mobile-links a:hover { color: #FFFFFF; background: rgba(255,255,255,.06); border-left-color: #F07800; }
+  .srj-mobile-links a[aria-current="page"] { color: #F07800; background: rgba(240,120,0,.10); border-left-color: #F07800; }
+  .srj-mobile-links a::after { display: none; }
+  .srj-mobile-cta { display: block; margin: 16px 26px 0; padding: 15px 18px; background: #F07800; color: #201868; font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; text-align: center; transition: background .2s ease; }
+  .srj-mobile-cta:hover { background: #ff8c1a; color: #201868; }
+  .srj-nav-toggle:focus-visible, .srj-mobile-links a:focus-visible, .srj-mobile-cta:focus-visible { outline: 2px solid #F07800; outline-offset: 3px; }
+
   @media (max-width: 980px) {
-    nav ul { gap: 24px; }
+    nav[aria-label="Primary"] { display: none; }
+    .srj-nav-toggle { display: block; }
+    .bar { gap: 16px; }
   }
   @media (max-width: 860px) {
-    .bar { flex-direction: column; align-items: flex-start; gap: 12px; }
-    nav ul { gap: 14px 20px; flex-wrap: wrap; }
     .brand-line { font-size: 20px; }
     .brand-tag { font-size: 8.5px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .srj-mobile-panel, .srj-mobile-scrim, .srj-nav-toggle-bars span { transition: none; }
   }
 </style>
 <script is:inline>
@@ -318,4 +399,5 @@ const EMAIL = 'info@srjconsultingservices.com';
   /* The topbar carries Search and the language selector; it stays pinned so
      translation (or anything else) can never scroll it out of reach. */
   .topbar{position:sticky;top:0;z-index:1100}
+  body.srj-menu-open{overflow:hidden}
 </style>
