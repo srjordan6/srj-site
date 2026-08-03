@@ -19,6 +19,14 @@ const doc = (Object.values(mods)[0] as any)?.default as { generated: string; cas
 
 const METHOD_SLUG = 'top-free-platforms-for-court-cases';
 
+// A case promoted by the discovery stage has docket facts but no written
+// analysis, so executive_summary is null on most rows. Reading .length on it
+// unguarded is what broke every build from Aug 2 18:52 onward.
+function metaFromCase(c: Case): string {
+  const s = c.executive_summary || `${c.case_name}, ${c.court}, docket ${c.docket}. Tracked against the live court docket by the SRJ AI Lawsuit Database.`;
+  return s.length > 155 ? s.slice(0, 152).replace(/\s+\S*$/, '') + '...' : s;
+}
+
 function entries() {
   if (!doc?.cases?.length) return null;
   const cases = doc.cases;
@@ -41,9 +49,9 @@ function entries() {
     slug: c.slug, parent: 'ai-lawsuits', children: [],
     title: c.case_name,
     subtitle: `${c.court} &middot; Docket ${c.docket}`,
-    short: c.executive_summary,
+    short: c.executive_summary || `${c.case_name} in ${c.court}, tracked against the live docket.`,
     seo_title: `${c.case_name} | AI Lawsuit Database`,
-    meta_description: c.executive_summary.length > 155 ? c.executive_summary.slice(0, 152).replace(/\s+\S*$/, '') + '...' : c.executive_summary,
+    meta_description: metaFromCase(c),
     focus_keyword: c.case_name.split(' v. ')[0] + ' lawsuit',
     citations: [], howto: null,
     body_html: caseBody(c, byCase),

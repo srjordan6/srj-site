@@ -9,7 +9,7 @@ export type Case = {
   judge: string | null; filed_date: string; plaintiffs: string; defendants: string;
   category: string; status: string; status_badge: string;
   latest_development: string | null; latest_development_date: string | null;
-  courtlistener_url: string | null; executive_summary: string; why_it_matters: string;
+  courtlistener_url: string | null; executive_summary: string | null; why_it_matters: string | null;
   target_models: string[]; disputed_datasets: string[]; materials_at_issue: string;
   plaintiff_counsel: string | null; defendant_counsel: string | null;
   claims: { claim: string; basis?: string; status?: string }[];
@@ -96,8 +96,18 @@ export function caseBody(c: Case, bySlug: Record<string, Case>): string {
     parts.push(`<div class="srjlaw-latest"><p class="srjlaw-latest-label">Latest development${c.latest_development_date ? ' &middot; ' + fmtDate(c.latest_development_date) : ''}</p><p>${esc(c.latest_development)}</p></div>`);
   }
 
-  parts.push(`<h2 id="summary">Executive summary</h2><p>${esc(c.executive_summary)}</p>`);
-  parts.push(`<h2 id="why-it-matters">Why it matters</h2><p>${esc(c.why_it_matters)}</p>`);
+  // Auto-promoted cases arrive from the discovery stage with no written
+  // analysis yet: 76 of 89 as of Aug 3 2026. Render the docket facts we do
+  // have and say plainly that the analysis is pending, rather than printing
+  // an empty section or, as before, crashing the build on a null read.
+  if (c.executive_summary) {
+    parts.push(`<h2 id="summary">Executive summary</h2><p>${esc(c.executive_summary)}</p>`);
+  } else {
+    parts.push(`<h2 id="summary">Executive summary</h2><p>This case is tracked against its live court docket. A written summary has not been published yet; the docket facts above are current as of the last check.</p>`);
+  }
+  if (c.why_it_matters) {
+    parts.push(`<h2 id="why-it-matters">Why it matters</h2><p>${esc(c.why_it_matters)}</p>`);
+  }
 
   if (c.claims && c.claims.length) {
     parts.push('<h2 id="claims">Claims</h2><ul>' + c.claims.map((k) =>
@@ -152,7 +162,7 @@ export function indexBody(cases: Case[]): string {
       <span class="srjlaw-card-court">${esc(c.court)}</span>
     </div>
     <h3><a href="/ai-governance/ai-lawsuits/${c.slug}/">${esc(c.case_name)}</a></h3>
-    <p class="srjlaw-card-sum">${esc(c.executive_summary)}</p>
+    <p class="srjlaw-card-sum">${esc(c.executive_summary || 'Tracked against the live court docket. Summary pending.')}</p>
     <p class="srjlaw-card-meta">Docket ${esc(c.docket)} &middot; Filed ${fmtDate(c.filed_date)}${c.latest_development_date ? ' &middot; Updated ' + fmtDate(c.latest_development_date) : ''}</p>
   </li>`).join('');
 
