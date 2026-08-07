@@ -2510,3 +2510,15 @@
   color:var(--orange);
 }
 
+/* Aside column wrapper (Aug 7 2026): the risk-governance service pages
+   stack two boxes in the right grid column, the Engagement at a Glance
+   aside and the pillar service-aside. The wrapper keeps them a single
+   grid child so the 1fr/320px service-detail-grid holds, matching the
+   business-services layout. */
+:where(.migrated) .svc-aside-col{
+  display:flex;
+  flex-direction:column;
+  gap:28px;
+  min-width:0;
+}
+
