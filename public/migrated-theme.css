@@ -2476,3 +2476,24 @@
   :where(.migrated) .srj-portrait img{width:min(250px,70%);margin:0 auto}
   :where(.migrated) .srj-section-hero{padding:44px 0 40px}
 }
+
+/* Content links (Aug 7 2026). The harvested theme resets every anchor to
+   color:inherit / no underline, and each component then styles its own links,
+   so any UNCLASSED anchor inside body prose rendered as invisible plain text.
+   First hit: the Companion book rows on the service pages. This styles
+   unclassed links inside prose containers only; every classed component
+   (buttons, cards, nav, pb-link, btn-aside) keeps its own styling. */
+:where(.migrated) main p a:not([class]),
+:where(.migrated) main dd a:not([class]),
+:where(.migrated) main li a:not([class]){
+  color:var(--orange);
+  text-decoration:underline;
+  text-underline-offset:2px;
+  font-weight:500;
+}
+:where(.migrated) main p a:not([class]):hover,
+:where(.migrated) main dd a:not([class]):hover,
+:where(.migrated) main li a:not([class]):hover{
+  color:var(--navy);
+}
+
