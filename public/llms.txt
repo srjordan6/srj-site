@@ -85,8 +85,19 @@ A sixth correction was recorded on 17 July 2026 with the addition of the China A
 - [DAMA-DMBOK](https://srjconsultingservices.com/ai-governance/data-management-frameworks/dama-dmbok/): The reference body of knowledge for data management. Eleven knowledge areas covering the discipline AI governance sits on.
 - [EDM Council DCAM](https://srjconsultingservices.com/ai-governance/data-management-frameworks/dcam/): The EDM Council's capability model for measuring data management maturity, widely used in financial services.
 - [CDMC Cloud Data Management](https://srjconsultingservices.com/ai-governance/data-management-frameworks/cdmc/): The EDM Council's cloud data management framework. Fourteen key controls for cloud data security and governance.
-- [AI Tools](https://srjconsultingservices.com/ai-governance/ai-tools/): A reference catalog of 320 AI tools across 23 categories, each listed with vendor, official vendor URL, headquarters jurisdiction, and the governance flag it raises, from recording consent to source-code exposure to cross-border data review. The working list behind an AI tool inventory, the first artifact of AI governance.
+- [AI Tools](https://srjconsultingservices.com/ai-resources/ai-tools/): A reference catalog of 320 AI tools across 23 categories, each listed with vendor, official vendor URL, headquarters jurisdiction, and the governance flag it raises, from recording consent to source-code exposure to cross-border data review. The working list behind an AI tool inventory, the first artifact of AI governance.
 - [Sources & References](https://srjconsultingservices.com/ai-governance/sources/): The complete bibliography of the library: 78 primary sources (statutes, regulators, standards bodies, official publications) and 45 peer-reviewed or formally published research works, in one place, maintained the way a book maintains its reference section.
+
+## Free AI Resources
+
+The Free AI Resources index is the sitewide catalog of SRJ's data-backed reference surfaces, refreshed automatically by a daily intelligence pipeline that reads court dockets, first-party vendor feeds, and the arXiv.
+
+- [Free AI Resources Hub](https://srjconsultingservices.com/ai-resources/): The full 01-08 index of every free reference surface on the site.
+- [AI Lawsuit Database](https://srjconsultingservices.com/ai-governance/ai-lawsuits/): Living tracker of active AI litigation, synced daily to CourtListener/RECAP dockets. Parties, courts, claim types, docket movement, and current status.
+- [AI Vendor News](https://srjconsultingservices.com/ai-resources/ai-vendor-news/): Per-vendor news permalinks fed by 34 first-party and proxy sources across the global AI landscape, refreshed daily.
+- [AI News](https://srjconsultingservices.com/ai-resources/ai-news/): The daily AI news digest drawn from the same curated source set.
+- [This Week in AI](https://srjconsultingservices.com/ai-resources/ai-weekly-roundup/): The weekly roundup of what actually changed in AI governance, vendors, and research.
+- [AI Movers & Shakers](https://srjconsultingservices.com/ai-resources/ai-people/): Profiles of the researchers, founders, and policy leaders shaping AI, each built from verified primary sources.
 
 ## AI Business Services
 
@@ -125,7 +136,7 @@ The AI Audit is live. Tier 1 is a single transactional product at $399 one-time.
 - [The AI Readiness & Performance Assessment(TM)](https://srjconsultingservices.com/books/ai-business-services/the-ai-readiness-performance-assessment/): Book 02 of 9. Determines whether the business is positioned to scale AI responsibly. Available on Amazon.
 - [The AI Risk & Governance Review(TM)](https://srjconsultingservices.com/books/ai-business-services/the-ai-risk-governance-review/): Book 03 of 9. The operating book for defending AI decisions when regulators, auditors, acquirers, or carriers ask. ISO/IEC 42001 and NIST AI RMF aligned. Available on Amazon.
 - [The AI Efficiency & Process Optimization(TM)](https://srjconsultingservices.com/books/ai-business-services/the-ai-efficiency-process-optimization/): Book 04 of 9. Turning governance findings into captured operational savings, the closing volume of AI Business Services. Available on Amazon.
-- [The AI IT Security Audit(TM)](https://srjconsultingservices.com/books/ai-risk-governance-security/the-ai-it-security-audit/): Book 05 of 9. The CISO-grade audit framework for finding, and fixing, the AI exposure dashboards cannot see. Forthcoming.
+- [The AI IT Security Audit(TM)](https://srjconsultingservices.com/books/ai-risk-governance-security/the-ai-it-security-audit/): Book 05 of 9, Book 1 of 5 in AI Risk Governance & Security(TM). The CISO-grade audit framework for finding, and fixing, the AI exposure dashboards cannot see. 466 pages, published August 3, 2026. Available on Amazon in Kindle, paperback, and hardback editions.
 - [The AI IT Security Implementation & Strategy(TM)](https://srjconsultingservices.com/books/ai-risk-governance-security/the-ai-it-security-implementation-strategy/): Book 06 of 9. The operating manual for proving AI risk is governed before the board, the auditor, or the regulator asks. Forthcoming.
 - [Secure by Design in the Age of AI(TM)](https://srjconsultingservices.com/books/ai-risk-governance-security/the-secure-by-design/): Book 07 of 9, Book 3 of 5 in AI Risk Governance & Security(TM). Building AI products that are secure by design. Forthcoming.
 - [Application Security in the Age of AI(TM)](https://srjconsultingservices.com/books/ai-risk-governance-security/the-application-security/): Book 08 of 9, Book 4 of 5 in AI Risk Governance & Security(TM). Securing AI applications in production. Forthcoming.
@@ -133,7 +144,7 @@ The AI Audit is live. Tier 1 is a single transactional product at $399 one-time.
 
 ## Resources
 
-- [AI Glossary](https://srjconsultingservices.com/resources/ai-glossary/): A working reference of 522 AI terms across 12 categories, written for executives rather than engineers. Covers governance and regulatory vocabulary, the EU AI Act risk tiers, AI governance roles and oversight models, model and infrastructure concepts, security terms, and the trademarked frameworks of The Operating Discipline for AI Library(TM), each with a plain-language definition, a practical example, and its origin where the term is proprietary.
+- [AI Glossary](https://srjconsultingservices.com/ai-resources/ai-glossary/): A working reference of 522 AI terms across 12 categories, written for executives rather than engineers. Covers governance and regulatory vocabulary, the EU AI Act risk tiers, AI governance roles and oversight models, model and infrastructure concepts, security terms, and the trademarked frameworks of The Operating Discipline for AI Library(TM), each with a plain-language definition, a practical example, and its origin where the term is proprietary.
 - [Insights](https://srjconsultingservices.com/insights/): Long-form analysis on AI governance, operational discipline, and business performance for executives.
 - [Newsletter: The AI Operating System(TM)](https://srjconsultingservices.com/newsletter/): Biweekly framework analysis, new templates, and field notes from active client engagements.
 - [FAQ](https://srjconsultingservices.com/faq/): Common questions about engagement, scope, and outcomes.

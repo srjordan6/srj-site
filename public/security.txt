@@ -1,0 +1,8 @@
+# Security policy for srjconsultingservices.com
+# SRJ Consulting & Services LLC
+
+Contact: mailto:info@srjconsultingservices.com
+Contact: https://srjconsultingservices.com/contact/
+Expires: 2027-08-07T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://srjconsultingservices.com/.well-known/security.txt
