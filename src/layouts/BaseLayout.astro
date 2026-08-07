@@ -107,6 +107,14 @@ const orgGraph = {
   {description && <meta name="description" content={description} />}
   {robots && <meta name="robots" content={robots} />}
   <link rel="canonical" href={canonicalUrl} />
+  {/* Favicon set (added Aug 7 2026). The SRJ monogram cropped from the brand
+     logo, no wordmark, legible at 16px. Served from public/ at the site root.
+     The .ico carries 16/32/48; the PNGs cover retina and Android; apple-touch
+     covers iOS home-screen. Governance templates carry the same block. */}
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content={ogTitle ?? title} />
   <meta property="og:description" content={ogDescription ?? description} />
