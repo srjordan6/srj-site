@@ -2522,3 +2522,23 @@
   min-width:0;
 }
 
+/* Executive Briefing content panel (Aug 7 2026): the srjvol1-brief-cta
+   component was styled inline on the business-services pages only. The
+   risk-governance pages now carry the same panel, so the rules live here
+   for every page. Values match the v9 inline block exactly. */
+:where(.migrated) .srjvol1-brief-cta{background:#201868;color:#FFFFFF;padding:36px 38px;margin:36px 0 40px;border-left:4px solid #F07800}
+:where(.migrated) .srjvol1-brief-eyebrow{font-family:'Poppins',sans-serif;font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#F07800;margin-bottom:14px}
+:where(.migrated) .srjvol1-brief-title{font-family:'Lora',serif;font-size:26px;line-height:1.25;font-weight:500;color:#FFFFFF;margin-bottom:10px}
+:where(.migrated) .srjvol1-brief-meta{font-family:'Poppins',sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.75);margin-bottom:18px}
+:where(.migrated) .srjvol1-brief-lede{font-family:'Poppins',sans-serif;font-size:15px;line-height:1.6;color:rgba(255,255,255,.92);margin-bottom:24px;max-width:640px}
+:where(.migrated) .srjvol1-brief-actions{display:flex;gap:14px;flex-wrap:wrap}
+:where(.migrated) .srjvol1-brief-cta a.srjvol1-btn-primary,
+:where(.migrated) .srjvol1-brief-cta a.srjvol1-btn-outline{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;text-decoration:none !important;color:#FFFFFF !important;transition:all .22s ease;border:1.5px solid transparent}
+:where(.migrated) .srjvol1-brief-cta a.srjvol1-btn-primary{background:#F07800;border-color:#F07800}
+:where(.migrated) .srjvol1-brief-cta a.srjvol1-btn-primary:hover,
+:where(.migrated) .srjvol1-brief-cta a.srjvol1-btn-primary:focus{background:#d96b00;border-color:#d96b00;color:#FFFFFF !important}
+:where(.migrated) .srjvol1-brief-cta a.srjvol1-btn-outline{background:transparent;border-color:rgba(255,255,255,.6)}
+:where(.migrated) .srjvol1-brief-cta a.srjvol1-btn-outline:hover,
+:where(.migrated) .srjvol1-brief-cta a.srjvol1-btn-outline:focus{border-color:#FFFFFF;background:rgba(255,255,255,.08);color:#FFFFFF !important}
+:where(.migrated) .srjvol1-brief-cta a span{color:inherit !important}
+
