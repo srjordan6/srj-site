@@ -100,3 +100,44 @@
 # the never-launched hub placeholder both 301 to the new section.
 /ai-resources/everything-else-ai/ /ai-resources/ai-vendor-news/ 301
 /ai-resources/everything-else/ /ai-resources/ai-vendor-news/ 301
+
+# August 8, 2026: governance child pages live at /ai-governance/{parent}/{slug}/.
+# Search Console reported the flat /ai-governance/{slug}/ forms of soc-2-ai and
+# sox-302-404-ai returning 404 on crawl, so every child slug gets a 301 to its
+# canonical nested URL rather than only the two Google happened to try.
+/ai-governance/cfpb-ai-enforcement/ /ai-governance/agency-enforcement/cfpb-ai-enforcement/ 301
+/ai-governance/eeoc-ai-enforcement/ /ai-governance/agency-enforcement/eeoc-ai-enforcement/ 301
+/ai-governance/ftc-ai-enforcement/ /ai-governance/agency-enforcement/ftc-ai-enforcement/ 301
+/ai-governance/hhs-ocr-ai-enforcement/ /ai-governance/agency-enforcement/hhs-ocr-ai-enforcement/ 301
+/ai-governance/sec-ai-enforcement/ /ai-governance/agency-enforcement/sec-ai-enforcement/ 301
+/ai-governance/cdmc/ /ai-governance/data-management-frameworks/cdmc/ 301
+/ai-governance/dama-dmbok/ /ai-governance/data-management-frameworks/dama-dmbok/ 301
+/ai-governance/dcam/ /ai-governance/data-management-frameworks/dcam/ 301
+/ai-governance/aicpa-ai-guidance/ /ai-governance/financial-reporting/aicpa-ai-guidance/ 301
+/ai-governance/fasb-asu-2025-06/ /ai-governance/financial-reporting/fasb-asu-2025-06/ 301
+/ai-governance/pcaob-ai-guidance/ /ai-governance/financial-reporting/pcaob-ai-guidance/ 301
+/ai-governance/sox-302-404-ai/ /ai-governance/financial-reporting/sox-302-404-ai/ 301
+/ai-governance/coso-erm-ai/ /ai-governance/general-business-governance/coso-erm-ai/ 301
+/ai-governance/iso-27001-ai/ /ai-governance/general-business-governance/iso-27001-ai/ 301
+/ai-governance/nist-csf-ai/ /ai-governance/general-business-governance/nist-csf-ai/ 301
+/ai-governance/soc-2-ai/ /ai-governance/general-business-governance/soc-2-ai/ 301
+/ai-governance/nyc-ll-144/ /ai-governance/nyc-ai-laws/nyc-ll-144/ 301
+/ai-governance/nyc-ll-35/ /ai-governance/nyc-ai-laws/nyc-ll-35/ 301
+/ai-governance/coppa-ai/ /ai-governance/sector-rules/coppa-ai/ 301
+/ai-governance/ecoa-ai/ /ai-governance/sector-rules/ecoa-ai/ 301
+/ai-governance/fcra-ai/ /ai-governance/sector-rules/fcra-ai/ 301
+/ai-governance/ferpa-ai/ /ai-governance/sector-rules/ferpa-ai/ 301
+/ai-governance/finra-ai/ /ai-governance/sector-rules/finra-ai/ 301
+/ai-governance/gdpr-ai/ /ai-governance/sector-rules/gdpr-ai/ 301
+/ai-governance/glba-ai/ /ai-governance/sector-rules/glba-ai/ 301
+/ai-governance/hipaa-ai/ /ai-governance/sector-rules/hipaa-ai/ 301
+/ai-governance/title-vii-ai/ /ai-governance/sector-rules/title-vii-ai/ 301
+/ai-governance/warn-ai/ /ai-governance/sector-rules/warn-ai/ 301
+/ai-governance/california-ai-laws/ /ai-governance/state-ai-laws/california-ai-laws/ 301
+/ai-governance/colorado-ai-act/ /ai-governance/state-ai-laws/colorado-ai-act/ 301
+/ai-governance/connecticut-ai-act/ /ai-governance/state-ai-laws/connecticut-ai-act/ 301
+/ai-governance/illinois-ai-laws/ /ai-governance/state-ai-laws/illinois-ai-laws/ 301
+/ai-governance/tennessee-elvis-act/ /ai-governance/state-ai-laws/tennessee-elvis-act/ 301
+/ai-governance/texas-ai-act/ /ai-governance/state-ai-laws/texas-ai-act/ 301
+/ai-governance/aibom/ /ai-governance/vendor-disclosure/aibom/ 301
+/ai-governance/sbom/ /ai-governance/vendor-disclosure/sbom/ 301
