@@ -45,6 +45,11 @@ for (const it of items) {
   if (!byVendor.has(v)) byVendor.set(v, []);
   byVendor.get(v)!.push(it);
 }
+// Must match MIN_ITEMS_FOR_PAGE in [vendor].astro. Vendors below the
+// threshold have no standalone page, so the hub shows their items inline
+// but does not link to a URL that will not exist.
+const MIN_ITEMS_FOR_PAGE = 3;
+
 const vendors = [...byVendor.entries()]
   .map(([name, list]) => ({ name, slug: slugify(name), list }))
   .sort((a, b) => b.list.length - a.list.length);
@@ -166,7 +171,9 @@ const schema = [
             <h2>{v.name} <span class="count">{v.list.length}</span></h2>
             <p class="cat-blurb">
               Announcements from {v.name}'s own feed, newest first.
-              <a class="vendor-page-link" href={`/ai-resources/ai-vendor-news/${v.slug}/`}>Full {v.name} feed &rarr;</a>
+              {v.list.length >= MIN_ITEMS_FOR_PAGE && (
+                <a class="vendor-page-link" href={`/ai-resources/ai-vendor-news/${v.slug}/`}>Full {v.name} feed &rarr;</a>
+              )}
             </p>
             <div class="rule"></div>
             <ul class="feed">
@@ -182,7 +189,7 @@ const schema = [
                 </li>
               ))}
             </ul>
-            {v.list.length > 10 && (
+            {v.list.length > 10 && v.list.length >= MIN_ITEMS_FOR_PAGE && (
               <a class="more" href={`/ai-resources/ai-vendor-news/${v.slug}/`}>
                 All {v.list.length} {v.name} announcements &rarr;
               </a>

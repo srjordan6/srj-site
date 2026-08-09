@@ -38,10 +38,22 @@ export async function getStaticPaths() {
     if (!byVendor.has(v)) byVendor.set(v, []);
     byVendor.get(v)!.push(it);
   }
-  return [...byVendor.entries()].map(([name, list]) => ({
-    params: { vendor: slugify(name) },
-    props: { vendorName: name, list, generated: doc?.generated ?? null },
-  }));
+  // Only vendors with real coverage get their own page. A vendor with a
+  // single article produces a ~90-word page that is one headline and one
+  // outbound link, which Google crawls and then declines to index (the
+  // Aug 8 Search Console "Crawled, currently not indexed" report was
+  // almost entirely these). Today 107 of 161 vendors have exactly one
+  // item. Their articles still appear in the feed on the hub; they just
+  // do not get a thin standalone URL. The threshold is safe against URL
+  // churn because item counts only ever grow, so once a vendor crosses
+  // it the page exists permanently.
+  const MIN_ITEMS_FOR_PAGE = 3;
+  return [...byVendor.entries()]
+    .filter(([, list]) => list.length >= MIN_ITEMS_FOR_PAGE)
+    .map(([name, list]) => ({
+      params: { vendor: slugify(name) },
+      props: { vendorName: name, list, generated: doc?.generated ?? null },
+    }));
 }
 
 const { vendorName, list, generated } = Astro.props;
