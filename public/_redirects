@@ -141,9 +141,3 @@
 /ai-governance/texas-ai-act/ /ai-governance/state-ai-laws/texas-ai-act/ 301
 /ai-governance/aibom/ /ai-governance/vendor-disclosure/aibom/ 301
 /ai-governance/sbom/ /ai-governance/vendor-disclosure/sbom/ 301
-
-# August 8, 2026: vendor pages now require 3+ articles, so a slug that once
-# had a page may no longer. Static assets take precedence over _redirects,
-# so live vendor pages still serve themselves and only missing slugs fall
-# through to the hub. Verify precedence after any change here.
-/ai-resources/ai-vendor-news/* /ai-resources/ai-vendor-news/ 301
