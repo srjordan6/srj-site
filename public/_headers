@@ -1,4 +1,13 @@
 # Cloudflare Pages headers. Exact control the old host never allowed.
+#
+# HSTS NOTE (Aug 8 2026): the Strict-Transport-Security line below is INERT
+# while the Cloudflare zone has its own HSTS setting enabled. Verified live:
+# the deploy landed, Permissions-Policy from this same file took effect, but
+# the zone kept serving max-age=15552000. The zone control at SSL/TLS > Edge
+# Certificates > HSTS wins over _headers for this header specifically. The
+# line is kept as a fallback if the zone setting is ever turned off, and as
+# the record of the intended value. To actually change HSTS, change it in the
+# Cloudflare dashboard.
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
