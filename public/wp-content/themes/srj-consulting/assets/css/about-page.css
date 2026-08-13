@@ -1,0 +1,185 @@
+/**
+ * About Page Gutenberg Styles
+ *
+ * Targets the Gutenberg-rendered version of the About page introduced
+ * in Phase 1 of the theme migration (2026-05-17).
+ *
+ * This stylesheet does NOT replace the main theme stylesheet. It is
+ * a supplemental file enqueued only on the About page to style
+ * Gutenberg block output with classes that match the brand system.
+ *
+ * @package SRJ_Consulting
+ */
+
+/* -------------------------------------------------------------------------
+   Page-level wrapper
+   ------------------------------------------------------------------------- */
+.about-page-gutenberg .about-content {
+    /* Constrain the content width to match the rest of the site */
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.about-page-gutenberg .about-article {
+    padding-block: 60px 80px;
+}
+
+/* -------------------------------------------------------------------------
+   Eyebrow label (small uppercase text above section headings)
+   ------------------------------------------------------------------------- */
+.about-page-gutenberg .srj-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #b85a18;
+    margin-bottom: 0.5rem;
+}
+
+/* -------------------------------------------------------------------------
+   Section hero (page opening)
+   ------------------------------------------------------------------------- */
+.about-page-gutenberg .srj-section-hero {
+    padding-block: 20px 60px;
+}
+
+.about-page-gutenberg .srj-section-heading {
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    line-height: 1.15;
+    font-weight: 700;
+    margin: 0.3rem 0 1.2rem;
+    letter-spacing: -0.01em;
+}
+
+.about-page-gutenberg .srj-section-heading em {
+    font-style: italic;
+    color: #b85a18;
+    font-weight: 700;
+}
+
+.about-page-gutenberg .srj-section-intro {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    max-width: 760px;
+    margin-bottom: 0;
+}
+
+/* -------------------------------------------------------------------------
+   Standard content sections
+   ------------------------------------------------------------------------- */
+.about-page-gutenberg .srj-content-section {
+    padding-block: 40px;
+}
+
+.about-page-gutenberg .srj-content-section h2 {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    line-height: 1.25;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.about-page-gutenberg .srj-content-section h3 {
+    font-size: clamp(1.2rem, 2.4vw, 1.5rem);
+    line-height: 1.3;
+    font-weight: 600;
+    margin: 1.5rem 0 0.8rem;
+}
+
+.about-page-gutenberg .srj-content-section p {
+    font-size: 1.05rem;
+    line-height: 1.65;
+    margin-bottom: 1rem;
+}
+
+.about-page-gutenberg .srj-content-section ul {
+    margin-block: 0.8rem;
+    padding-left: 1.4em;
+}
+
+.about-page-gutenberg .srj-content-section li {
+    margin-bottom: 0.4rem;
+    line-height: 1.6;
+}
+
+/* -------------------------------------------------------------------------
+   Person block (portrait + bio)
+   ------------------------------------------------------------------------- */
+.about-page-gutenberg .srj-person-block {
+    padding-block: 40px;
+}
+
+.about-page-gutenberg .srj-portrait img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.about-page-gutenberg .srj-portrait figcaption {
+    margin-top: 0.6rem;
+    text-align: center;
+    font-size: 0.95rem;
+    color: #555;
+}
+
+/* -------------------------------------------------------------------------
+   CTA section (page footer call-to-action)
+   ------------------------------------------------------------------------- */
+.about-page-gutenberg .srj-cta-section {
+    background: #f5efe8;
+    padding: 60px 40px;
+    margin-block: 60px 0;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.about-page-gutenberg .srj-cta-heading {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    margin-bottom: 1rem;
+}
+
+.about-page-gutenberg .srj-cta-heading em {
+    font-style: italic;
+    color: #b85a18;
+}
+
+.about-page-gutenberg .srj-cta-button {
+    margin-top: 1.4rem;
+}
+
+.about-page-gutenberg .srj-cta-button .wp-block-button__link {
+    background-color: #1f2d5f;
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.about-page-gutenberg .srj-cta-button .wp-block-button__link:hover {
+    background-color: #2a3e7d;
+}
+
+.about-page-gutenberg .srj-cta-phone {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.about-page-gutenberg .srj-cta-phone a {
+    color: #1f2d5f;
+    font-weight: 600;
+}
+
+/* -------------------------------------------------------------------------
+   Responsive adjustments
+   ------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+    .about-page-gutenberg .about-article {
+        padding-block: 40px 60px;
+    }
+
+    .about-page-gutenberg .srj-cta-section {
+        padding: 40px 20px;
+    }
+}

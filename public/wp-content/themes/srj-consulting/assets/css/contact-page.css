@@ -1,0 +1,66 @@
+/**
+ * Contact page styles (v1.5.0)
+ * Loaded only on the /contact/ page via srj_enqueue_contact_page_styles()
+ * in functions.php. Holds page-specific rules that don't belong in the
+ * site-wide style.css.
+ *
+ * Brand tokens (from style.css):
+ *   --navy:   #201868
+ *   --orange: #F07800
+ */
+
+/* "Schedule directly" block: button paired with the Zoom QR code, so a
+   visitor on a laptop can scan with their phone and book on the device
+   already in their hand. */
+.contact-method-schedule .schedule-row {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.contact-method-schedule .schedule-row .big-link {
+  flex: 1 1 auto;
+}
+
+.contact-method-schedule .schedule-qr {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.contact-method-schedule .schedule-qr img {
+  display: block;
+  width: 120px;
+  height: 120px;
+  background: #ffffff;
+  padding: 6px;
+  border: 1px solid #e3e6ec;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(32, 24, 104, 0.06);
+}
+
+.contact-method-schedule .schedule-qr-caption {
+  font-family: 'Poppins', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  color: #6a7382;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .contact-method-schedule .schedule-row {
+    gap: 20px;
+    justify-content: flex-start;
+  }
+  .contact-method-schedule .schedule-qr img {
+    width: 100px;
+    height: 100px;
+  }
+}

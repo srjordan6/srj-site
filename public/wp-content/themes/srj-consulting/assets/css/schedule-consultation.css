@@ -1,0 +1,82 @@
+/**
+ * Schedule Consultation page styles (v1.5.0)
+ * Loaded only on the /schedule-consultation/ page via
+ * srj_enqueue_schedule_consultation_styles() in functions.php.
+ *
+ * Brand tokens (from style.css):
+ *   --navy:   #201868
+ *   --orange: #F07800
+ *   --ink:    body text color
+ */
+
+.booking-page {
+  padding: 56px 0 80px;
+  background: #f7f8fa;
+}
+
+.booking-frame-wrap {
+  max-width: 820px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 28px rgba(32, 24, 104, 0.10);
+  overflow: hidden;
+}
+
+.booking-frame-wrap iframe {
+  display: block;
+  width: 100%;
+  height: 600px;
+  border: 0;
+  background: #ffffff;
+}
+
+.booking-fallback {
+  max-width: 820px;
+  margin: 32px auto 0;
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+}
+
+.booking-fallback-eyebrow {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #201868;
+  margin: 0 0 8px;
+}
+
+.booking-fallback p {
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  color: #3a3a52;
+  margin: 0;
+}
+
+.booking-fallback p:not(.booking-fallback-eyebrow) {
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+.booking-fallback a {
+  color: #F07800;
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s ease;
+}
+
+.booking-fallback a:hover,
+.booking-fallback a:focus {
+  border-bottom-color: #F07800;
+}
+
+@media (max-width: 720px) {
+  .booking-page { padding: 32px 0 56px; }
+  .booking-frame-wrap iframe { height: 640px; }
+  .booking-fallback { margin-top: 24px; }
+  .booking-fallback p { font-size: 14px; }
+}
