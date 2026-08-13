@@ -164,7 +164,7 @@ export default {
       const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
       if (hex !== PIN) return new Response('sha mismatch ' + hex, { status: 409 });
       const dec = (a: Uint8Array) => new TextDecoder().decode(a).replace(/\0.*$/, '').trim();
-      const safe = /^Chapter_[0-9]{2}\/[A-Za-z0-9._-]+-srjprev400\.png$/;
+      const safe = /^(Chapter_[0-9]{2}|Appendices)\/[A-Za-z0-9._-]+-srjprev400\.png$/;
       let off = 0;
       let written = 0;
       const skipped: string[] = [];
