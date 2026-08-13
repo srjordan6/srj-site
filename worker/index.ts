@@ -145,53 +145,6 @@ export default {
       });
     }
 
-    // 0b-temp. One-shot loader for the Book 06 figure previews. REMOVE AFTER
-    // USE. The pipeline could not deliver these: its GitHub token has no
-    // Contents write on srj-site, so the favicons stage 403'd on the first
-    // file. Volume V's previews live in R2 anyway, so Book 06's belong there
-    // too, and R2 needs no build. Same shape as the fix-book06 route: no
-    // secret, because it can only ever write one fixed, hash-pinned set of
-    // bytes to one fixed prefix, and it is live for minutes.
-    if (url.pathname === '/api/load-book06-previews') {
-      const SRC = 'https://x0.at/da2F.tar';
-      const PIN = '3f7fdf4c27cff85bd3ba8f3d1138159856f6920186ba565df885f9a78a4e9fd1';
-      const PREFIX =
-        'wp-content/uploads/The_Operating_Discipline_for_AI/The_AI_IT_Security_Implementation_and_Strategy/Graphics/';
-      const src = await fetch(SRC);
-      if (!src.ok) return new Response('source ' + src.status, { status: 502 });
-      const buf = new Uint8Array(await src.arrayBuffer());
-      const digest = await crypto.subtle.digest('SHA-256', buf);
-      const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
-      if (hex !== PIN) return new Response('sha mismatch ' + hex, { status: 409 });
-      const dec = (a: Uint8Array) => new TextDecoder().decode(a).replace(/\0.*$/, '').trim();
-      const safe = /^(Chapter_[0-9]{2}|Appendices)\/[A-Za-z0-9._-]+-srjprev400\.png$/;
-      let off = 0;
-      let written = 0;
-      const skipped: string[] = [];
-      while (off + 512 <= buf.length) {
-        const head = buf.subarray(off, off + 512);
-        if (head.every((b) => b === 0)) break;
-        const name = dec(head.subarray(0, 100));
-        const size = parseInt(dec(head.subarray(124, 136)) || '0', 8) || 0;
-        const type = String.fromCharCode(head[156]);
-        off += 512;
-        if (type === '0' || type === '\0') {
-          if (safe.test(name)) {
-            await env.MEDIA.put(PREFIX + name, buf.subarray(off, off + size), {
-              httpMetadata: { contentType: 'image/png' },
-            });
-            written++;
-          } else if (name) {
-            skipped.push(name);
-          }
-        }
-        off += Math.ceil(size / 512) * 512;
-      }
-      return new Response(JSON.stringify({ ok: true, written, skipped }, null, 1), {
-        headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
-      });
-    }
-
     // 0c. Asset manifest. Read-only key listing of the PUBLIC media bucket,
     // for auditing what is stored versus what the site actually references
     // (the R2 dashboard paginates at ~30 rows and has no export). Bearer
