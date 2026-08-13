@@ -145,54 +145,6 @@ export default {
       });
     }
 
-    // 0b-temp. One-shot loader for the Book 06 Consulting Toolkit workfiles.
-    // REMOVE AFTER USE. Same hash-pinned pattern as this morning's preview
-    // loader: fixed bytes, fixed prefix, no secret, live for minutes. The 22
-    // xlsx instruments land beside Volume V's toolkit convention, a literal
-    // "The Consulting Toolkit Workfiles" folder whose spaces the Worker's
-    // percent-decoding already serves correctly.
-    if (url.pathname === '/api/load-book06-toolkit') {
-      const SRC = 'https://x0.at/AsVK.tar';
-      const PIN = 'cdc8cc24705448cd09cc2014246ad92dc289aa9ca84c41578ea44d9e7b0e580e';
-      const PREFIX =
-        'wp-content/uploads/The_Operating_Discipline_for_AI/The_AI_IT_Security_Implementation_and_Strategy/Graphics/The Consulting Toolkit Workfiles/';
-      const src = await fetch(SRC);
-      if (!src.ok) return new Response('source ' + src.status, { status: 502 });
-      const buf = new Uint8Array(await src.arrayBuffer());
-      const digest = await crypto.subtle.digest('SHA-256', buf);
-      const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
-      if (hex !== PIN) return new Response('sha mismatch ' + hex, { status: 409 });
-      const dec = (a: Uint8Array) => new TextDecoder().decode(a).replace(/\0.*$/, '').trim();
-      const safe = /^Toolkit_[A-V]_[A-Za-z0-9._-]+\.xlsx$/;
-      let off = 0;
-      let written = 0;
-      const skipped: string[] = [];
-      while (off + 512 <= buf.length) {
-        const head = buf.subarray(off, off + 512);
-        if (head.every((b) => b === 0)) break;
-        const name = dec(head.subarray(0, 100));
-        const size = parseInt(dec(head.subarray(124, 136)) || '0', 8) || 0;
-        const type = String.fromCharCode(head[156]);
-        off += 512;
-        if (type === '0' || type === '\0') {
-          if (safe.test(name)) {
-            await env.MEDIA.put(PREFIX + name, buf.subarray(off, off + size), {
-              httpMetadata: {
-                contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-              },
-            });
-            written++;
-          } else if (name) {
-            skipped.push(name);
-          }
-        }
-        off += Math.ceil(size / 512) * 512;
-      }
-      return new Response(JSON.stringify({ ok: true, written, skipped }, null, 1), {
-        headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
-      });
-    }
-
     // 0c. Asset manifest. Read-only key listing of the PUBLIC media bucket,
     // for auditing what is stored versus what the site actually references
     // (the R2 dashboard paginates at ~30 rows and has no export). Bearer
