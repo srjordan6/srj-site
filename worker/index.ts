@@ -145,6 +145,37 @@ export default {
       });
     }
 
+    // 0c. Asset manifest. Read-only key listing of the PUBLIC media bucket,
+    // for auditing what is stored versus what the site actually references
+    // (the R2 dashboard paginates at ~30 rows and has no export). Bearer
+    // gated with the same token as the archive route: every object here is
+    // already public one URL at a time, but a complete index makes bulk
+    // enumeration trivial, so it is not handed out anonymously. Never lists
+    // UPLOADS, which is the private client bucket.
+    if (url.pathname === '/api/assets-manifest') {
+      if (request.method !== 'GET') {
+        return new Response('Method not allowed', { status: 405, headers: { allow: 'GET' } });
+      }
+      const auth = request.headers.get('authorization') ?? '';
+      if (!env.ARCHIVE_TOKEN || auth !== `Bearer ${env.ARCHIVE_TOKEN}`) {
+        return new Response('Unauthorized', { status: 401 });
+      }
+      const keys: { key: string; size: number; uploaded: string }[] = [];
+      let cursor: string | undefined;
+      // R2 list() caps at 1000 per call, and this bucket holds more than
+      // that, so paginate until truncated is false.
+      do {
+        const page = await env.MEDIA.list({ limit: 1000, cursor });
+        for (const o of page.objects) {
+          keys.push({ key: o.key, size: o.size, uploaded: o.uploaded.toISOString() });
+        }
+        cursor = page.truncated ? page.cursor : undefined;
+      } while (cursor);
+      return new Response(JSON.stringify({ ok: true, count: keys.length, objects: keys }, null, 1), {
+        headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+      });
+    }
+
     // 1. Forms. Checked before assets so a stray file can never shadow them.
     //
     // /api/worksheet-confirm is the one GET in the set: it is the signed link
