@@ -176,6 +176,53 @@ export default {
       });
     }
 
+    // 0d. TEMPORARY, remove after use. One-time server-side move of the
+    // Book 06 graphics Stephen uploaded to the bucket root on Aug 11. The
+    // dashboard upload had no destination-prefix field, so ~117 chapter PNGs
+    // landed outside wp-content/ where the site cannot see them. This route
+    // relocates them to the canonical key path. It is deliberately
+    // parameterless in effect and carries no secret: the ONLY thing it can
+    // do is move keys matching the stray pattern (Chapter_NN/ or Appendices/
+    // PNGs outside wp-content/) to their fixed canonical destination, once.
+    // Re-triggering after the move matches nothing and is a no-op. It cannot
+    // touch wp-content/, cannot write arbitrary keys, and cannot be fed data.
+    if (url.pathname === '/api/fix-book06') {
+      const apply = url.searchParams.get('apply') === '1';
+      const strayRe = /(?:^|\/)((?:Chapter_\d{2}|Appendices))\/([^/]+\.png)$/;
+      const destBase =
+        'wp-content/uploads/The_Operating_Discipline_for_AI/' +
+        'The_AI_IT_Security_Implementation_and_Strategy/Graphics/';
+      const moves: { from: string; to: string }[] = [];
+      let cursor: string | undefined;
+      do {
+        const page = await env.MEDIA.list({ limit: 1000, cursor });
+        for (const o of page.objects) {
+          if (o.key.startsWith('wp-content/')) continue;
+          const m = o.key.match(strayRe);
+          if (m) moves.push({ from: o.key, to: destBase + m[1] + '/' + m[2] });
+        }
+        cursor = page.truncated ? page.cursor : undefined;
+      } while (cursor);
+      const done: string[] = [];
+      const failed: string[] = [];
+      if (apply) {
+        for (const mv of moves) {
+          try {
+            const obj = await env.MEDIA.get(mv.from);
+            if (!obj) { failed.push(mv.from); continue; }
+            const buf = await obj.arrayBuffer();
+            await env.MEDIA.put(mv.to, buf, { httpMetadata: obj.httpMetadata });
+            await env.MEDIA.delete(mv.from);
+            done.push(mv.to);
+          } catch { failed.push(mv.from); }
+        }
+      }
+      return new Response(
+        JSON.stringify({ ok: true, mode: apply ? 'apply' : 'dry-run', found: moves.length, moved: done.length, failed, moves: apply ? undefined : moves }, null, 1),
+        { headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } },
+      );
+    }
+
     // 1. Forms. Checked before assets so a stray file can never shadow them.
     //
     // /api/worksheet-confirm is the one GET in the set: it is the signed link
