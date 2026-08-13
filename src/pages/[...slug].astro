@@ -130,8 +130,15 @@ for (const s of page.schema ?? []) {
     const items = bc?.itemListElement;
     if (Array.isArray(items) && items.length > 1) {
       const sorted = [...items].sort((a: any, b: any) => (a.position ?? 0) - (b.position ?? 0));
+      // Names in authored BreadcrumbList JSON-LD sometimes carry HTML
+      // entities (&amp;). Astro escapes interpolated text again, which
+      // rendered a literal "&amp;" in the trail. Decode the common ones
+      // here so the visible crumb shows the character, not the entity.
+      const deent = (t: string) => t
+        .replace(/&amp;/g, '&').replace(/&#0?38;/g, '&')
+        .replace(/&#8217;|&rsquo;/g, '\u2019').replace(/&#8211;|&ndash;/g, '\u2013');
       prodCrumbs = sorted.map((it: any, i: number) => ({
-        name: String(it.name ?? ''),
+        name: deent(String(it.name ?? '')),
         url: i < sorted.length - 1 && it.item
           ? (String(it.item).replace('https://srjconsultingservices.com', '') || '/')
           : undefined,
