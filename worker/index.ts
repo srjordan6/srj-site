@@ -145,6 +145,66 @@ export default {
       });
     }
 
+    // 0b-temp. One-shot Chapter 05 figure swap for Book 06. REMOVE AFTER USE.
+    // Figures 5.6 and 5.7 traded subjects in the manuscript, so this writes
+    // the two new originals plus generated previews under their new names and
+    // deletes the four objects carrying the old names. Hash-pinned, strict
+    // name guard, fixed prefix, live for minutes.
+    if (url.pathname === '/api/swap-ch05-figures') {
+      const SRC = 'https://x0.at/tiFS.tar';
+      const PIN = 'cde73f84d0e00cb8e6c3c02c2b5d3ddc69e3fc6d12affb1ef2b427de3a6cc03f';
+      const PREFIX =
+        'wp-content/uploads/The_Operating_Discipline_for_AI/The_AI_IT_Security_Implementation_and_Strategy/Graphics/Chapter_05/';
+      const RETIRE = [
+        'Ch05_Fig_5_6_Circuit_Breakers.png',
+        'Ch05_Fig_5_6_Circuit_Breakers-srjprev400.png',
+        'Ch05_Fig_5_7_Operating_Rhythm.png',
+        'Ch05_Fig_5_7_Operating_Rhythm-srjprev400.png',
+      ];
+      const src = await fetch(SRC);
+      if (!src.ok) return new Response('source ' + src.status, { status: 502 });
+      const buf = new Uint8Array(await src.arrayBuffer());
+      const digest = await crypto.subtle.digest('SHA-256', buf);
+      const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+      if (hex !== PIN) return new Response('sha mismatch ' + hex, { status: 409 });
+      const dec = (a: Uint8Array) => new TextDecoder().decode(a).replace(/\0.*$/, '').trim();
+      const safe =
+        /^Ch05_Fig_5_(6_The_AI_Augmented_Operating_Rhythm|7_Agent_Circuit_Breakers)(-srjprev400)?\.png$/;
+      let off = 0;
+      const written: string[] = [];
+      const skipped: string[] = [];
+      while (off + 512 <= buf.length) {
+        const head = buf.subarray(off, off + 512);
+        if (head.every((b) => b === 0)) break;
+        const name = dec(head.subarray(0, 100));
+        const size = parseInt(dec(head.subarray(124, 136)) || '0', 8) || 0;
+        const type = String.fromCharCode(head[156]);
+        off += 512;
+        if (type === '0' || type === '\0') {
+          if (safe.test(name)) {
+            await env.MEDIA.put(PREFIX + name, buf.subarray(off, off + size), {
+              httpMetadata: { contentType: 'image/png' },
+            });
+            written.push(name);
+          } else if (name) {
+            skipped.push(name);
+          }
+        }
+        off += Math.ceil(size / 512) * 512;
+      }
+      // Only retire the old names once all four new objects are in place.
+      const retired: string[] = [];
+      if (written.length === 4) {
+        for (const name of RETIRE) {
+          await env.MEDIA.delete(PREFIX + name);
+          retired.push(name);
+        }
+      }
+      return new Response(JSON.stringify({ ok: true, written, retired, skipped }, null, 1), {
+        headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+      });
+    }
+
     // 0c. Asset manifest. Read-only key listing of the PUBLIC media bucket,
     // for auditing what is stored versus what the site actually references
     // (the R2 dashboard paginates at ~30 rows and has no export). Bearer
