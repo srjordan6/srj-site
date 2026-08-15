@@ -11,15 +11,15 @@ const { current } = Astro.props;
 // Ordered A to Z per Stephen's July 31, 2026 ruling; AI Vendor News replaces
 // Everything else AI (renamed, same feed, new URL with a 301 from the old).
 const items = [
-  { key: 'glossary', n: '01', label: 'AI Glossary', href: '/ai-resources/ai-glossary/' },
-  { key: 'governance', n: '02', label: 'AI Governance Reference Library', href: '/ai-governance/' },
-  { key: 'lawsuits', n: '03', label: 'AI Lawsuit Database', href: '/ai-governance/ai-lawsuits/' },
-  { key: 'people', n: '04', label: 'AI Movers and Shakers', href: '/ai-resources/ai-people/' },
-  { key: 'news', n: '05', label: 'AI News Daily Briefing', href: '/ai-resources/ai-news/' },
-  { key: 'sources', n: '06', label: 'AI Sources', href: '/ai-governance/sources/' },
-  { key: 'tools', n: '07', label: 'AI Tools Directory', href: '/ai-resources/ai-tools/' },
-  { key: 'vendor', n: '08', label: 'AI Vendor News', href: '/ai-resources/ai-vendor-news/' },
-  { key: 'roundup', n: '09', label: 'AI Weekly Roundup', href: '/ai-resources/ai-weekly-roundup/' },
+  { key: 'glossary', n: '01', label: 'AI Glossary', href: 'https://theworldofai.org/ai-glossary/' },
+  { key: 'governance', n: '02', label: 'AI Governance Reference Library', href: 'https://theworldofai.org/ai-compliance/' },
+  { key: 'lawsuits', n: '03', label: 'AI Lawsuit Database', href: 'https://theworldofai.org/ai-lawsuits/' },
+  { key: 'people', n: '04', label: 'AI Movers and Shakers', href: 'https://theworldofai.org/ai-ecosystem/ecosystem-entities-market-and-operations/c53153c4/' },
+  { key: 'news', n: '05', label: 'AI News Daily Briefing', href: 'https://theworldofai.org/ai-news/' },
+  { key: 'sources', n: '06', label: 'AI Sources', href: 'https://theworldofai.org/sources/' },
+  { key: 'tools', n: '07', label: 'AI Tools Directory', href: 'https://theworldofai.org/ai-tools/' },
+  { key: 'vendor', n: '08', label: 'AI Vendor News', href: 'https://theworldofai.org/ai-news/vendor/' },
+  { key: 'roundup', n: '09', label: 'AI Weekly Roundup', href: 'https://theworldofai.org/this-week-in-ai/' },
 ];
 ---
 <div class="free-ai-resources">
@@ -27,7 +27,7 @@ const items = [
   <ul class="far-list">
     {items.map((it) => (
       <li class={it.key === current ? 'is-current' : ''}>
-        <a href={it.href}>{it.n}. {it.label}</a>
+        <a href={it.href} rel="noopener" target="_blank">{it.n}. {it.label}</a>
       </li>
     ))}
   </ul>
