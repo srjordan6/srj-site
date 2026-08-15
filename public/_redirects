@@ -141,3 +141,128 @@
 /ai-governance/texas-ai-act/ /ai-governance/state-ai-laws/texas-ai-act/ 301
 /ai-governance/aibom/ /ai-governance/vendor-disclosure/aibom/ 301
 /ai-governance/sbom/ /ai-governance/vendor-disclosure/sbom/ 301
+
+# August 14, 2026: THE MIGRATION TO THEWORLDOFAI.ORG. Stephen's directive:
+# the resource collection and the governance library are canonical on
+# theworldofai.org now, and the local copies 301 to their successors so the
+# two sites stop competing for the same queries.
+#
+# Governance cannot splat: this site nests children under parents
+# (/ai-governance/sector-rules/gdpr-ai/) while twoai is flat
+# (/ai-compliance/gdpr-ai/), so every page from the sitemap gets an explicit
+# rule, each target fetched 200 before being written. The trailing
+# fallbacks catch pages that do not exist yet on either side: future lawsuit
+# cases keep their slugs across both sites (same generator), so the lawsuit
+# splat maps 1:1, while an unknown future governance page lands on the
+# section root rather than a 404.
+#
+# Tool CATEGORY pages have no twoai twin (twoai lists tools flat), so the 23
+# categories go to the tools root, then the splat carries the per-tool pages,
+# whose slugs are identical (sampled and verified). Per-vendor archive pages
+# (283) have no twin either and land on the vendor news section. People
+# profiles land on the ecosystem page Stephen designated.
+
+/ai-governance/ https://theworldofai.org/ai-compliance/ 301
+/ai-governance/agency-enforcement/ https://theworldofai.org/ai-compliance/agency-enforcement/ 301
+/ai-governance/agency-enforcement/cfpb-ai-enforcement/ https://theworldofai.org/ai-compliance/cfpb-ai-enforcement/ 301
+/ai-governance/agency-enforcement/eeoc-ai-enforcement/ https://theworldofai.org/ai-compliance/eeoc-ai-enforcement/ 301
+/ai-governance/agency-enforcement/ftc-ai-enforcement/ https://theworldofai.org/ai-compliance/ftc-ai-enforcement/ 301
+/ai-governance/agency-enforcement/hhs-ocr-ai-enforcement/ https://theworldofai.org/ai-compliance/hhs-ocr-ai-enforcement/ 301
+/ai-governance/agency-enforcement/sec-ai-enforcement/ https://theworldofai.org/ai-compliance/sec-ai-enforcement/ 301
+/ai-governance/agentic-ai-cfaa/ https://theworldofai.org/ai-compliance/agentic-ai-cfaa/ 301
+/ai-governance/china-ai-regulation/ https://theworldofai.org/ai-compliance/china-ai-regulation/ 301
+/ai-governance/coe-framework-convention/ https://theworldofai.org/ai-compliance/coe-framework-convention/ 301
+/ai-governance/data-management-frameworks/ https://theworldofai.org/ai-compliance/data-management-frameworks/ 301
+/ai-governance/data-management-frameworks/cdmc/ https://theworldofai.org/ai-compliance/cdmc/ 301
+/ai-governance/data-management-frameworks/dama-dmbok/ https://theworldofai.org/ai-compliance/dama-dmbok/ 301
+/ai-governance/data-management-frameworks/dcam/ https://theworldofai.org/ai-compliance/dcam/ 301
+/ai-governance/director-oversight/ https://theworldofai.org/ai-compliance/director-oversight/ 301
+/ai-governance/dora/ https://theworldofai.org/ai-compliance/dora/ 301
+/ai-governance/eu-ai-act/ https://theworldofai.org/ai-compliance/eu-ai-act/ 301
+/ai-governance/eu-cyber-resilience-act/ https://theworldofai.org/ai-compliance/eu-cyber-resilience-act/ 301
+/ai-governance/eu-product-liability/ https://theworldofai.org/ai-compliance/eu-product-liability/ 301
+/ai-governance/federal-ai-legislation/ https://theworldofai.org/ai-compliance/federal-ai-legislation/ 301
+/ai-governance/federal-contractor-ai/ https://theworldofai.org/ai-compliance/federal-contractor-ai/ 301
+/ai-governance/financial-reporting/ https://theworldofai.org/ai-compliance/financial-reporting/ 301
+/ai-governance/financial-reporting/aicpa-ai-guidance/ https://theworldofai.org/ai-compliance/aicpa-ai-guidance/ 301
+/ai-governance/financial-reporting/fasb-asu-2025-06/ https://theworldofai.org/ai-compliance/fasb-asu-2025-06/ 301
+/ai-governance/financial-reporting/pcaob-ai-guidance/ https://theworldofai.org/ai-compliance/pcaob-ai-guidance/ 301
+/ai-governance/financial-reporting/sox-302-404-ai/ https://theworldofai.org/ai-compliance/sox-302-404-ai/ 301
+/ai-governance/general-business-governance/ https://theworldofai.org/ai-compliance/general-business-governance/ 301
+/ai-governance/general-business-governance/coso-erm-ai/ https://theworldofai.org/ai-compliance/coso-erm-ai/ 301
+/ai-governance/general-business-governance/iso-27001-ai/ https://theworldofai.org/ai-compliance/iso-27001-ai/ 301
+/ai-governance/general-business-governance/nist-csf-ai/ https://theworldofai.org/ai-compliance/nist-csf-ai/ 301
+/ai-governance/general-business-governance/soc-2-ai/ https://theworldofai.org/ai-compliance/soc-2-ai/ 301
+/ai-governance/iso-42001/ https://theworldofai.org/ai-compliance/iso-42001/ 301
+/ai-governance/nist-ai-rmf/ https://theworldofai.org/ai-compliance/nist-ai-rmf/ 301
+/ai-governance/nis2/ https://theworldofai.org/ai-compliance/nis2/ 301
+/ai-governance/nyc-ai-laws/ https://theworldofai.org/ai-compliance/nyc-ai-laws/ 301
+/ai-governance/nyc-ai-laws/nyc-ll-144/ https://theworldofai.org/ai-compliance/nyc-ll-144/ 301
+/ai-governance/nyc-ai-laws/nyc-ll-35/ https://theworldofai.org/ai-compliance/nyc-ll-35/ 301
+/ai-governance/sector-rules/ https://theworldofai.org/ai-compliance/sector-rules/ 301
+/ai-governance/sector-rules/coppa-ai/ https://theworldofai.org/ai-compliance/coppa-ai/ 301
+/ai-governance/sector-rules/ecoa-ai/ https://theworldofai.org/ai-compliance/ecoa-ai/ 301
+/ai-governance/sector-rules/fcra-ai/ https://theworldofai.org/ai-compliance/fcra-ai/ 301
+/ai-governance/sector-rules/ferpa-ai/ https://theworldofai.org/ai-compliance/ferpa-ai/ 301
+/ai-governance/sector-rules/finra-ai/ https://theworldofai.org/ai-compliance/finra-ai/ 301
+/ai-governance/sector-rules/gdpr-ai/ https://theworldofai.org/ai-compliance/gdpr-ai/ 301
+/ai-governance/sector-rules/glba-ai/ https://theworldofai.org/ai-compliance/glba-ai/ 301
+/ai-governance/sector-rules/hipaa-ai/ https://theworldofai.org/ai-compliance/hipaa-ai/ 301
+/ai-governance/sector-rules/title-vii-ai/ https://theworldofai.org/ai-compliance/title-vii-ai/ 301
+/ai-governance/sector-rules/warn-ai/ https://theworldofai.org/ai-compliance/warn-ai/ 301
+/ai-governance/state-ai-laws/ https://theworldofai.org/ai-compliance/state-ai-laws/ 301
+/ai-governance/state-ai-laws/california-ai-laws/ https://theworldofai.org/ai-compliance/california-ai-laws/ 301
+/ai-governance/state-ai-laws/colorado-ai-act/ https://theworldofai.org/ai-compliance/colorado-ai-act/ 301
+/ai-governance/state-ai-laws/connecticut-ai-act/ https://theworldofai.org/ai-compliance/connecticut-ai-act/ 301
+/ai-governance/state-ai-laws/illinois-ai-laws/ https://theworldofai.org/ai-compliance/illinois-ai-laws/ 301
+/ai-governance/state-ai-laws/tennessee-elvis-act/ https://theworldofai.org/ai-compliance/tennessee-elvis-act/ 301
+/ai-governance/state-ai-laws/texas-ai-act/ https://theworldofai.org/ai-compliance/texas-ai-act/ 301
+/ai-governance/uk-ai-regulation/ https://theworldofai.org/ai-compliance/uk-ai-regulation/ 301
+/ai-governance/us-federal-eo/ https://theworldofai.org/ai-compliance/us-federal-eo/ 301
+/ai-governance/vendor-disclosure/ https://theworldofai.org/ai-compliance/vendor-disclosure/ 301
+/ai-governance/vendor-disclosure/aibom/ https://theworldofai.org/ai-compliance/aibom/ 301
+/ai-governance/vendor-disclosure/sbom/ https://theworldofai.org/ai-compliance/sbom/ 301
+
+# Oddballs verified individually: the tool-inventory page under governance,
+# and the AI News Events archive, each to its nearest twoai section.
+/ai-governance/ai-tools/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-events/ https://theworldofai.org/ai-news/ 301
+
+# Lawsuit-section article with no twoai twin, before the splat.
+/ai-governance/ai-lawsuits/top-free-platforms-for-court-cases/ https://theworldofai.org/ai-lawsuits/ 301
+
+# Tool categories (no twoai twin), before the per-tool splat.
+/ai-resources/ai-tools/ai-governance-and-risk-management-platforms/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/automation-and-agents/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/chat-and-general-llms/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/chinese-foundation-models/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/cloud-ai-services-and-model-apis/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/coding-and-developer-tools/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/data-and-analytics-ai/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/education-and-research-ai/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/emerging-frontier-ai/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/enterprise-ai-platforms-and-agent-orchestration/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/erp-and-business-application-ai/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/finance-and-legal-ai/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/healthcare-and-life-sciences-ai/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/hr-and-talent-ai/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/image-and-graphic-design/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/notes-knowledge-and-meetings/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/open-source-and-self-hosted-models/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/search-research-translation-and-other/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/security-and-identity-ai/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/slides-and-presentations/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/video-generation-and-editing/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/voice-and-audio/ https://theworldofai.org/ai-tools/ 301
+/ai-resources/ai-tools/writing-and-editing/ https://theworldofai.org/ai-tools/ 301
+
+# Section splats and fixed-target sections. Order matters: everything
+# specific above, these below.
+/ai-resources/ai-glossary/* https://theworldofai.org/ai-glossary/:splat 301
+/ai-resources/ai-news/* https://theworldofai.org/ai-news/:splat 301
+/ai-resources/ai-tools/* https://theworldofai.org/ai-tools/:splat 301
+/ai-resources/ai-people/* https://theworldofai.org/ai-ecosystem/ecosystem-entities-market-and-operations/c53153c4/ 301
+/ai-resources/ai-vendor-news/* https://theworldofai.org/ai-news/vendor/ 301
+/ai-resources/ai-weekly-roundup/* https://theworldofai.org/this-week-in-ai/ 301
+/ai-governance/ai-lawsuits/* https://theworldofai.org/ai-lawsuits/:splat 301
+/ai-governance/* https://theworldofai.org/ai-compliance/ 301
