@@ -79,12 +79,13 @@ const gaSection = _seg[1] ? _seg.slice(0, 2).join('/') : (_seg[0] || 'home');
   gtag('js', new Date());
   gtag('config', '${GA4_ID}', {
     anonymize_ip: true,
-    /* Cross-domain measurement. This must be declared on BOTH properties or
-       it does nothing: theworldofai.org already declares the same pair, so a
-       visitor arriving from the reference site now stays one session and one
-       attribution chain instead of landing here as an unattributed new
-       visit. That funnel is the point of running the two sites together. */
-    linker: { domains: ['srjconsultingservices.com', 'theworldofai.org'], decorate_forms: true },
+    /* Cross-domain measurement across all four SRJ properties. The list must
+       be identical on every property or the linking is one-way: a domain
+       that does not name its partners will not honour the incoming link
+       parameter, and the visitor starts a new unattributed session there.
+       outcomestar.app and aiauditforcompanies.com still need this same list
+       added in their own codebases. */
+    linker: { domains: ['srjconsultingservices.com', 'theworldofai.org', 'aiauditforcompanies.com', 'outcomestar.app'], decorate_forms: true },
     pillar: ${JSON.stringify(gaPillar)},
     section: ${JSON.stringify(gaSection)}
   });
