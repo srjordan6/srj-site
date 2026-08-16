@@ -121,6 +121,85 @@ export default {
       return Response.redirect(url.toString(), 301);
     }
 
+    // 0a. THE MIGRATION TO THEWORLDOFAI.ORG (August 2026). Stephen's directive:
+    // the governance library and the resource sections are canonical on
+    // theworldofai.org, and every local copy 301s to its successor. This lives
+    // here rather than in public/_redirects because Cloudflare counts every
+    // rule with an absolute URL target as dynamic and caps dynamic rules at
+    // 100; the first attempt shipped ~125 such rules and the deploy refused
+    // them (error 100324). Code also collapses 64 per-page governance rules
+    // into one line: this site nests library children under parents while
+    // twoai is flat, so the slug is always the LAST path segment. Every
+    // mapping class was verified 200 on twoai before this shipped, and future
+    // lawsuit cases keep their slugs across both sites (same generator).
+    //
+    // The bare /ai-resources/ hub deliberately falls through: it stays live as
+    // the gateway page the nav lands on, per Stephen's ruling.
+    {
+      const TWO = 'https://theworldofai.org';
+      // Tool CATEGORY pages have no twoai twin (twoai lists tools flat); they
+      // land on the tools root while per-tool slugs map 1:1.
+      const TOOL_CATEGORIES = new Set([
+        'ai-governance-and-risk-management-platforms', 'automation-and-agents',
+        'chat-and-general-llms', 'chinese-foundation-models',
+        'cloud-ai-services-and-model-apis', 'coding-and-developer-tools',
+        'data-and-analytics-ai', 'education-and-research-ai',
+        'emerging-frontier-ai', 'enterprise-ai-platforms-and-agent-orchestration',
+        'erp-and-business-application-ai', 'finance-and-legal-ai',
+        'healthcare-and-life-sciences-ai', 'hr-and-talent-ai',
+        'image-and-graphic-design', 'notes-knowledge-and-meetings',
+        'open-source-and-self-hosted-models', 'search-research-translation-and-other',
+        'security-and-identity-ai', 'slides-and-presentations',
+        'video-generation-and-editing', 'voice-and-audio', 'writing-and-editing',
+      ]);
+      const seg = url.pathname.split('/').filter(Boolean);
+      let dest: string | null = null;
+      if (seg[0] === 'ai-governance') {
+        const rest = seg.slice(2).join('/');
+        if (seg.length === 1) dest = TWO + '/ai-compliance/';
+        else if (seg[1] === 'sources') dest = TWO + '/sources/';
+        else if (seg[1] === 'ai-tools') dest = TWO + '/ai-tools/';
+        else if (seg[1] === 'ai-lawsuits') {
+          // One lawsuit-section article has no twoai twin; cases map 1:1.
+          dest =
+            rest === 'top-free-platforms-for-court-cases'
+              ? TWO + '/ai-lawsuits/'
+              : TWO + '/ai-lawsuits/' + (rest ? rest + '/' : '');
+        } else {
+          dest = TWO + '/ai-compliance/' + seg[seg.length - 1] + '/';
+        }
+      } else if (seg[0] === 'ai-resources' && seg.length >= 2) {
+        const rest = seg.slice(2).join('/');
+        const tail = rest ? rest + '/' : '';
+        switch (seg[1]) {
+          case 'ai-glossary':
+            dest = TWO + '/ai-glossary/' + tail;
+            break;
+          case 'ai-news':
+            dest = TWO + '/ai-news/' + tail;
+            break;
+          case 'ai-tools':
+            dest = TOOL_CATEGORIES.has(seg[2] ?? '') ? TWO + '/ai-tools/' : TWO + '/ai-tools/' + tail;
+            break;
+          case 'ai-people':
+            dest = TWO + '/ai-ecosystem/ecosystem-entities-market-and-operations/c53153c4/';
+            break;
+          case 'ai-vendor-news':
+          case 'everything-else-ai':
+          case 'everything-else':
+            dest = TWO + '/ai-news/vendor/';
+            break;
+          case 'ai-weekly-roundup':
+            dest = TWO + '/this-week-in-ai/';
+            break;
+          case 'ai-events':
+            dest = TWO + '/ai-news/';
+            break;
+        }
+      }
+      if (dest) return Response.redirect(dest + url.search, 301);
+    }
+
     // 0b. Corpus archive writes from the srj-pipeline cron. PUT-only, bearer
     // gated, and confined to corpus/ keys in the PRIVATE uploads bucket:
     // archived bodies are third-party press held for internal analysis, and
