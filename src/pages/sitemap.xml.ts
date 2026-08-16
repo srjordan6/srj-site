@@ -27,31 +27,16 @@ const slugify = (s: string) =>
 export const GET: APIRoute = async () => {
   const urls = new Set<string>();
 
-  // Hubs and the sections that own their own routes.
-  for (const u of [
-    '/', '/ai-governance/', '/ai-resources/',
-    '/ai-resources/ai-glossary/', '/ai-resources/ai-news/', '/ai-resources/ai-people/',
-    '/ai-resources/ai-events/', '/ai-resources/everything-else/', '/ai-resources/ai-tools/',
-  ]) urls.add(u);
-
-  // Governance library.
-  for (const e of await getCollection('governance')) {
-    const d = e.data;
-    urls.add(d.parent ? `/ai-governance/${d.parent}/${d.slug}/` : `/ai-governance/${d.slug}/`);
-  }
+  // Hubs. August 14, 2026: the governance library and the /ai-resources/
+  // sections migrated to theworldofai.org and 301 there, so they are gone from
+  // here on the same principle the note below already states, a sitemap lists
+  // canonical destinations and never the URLs that only point elsewhere. The
+  // /ai-resources/ hub stays because it is still a live 200 page.
+  for (const u of ['/', '/ai-resources/']) urls.add(u);
 
   // Stage 2 migrated pages: About, Books, Services, Industries, categories,
   // Insights posts, legal pages, singletons.
   for (const p of ((migrated as any).pages ?? [])) urls.add(p.path);
-
-  // AI Tools: one page per category, plus one per researched profile.
-  const rows: any[] = (tools as any).tools ?? [];
-  for (const c of new Set(rows.map((t) => t.category))) {
-    urls.add(`/ai-resources/ai-tools/${slugify(c as string)}/`);
-  }
-  for (const slug of Object.keys((profileDoc as any).profiles ?? {})) {
-    urls.add(`/ai-resources/ai-tools/${slug}/`);
-  }
 
   // The three governance redirects are deliberately absent: a sitemap lists
   // canonical destinations, and listing a 301 asks the crawler to fetch a URL
