@@ -21,6 +21,51 @@
 // If this list changes, check it against the live site rather than editing from
 // memory, because the failure is silent: the nav still renders, it is just wrong.
 //
+// BOOK EXCERPTS. The topbar's empty middle carries a verbatim line from the
+// book series, linked to the book it came from. Rows live in
+// press_book_excerpts and ship through content/books/excerpts.json, so adding
+// one is a SQL insert; only excerpts checked against the manuscript in
+// book_contents are marked active.
+//
+// ROTATION IS WEEKLY AND DETERMINISTIC, keyed to the ISO week number rather
+// than to the build. Two consequences that both matter: every page of the site
+// shows the same line in a given week (a random pick per build would show a
+// different quote on every page, which reads as noise), and the line changes
+// on its own each week without a deploy, because the build that runs any day
+// of that week computes the same index. The book advances first, so all six
+// books appear in the rotation before any book repeats, then the excerpt
+// within that book advances on each pass.
+import { existsSync, readFileSync } from 'node:fs';
+function isoWeekIndex(d = new Date()) {
+  const t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  // ISO week: Thursday determines the year, weeks start Monday
+  const day = (t.getUTCDay() + 6) % 7;
+  t.setUTCDate(t.getUTCDate() - day + 3);
+  const firstThursday = new Date(Date.UTC(t.getUTCFullYear(), 0, 4));
+  const fday = (firstThursday.getUTCDay() + 6) % 7;
+  firstThursday.setUTCDate(firstThursday.getUTCDate() - fday + 3);
+  const week = 1 + Math.round((t - firstThursday) / (7 * 86400000));
+  // absolute week count so rotation never resets at the year boundary
+  return t.getUTCFullYear() * 53 + week;
+}
+let bookExcerpt = null;
+if (existsSync('content/books/excerpts.json')) {
+  try {
+    const list = JSON.parse(readFileSync('content/books/excerpts.json', 'utf8')).excerpts || [];
+    if (list.length) {
+      const byBook = new Map();
+      for (const e of list) {
+        if (!byBook.has(e.book_number)) byBook.set(e.book_number, []);
+        byBook.get(e.book_number).push(e);
+      }
+      const books = [...byBook.keys()].sort((a, b) => a - b);
+      const w = isoWeekIndex();
+      const chosen = byBook.get(books[w % books.length]);
+      bookExcerpt = chosen[Math.floor(w / books.length) % chosen.length];
+    }
+  } catch { bookExcerpt = null; }
+}
+
 // SEARCH. The topbar Search button opens a panel backed by Pagefind, whose
 // index is generated at build time (`pagefind --site dist`). The UI script and
 // CSS load lazily on first open, so pages that never see a search pay nothing.
@@ -52,6 +97,14 @@ const EMAIL = 'info@srjconsultingservices.com';
             in the footer Contact column. */}
         <span class="topbar-translate notranslate" translate="no"><input id="srj-lang-input" value="English" autocomplete="off" role="combobox" aria-expanded="false" aria-label="Translate this page. All languages shown on click; type to filter" /><span class="lang-caret" aria-hidden="true">&#9662;</span><ul id="srj-lang-panel" class="lang-panel" hidden></ul><span id="google_translate_element" class="gt-hidden"></span></span>
       </div>
+      {bookExcerpt && (
+        <a class="topbar-excerpt" href={bookExcerpt.url}
+           title={`From ${bookExcerpt.title}${bookExcerpt.section ? ` — ${bookExcerpt.section}` : ''}`}>
+          <span class="excerpt-quote">{bookExcerpt.excerpt}</span>
+          <span class="excerpt-src">{bookExcerpt.title}</span>
+        </a>
+      )}
+
       <div class="topbar-actions">
         <button type="button" class="search-toggle" aria-expanded="false" aria-controls="srj-search-panel">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" width="15" height="15">
@@ -232,7 +285,30 @@ const EMAIL = 'info@srjconsultingservices.com';
   .topbar-dot { color: #F07800; font-size: 9px; }
   .topbar-contact a { color: rgba(250,250,246,.92); font-weight: 500; text-decoration: none; transition: color .2s ease; display: inline-flex; align-items: center; gap: 7px; }
   .topbar-contact a:hover { color: #F07800; }
-  .topbar-actions { display: flex; align-items: center; gap: 22px; }
+  /* The excerpt takes the slack in the middle and yields it first: it
+     truncates before it wraps, and disappears entirely below the width where
+     the language control and the CTA need the room. */
+  .topbar-excerpt {
+    flex: 1 1 auto; min-width: 0; display: flex; align-items: baseline; gap: 10px;
+    color: rgba(250,250,246,.82); text-decoration: none;
+    font-family: 'Poppins', sans-serif; font-size: 12.5px; line-height: 1.3;
+    padding: 0 8px;
+  }
+  .topbar-excerpt .excerpt-quote {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-style: italic;
+  }
+  .topbar-excerpt .excerpt-quote::before { content: '\201C'; }
+  .topbar-excerpt .excerpt-quote::after { content: '\201D'; }
+  .topbar-excerpt .excerpt-src {
+    flex: 0 0 auto; color: #F07800; font-size: 11px; letter-spacing: .04em;
+    text-transform: uppercase; font-weight: 600; white-space: nowrap;
+  }
+  .topbar-excerpt:hover .excerpt-quote { color: #ffffff; }
+  .topbar-excerpt:hover .excerpt-src { text-decoration: underline; }
+  @media (max-width: 1100px) { .topbar-excerpt .excerpt-src { display: none; } }
+  @media (max-width: 900px) { .topbar-excerpt { display: none; } }
+  .topbar-actions { display: flex; align-items: center; gap: 22px; flex: 0 0 auto; }
   .search-toggle {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 5px 10px;
