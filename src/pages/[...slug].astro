@@ -104,7 +104,12 @@ const pageCss: string[] = [
   // .migrated so nothing leaks into site chrome. Loaded first so page-specific
   // stylesheets keep cascade priority, same order WordPress enqueued them.
   '/migrated-theme.css',
-  ...(page.page_css ?? []).map((f: string) =>
+  // page_css is an array on 71 of 72 migrated pages; /autonomous-soc/ arrived
+  // from the migration with "" and took the whole build down on 2026-08-17
+  // ("(page.page_css ?? []).map is not a function" - "" survives ?? because
+  // it is not null). Coerce every shape: array passes through, a non-empty
+  // string becomes one entry, everything else contributes nothing.
+  ...(Array.isArray(page.page_css) ? page.page_css : page.page_css ? [page.page_css] : []).map((f: string) =>
     `${ASSET_BASE}/wp-content/${PLUGIN_CSS[f] ?? `themes/srj-consulting/assets/css/${f}`}`
   ),
 ];
