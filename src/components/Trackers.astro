@@ -62,6 +62,51 @@ const clarityAllowed = !CLARITY_EXCLUDED.some((p) => path.startsWith(p));
 const _seg = path.split('/').filter(Boolean);
 const gaPillar = _seg[0] || 'home';
 const gaSection = _seg[1] ? _seg.slice(0, 2).join('/') : (_seg[0] || 'home');
+
+/**
+ * CLARITY CUSTOM TAGS. Deliberately the SAME pillar and section values GA4
+ * gets above, computed from the same two constants rather than re-derived.
+ *
+ * The reason is that these two tools get compared. GA4 says where enquiries
+ * come from; Clarity shows the sessions behind the number. If `section` meant
+ * `books` in one tool and `books/ai-risk-governance-security` in the other,
+ * every such comparison would be quietly wrong, and wrong in a way that looks
+ * fine until someone acts on it. One vocabulary, two tools.
+ *
+ * `volume` is the one tag with no GA4 counterpart. A Library volume is not
+ * inferable from the path segments alone, and without it every book detail
+ * page collapses into one undifferentiated `books` bucket, so "which volume do
+ * people read without clicking through to buy" cannot be asked at all.
+ *
+ * All three are derived from the path at build time. No visitor attribute is
+ * involved and nothing narrows toward a person: Clarity tags stay queryable
+ * indefinitely, and a tag added as a convenience becomes a profile.
+ */
+const VOLUME_BY_SLUG: Record<string, string> = {
+  'the-ai-business-enablement-audit': 'i',
+  'the-ai-readiness-performance-assessment': 'ii',
+  'the-ai-risk-governance-review': 'iii',
+  'the-ai-efficiency-process-optimization': 'iv',
+  'the-ai-it-security-audit': 'v',
+  // VI-IX are in development. Listed before they publish because a slug costs
+  // nothing until the page exists, and adding it after launch leaves the first
+  // weeks of that volume's traffic untagged with no way to backfill. Slugs
+  // match press_books.url_path, which is the system of record.
+  'the-ai-it-security-implementation-strategy': 'vi',
+  'the-secure-by-design': 'vii',
+  'the-application-security': 'viii',
+  'the-cloud-infrastructure-security': 'ix',
+};
+
+const clarityTags: Record<string, string> = clarityAllowed
+  ? { pillar: gaPillar, section: gaSection }
+  : {};
+if (clarityAllowed && VOLUME_BY_SLUG[_seg[_seg.length - 1]]) {
+  clarityTags.volume = VOLUME_BY_SLUG[_seg[_seg.length - 1]];
+}
+const clarityTagCalls = Object.entries(clarityTags)
+  .map(([k, v]) => `w.clarity("set", ${JSON.stringify(k)}, ${JSON.stringify(v)});`)
+  .join('\n      ');
 ---
 
 {/* GA4. gtag() and the Consent Mode defaults are already established by the
@@ -116,6 +161,26 @@ const gaSection = _seg[1] ? _seg.slice(0, 2).join('/') : (_seg[0] || 'home');
       t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
       y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
     })(window, document, "clarity", "script", "${CLARITY_ID}");
+  `}></script>
+)}
+
+{/* Clarity custom tags, consent-gated and declared AFTER the loader above.
+
+    TWO THINGS HAVE TO HOLD for a tag to land, and both do. The consent
+    bootstrap activates pending scripts with querySelectorAll and replaces them
+    in document order, so this runs after the loader. And Clarity's snippet
+    installs a queueing stub (c[a].q) synchronously, so a set() call made before
+    the remote script finishes downloading is queued rather than dropped.
+
+    Guarded on window.clarity existing anyway. If a path is added to
+    CLARITY_EXCLUDED without updating this block, or the loader is removed, the
+    guard degrades it to a no-op instead of a ReferenceError on every page. */}
+{clarityAllowed && clarityTagCalls && (
+  <script type="text/plain" data-consent="statistics" set:html={`
+    (function (w) {
+      if (!w.clarity) return;
+      ${clarityTagCalls}
+    })(window);
   `}></script>
 )}
 
