@@ -131,7 +131,7 @@ The AI Audit is live. Tier 1 is a single transactional product at $399 one-time.
 
 ## Books
 
-- [Books from SRJ Consulting](https://srjconsultingservices.com/books/): Hub for The Operating Discipline for AI Library(TM), the nine-book series behind the AI Operating System by Stephen R. Jordan, AI Business Services (four books) and AI Risk Governance & Security (five books). Includes free templates, worksheets, and chapter graphics.
+- [Books from SRJ Consulting](https://srjconsultingservices.com/books/): Hub for The Operating Discipline for AI Library(TM), the nine-book series behind the AI Operating System by Stephen R. Jordan, AI Business Services (four books) and AI Risk Governance & Security (five books), plus Works of Fiction, a third pillar that stands outside the Library. Includes free templates, worksheets, and chapter graphics.
 - [The AI Business Enablement Audit(TM)](https://srjconsultingservices.com/books/ai-business-services/the-ai-business-enablement-audit/): Book 01 of 9. The operating system for running AI as a permanent business function. Available on Amazon.
 - [The AI Readiness & Performance Assessment(TM)](https://srjconsultingservices.com/books/ai-business-services/the-ai-readiness-performance-assessment/): Book 02 of 9. Determines whether the business is positioned to scale AI responsibly. Available on Amazon.
 - [The AI Risk & Governance Review(TM)](https://srjconsultingservices.com/books/ai-business-services/the-ai-risk-governance-review/): Book 03 of 9. The operating book for defending AI decisions when regulators, auditors, acquirers, or carriers ask. ISO/IEC 42001 and NIST AI RMF aligned. Available on Amazon.
@@ -141,6 +141,8 @@ The AI Audit is live. Tier 1 is a single transactional product at $399 one-time.
 - [Secure by Design in the Age of AI(TM)](https://srjconsultingservices.com/books/ai-risk-governance-security/the-secure-by-design/): Book 07 of 9, Book 3 of 5 in AI Risk Governance & Security(TM). Building AI products that are secure by design. Forthcoming.
 - [Application Security in the Age of AI(TM)](https://srjconsultingservices.com/books/ai-risk-governance-security/the-application-security/): Book 08 of 9, Book 4 of 5 in AI Risk Governance & Security(TM). Securing AI applications in production. Forthcoming.
 - [Cloud and Infrastructure Security in the Age of AI(TM)](https://srjconsultingservices.com/books/ai-risk-governance-security/the-cloud-infrastructure-security/): Book 09 of 9, Book 5 of 5 in AI Risk Governance & Security(TM). Securing the cloud and infrastructure layer AI runs on. Forthcoming.
+- [Works of Fiction](https://srjconsultingservices.com/books/works-of-fiction/): Pillar III, fiction by Stephen R. Jordan. Stands outside The Operating Discipline for AI Library(TM); these are novels, not methodologies.
+- [The AI Lawyer](https://srjconsultingservices.com/books/works-of-fiction/the-ai-lawyer/): Book 10, a novel. Near-future legal thriller. The Twenty-Eighth Amendment replaced every human judge in America with an AI judiciary named AEQUITAS that is faster, cheaper, and almost never wrong. Defense advocate Iris Calderon finds it enforcing a precedent from a case that never happened, and learns her resistance was modeled years before she offered it. Paperback ISBN 9798193110590, hardcover ISBN 9798193104520, 276 pages, published August 17 2026. Chapter one, the chapter list, the author's note, and ten discussion questions are free on the page. Available on Amazon.
 
 ## Resources
 
