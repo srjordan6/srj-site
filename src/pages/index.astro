@@ -1,44 +1,26 @@
 ---
 /**
- * The homepage, migrated from production.
+ * The cinematic homepage, the relaunch of August 2026.
  *
- * Replaces the Session 1 staging placeholder. Same discipline as the 70 pages
- * in [...slug].astro: title, meta description, canonical, Open Graph, robots
- * and the full JSON-LD graph are production's own bytes, and the body is the
- * live front page's <main id="primary" class="site-main homepage"> inner HTML,
- * extracted 2026-07-30, with theme chrome removed by selector. 796 words, five
- * sections: the $670K hero, the four margin-erosion patterns, the six service
- * lines, "the advisory is the product", field notes, and the closing CTA.
+ * Replaces the migrated WordPress front page. The treatment document is the
+ * contract (SRJ-Cinematic-3D-Website-Treatment.md, approved by Stephen
+ * 2026-08-18 with copy locked verbatim): deep-navy threshold, The Operating
+ * System hero rendered by src/scripts/hero-system.js, then eight sections in
+ * the approved order. SEO carries over from the retired page: title,
+ * description, canonical, OG image, robots, and the JSON-LD graph are the
+ * production values, only the body changed. home.json remains in srj-content
+ * untouched, so reverting is a one-commit checkout of the old index.astro.
  *
- * WHY THE CONTENT LIVES IN srj-content/migrated/home.json AND NOT IN THIS
- * FILE. The other 70 migrated pages render from data, and the homepage follows
- * the same rule for the same reason: when production's front page changes, the
- * update is a re-extraction of the JSON, not an edit to code. It is a separate
- * file rather than an entry in migrated-pages.json because [...slug].astro's
- * rest parameter cannot own '/' while this file exists, and Astro would treat
- * the duplicate as a route collision.
- *
- * page_css: home-page.css is the one stylesheet WordPress enqueues only on the
- * front page. It resolves through the same ASSET_BASE mechanism as every other
- * migrated page's CSS, and was verified serving (200) from the R2 path before
- * this file shipped.
+ * The hero headline and CTA are static HTML painted before any 3D loads; the
+ * canvas mounts client-side after idle and fades in behind them. If WebGL is
+ * unavailable the navy field plus the static composition simply remains, so
+ * no visitor ever sees an empty box.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import home from '../content/migrated/home.json';
-import mainClasses from '../content/migrated/main-classes.json';
-import { rewriteAssets, rewriteAssetUrl, rewriteInternalLinks, ASSET_BASE } from '../lib/assets';
 
 const page: any = home;
-const schemaRaw: string[] = (page.schema ?? []).map((s: string) => rewriteAssets(s));
-const body = rewriteInternalLinks(rewriteAssets(page.main));
-const pageCss: string[] = [
-  // Scoped WP theme baseline, same reasoning as [...slug].astro: the homepage
-  // markup was authored against the theme's 16px base, not BaseLayout's 17px.
-  '/migrated-theme.css',
-  ...(page.page_css ?? []).map(
-    (f: string) => `${ASSET_BASE}/wp-content/themes/srj-consulting/assets/css/${f}`,
-  ),
-];
+const schemaRaw: string[] = page.schema ?? [];
 ---
 <BaseLayout
   title={page.title}
@@ -46,19 +28,311 @@ const pageCss: string[] = [
   canonical={page.canonical}
   ogTitle={page.og_title}
   ogDescription={page.og_description}
-  ogImage={rewriteAssetUrl(page.og_image)}
+  ogImage={page.og_image}
   robots={page.robots}
   rawSchema={schemaRaw}
-  pageCss={pageCss}
+  showBreadcrumbs={false}
 >
-  <div class="migrated">
-    <div class={(mainClasses as any).classes['/'] ?? 'homepage'} set:html={body} />
-  </div>
+<div class="cine">
+
+  <!-- 1. HERO: The Operating System -->
+  <section class="hero" id="top">
+    <canvas class="hero-canvas" id="os-canvas" aria-hidden="true"></canvas>
+    <div class="hero-grain" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <div class="label">The Operating Discipline for AI</div>
+        <h1>AI, run like it answers to the board. <em>Because it does.</em></h1>
+        <p class="sub">Nine books. Four service families. One operating system for bringing AI under business control.</p>
+        <div class="hero-ctas">
+          <a class="btn-glow" href="/schedule-consultation/">Schedule a Consultation <span class="arrow">→</span></a>
+          <a class="btn-ghost" href="/books/">Explore the Library</a>
+        </div>
+      </div>
+    </div>
+    <div class="hero-scrollcue" aria-hidden="true"><span></span></div>
+  </section>
+
+  <!-- 2. THE PROBLEM, IN THEIR LANGUAGE -->
+  <section class="probe reveal">
+    <div class="wrap two-col">
+      <div>
+        <div class="label label-dark">The board question</div>
+        <h2>Your teams already deployed AI. The question the board will ask is <em>who governs it.</em></h2>
+        <p>Every department bought its own tools. Nobody signed for the risk. SRJ Consulting installs the discipline that turns scattered AI activity into a managed business function, with an owner, a budget, and evidence.</p>
+      </div>
+      <div class="counters">
+        <div class="counter"><span class="num" data-count="9">0</span><span class="cap">Books in the Library</span></div>
+        <div class="counter"><span class="num" data-count="4">0</span><span class="cap">Service families</span></div>
+        <div class="counter"><span class="num" data-count="22">0</span><span class="cap">Consulting instruments</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. THE OPERATING SYSTEM, EXPLAINED -->
+  <section class="os reveal">
+    <div class="wrap">
+      <div class="label label-dark">How it fits together</div>
+      <h2>One system. <em>Four service families.</em></h2>
+      <div class="os-grid">
+        <a class="os-card" href="/services/business-services/ai-business-enablement-audit/">
+          <div class="os-num">01</div><h3>AI Business Enablement</h3>
+          <p>Find every tool, every subscription, every shadow deployment, and put a number on what unmanaged AI is costing.</p>
+          <span class="os-go">Explore →</span>
+        </a>
+        <a class="os-card" href="/services/business-services/ai-readiness-performance/">
+          <div class="os-num">02</div><h3>Readiness &amp; Performance</h3>
+          <p>Measure whether the organization can absorb AI before it buys more of it, then raise the score deliberately.</p>
+          <span class="os-go">Explore →</span>
+        </a>
+        <a class="os-card" href="/services/business-services/ai-risk-governance-review/">
+          <div class="os-num">03</div><h3>Risk &amp; Governance</h3>
+          <p>Give the board what it will ask for: an owner, a policy, a register, and evidence that all three are real.</p>
+          <span class="os-go">Explore →</span>
+        </a>
+        <a class="os-card" href="/services/risk-governance-security/">
+          <div class="os-num">04</div><h3>Security Disciplines</h3>
+          <p>The three security practices AI has structurally changed: audit, implementation, and the engineering that follows.</p>
+          <span class="os-go">Explore →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. PROOF WITHOUT LOGOS -->
+  <section class="proof reveal">
+    <div class="wrap two-col">
+      <div>
+        <div class="label">The method is published</div>
+        <h2>We wrote the operating manual. <em>All nine volumes of it.</em></h2>
+        <p>The Operating Discipline for AI Library™ is the practice in book form: the frameworks, the case patterns, and the working templates, published for anyone to inspect. Five volumes are available now. The consulting engagement installs what the books describe.</p>
+        <p class="pedigree">Three decades operating security and technology at scale: Citigroup, Intel, McAfee, Optiv. Licensed attorney. One operator, no bench of juniors.</p>
+      </div>
+      <div class="proof-actions">
+        <a class="btn-glow" href="/books/">Browse the Library <span class="arrow">→</span></a>
+        <a class="btn-ghost-dark" href="/about/">Meet the operator</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. THE LIBRARY RAIL -->
+  <section class="rail reveal">
+    <div class="wrap">
+      <div class="label label-dark">The Operating Discipline for AI Library™</div>
+      <h2>Nine books. <em>And one novel.</em></h2>
+    </div>
+    <div class="rail-scroll" tabindex="0" aria-label="The Library, scroll horizontally">
+      <a class="spine s-avail" href="/books/ai-business-services/the-ai-business-enablement-audit/"><span>01</span>The AI Business Enablement Audit™</a>
+      <a class="spine s-avail" href="/books/ai-business-services/the-ai-readiness-performance-assessment/"><span>02</span>The AI Readiness &amp; Performance Assessment™</a>
+      <a class="spine s-avail" href="/books/ai-business-services/the-ai-risk-governance-review/"><span>03</span>The AI Risk &amp; Governance Review™</a>
+      <a class="spine s-avail" href="/books/ai-business-services/the-ai-efficiency-process-optimization/"><span>04</span>The AI Efficiency &amp; Process Optimization™</a>
+      <a class="spine s-avail" href="/books/ai-risk-governance-security/the-ai-it-security-audit/"><span>05</span>The AI IT Security Audit™</a>
+      <a class="spine s-launch" href="/books/ai-risk-governance-security/the-ai-it-security-implementation-strategy/"><span>06</span>The AI IT Security Implementation &amp; Strategy™<em>Launching August 31</em></a>
+      <a class="spine" href="/books/ai-risk-governance-security/the-secure-by-design/"><span>07</span>Secure by Design in the Age of AI™</a>
+      <a class="spine" href="/books/ai-risk-governance-security/the-application-security/"><span>08</span>Application Security in the Age of AI™</a>
+      <a class="spine" href="/books/ai-risk-governance-security/the-cloud-infrastructure-security/"><span>09</span>Cloud and Infrastructure Security in the Age of AI™</a>
+      <a class="spine s-fiction" href="/books/works-of-fiction/the-ai-lawyer/"><span>10</span>The AI Lawyer<em>A Novel</em></a>
+    </div>
+  </section>
+
+  <!-- 6. HOW AN ENGAGEMENT RUNS -->
+  <section class="stones reveal">
+    <div class="wrap">
+      <div class="label">How an engagement runs</div>
+      <h2>Five moves. <em>In order.</em></h2>
+      <ol class="stones-row">
+        <li><b>Sequence</b><span>Decide what happens first, and why.</span></li>
+        <li><b>Ratify</b><span>Leadership signs the plan, on the record.</span></li>
+        <li><b>Install</b><span>The discipline goes into the operating rhythm.</span></li>
+        <li><b>Rehearse</b><span>The organization practices before it performs.</span></li>
+        <li><b>Report</b><span>The board sees evidence, not assurances.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 7. THE WORLD OF AI STRIP -->
+  <section class="twoai reveal">
+    <div class="wrap twoai-row">
+      <div>
+        <div class="label label-dark">The practice runs daily</div>
+        <p class="twoai-lede">The World of AI is our public research arm: a living AI lawsuit database, a governance reference library, a glossary, and a tools index, maintained every day.</p>
+      </div>
+      <a class="btn-ghost-dark" href="https://theworldofai.org" rel="noopener" target="_blank">Visit The World of AI →</a>
+    </div>
+  </section>
+
+  <!-- 8. FINAL CTA -->
+  <section class="finale reveal">
+    <div class="finale-core" aria-hidden="true"></div>
+    <div class="wrap finale-inner">
+      <h2>Bring AI under <em>operating control.</em></h2>
+      <a class="btn-glow btn-big" href="/schedule-consultation/">Schedule a Consultation <span class="arrow">→</span></a>
+    </div>
+  </section>
+
+</div>
 </BaseLayout>
 
+<script>
+  import { mountHero } from '../scripts/hero-system.js';
+  const canvas = document.getElementById('os-canvas');
+  if (canvas && window.matchMedia('(min-width: 821px)').matches) {
+    try { mountHero(canvas); canvas.classList.add('on'); } catch (e) { /* navy field remains */ }
+  }
+  // Counters count up once, in view.
+  const io = new IntersectionObserver((es) => es.forEach((e) => {
+    if (!e.isIntersecting) return;
+    e.target.classList.add('in');
+    e.target.querySelectorAll('.num').forEach((n) => {
+      const end = +n.dataset.count; const t0 = performance.now();
+      const tick = (t) => { const k = Math.min(1, (t - t0) / 800); n.textContent = Math.round(end * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(tick); };
+      requestAnimationFrame(tick);
+    });
+    io.unobserve(e.target);
+  }), { threshold: 0.25 });
+  document.querySelectorAll('.reveal').forEach((s) => io.observe(s));
+</script>
+
 <style is:global>
-  /* Same baseline the migrated route gives transplanted markup. */
-  .migrated { width: 100%; }
-  .migrated img { max-width: 100%; height: auto; }
-  .migrated table { max-width: 100%; }
+  /* ---- The cinematic homepage. Locked palette, Lora and Poppins only. ---- */
+  .cine { --navy:#201868; --deep:#12103F; --cream:#FFF6EC; --orange:#F07800; --ink:#232A33; --gray:#7A8A9E;
+    background: var(--cream); overflow-x: clip; }
+  .cine .wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+  .cine .label { font-family:'Poppins',sans-serif; font-size:11px; font-weight:600; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--orange); margin-bottom:18px; }
+  .cine .label::after { content:''; display:block; width:34px; height:2px; background:var(--orange); margin-top:8px;
+    transform:scaleX(0); transform-origin:left; transition:transform .3s ease .15s; }
+  .cine .in .label::after, .cine .hero .label::after { transform:scaleX(1); }
+  .cine h2 { font-family:'Lora',serif; font-weight:700; font-size:clamp(30px,4vw,44px); line-height:1.15;
+    color:var(--navy); margin:0 0 20px; letter-spacing:-.01em; }
+  .cine h2 em, .cine h1 em { font-style:italic; color:var(--orange); }
+  .cine p { font-family:'Poppins',sans-serif; font-size:16px; line-height:1.75; color:var(--ink); }
+  .cine .reveal { opacity:0; transform:translateY(16px); transition:opacity .5s cubic-bezier(.22,1,.36,1), transform .5s cubic-bezier(.22,1,.36,1); }
+  .cine .reveal.in { opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce) { .cine .reveal { opacity:1; transform:none; transition:none; } }
+
+  /* Buttons: orange is rationed, it appears here and nowhere else. */
+  .cine .btn-glow { display:inline-flex; align-items:center; gap:10px; font-family:'Poppins',sans-serif; font-weight:600;
+    font-size:15px; color:#fff; background:var(--orange); padding:15px 28px; border-radius:6px; text-decoration:none;
+    box-shadow:0 0 0 rgba(240,120,0,.45); transition:box-shadow .35s, transform .35s; }
+  .cine .btn-glow:hover { box-shadow:0 6px 28px rgba(240,120,0,.45); transform:translateY(-2px); }
+  .cine .btn-big { font-size:17px; padding:18px 34px; }
+  .cine .btn-ghost, .cine .btn-ghost-dark { display:inline-flex; align-items:center; font-family:'Poppins',sans-serif;
+    font-weight:600; font-size:15px; padding:14px 26px; border-radius:6px; text-decoration:none; transition:all .35s; }
+  .cine .btn-ghost { color:var(--cream); border:1px solid rgba(255,246,236,.4); }
+  .cine .btn-ghost:hover { border-color:var(--cream); background:rgba(255,246,236,.06); }
+  .cine .btn-ghost-dark { color:var(--navy); border:1px solid rgba(32,24,104,.35); }
+  .cine .btn-ghost-dark:hover { border-color:var(--navy); background:rgba(32,24,104,.05); }
+
+  /* 1. Hero: the threshold. */
+  .cine .hero { position:relative; min-height:100vh; background:radial-gradient(120% 90% at 70% 40%, #1A1357 0%, var(--deep) 62%, #0C0A2E 100%);
+    display:flex; align-items:center; }
+  .cine .hero-canvas { position:absolute; inset:0; width:100%; height:100%; opacity:0; transition:opacity 1.2s ease .1s; }
+  .cine .hero-canvas.on { opacity:1; }
+  .cine .hero-grain { position:absolute; inset:0; pointer-events:none; opacity:.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .cine .hero-inner { position:relative; z-index:2; width:100%; max-width:1160px; margin:0 auto; padding:120px 24px; }
+  .cine .hero-copy { max-width:600px; }
+  .cine .hero h1 { font-family:'Lora',serif; font-weight:700; font-size:clamp(40px,5.6vw,72px); line-height:1.08;
+    letter-spacing:-.015em; color:var(--cream); margin:0 0 24px; }
+  .cine .hero .sub { font-size:18px; color:rgba(255,246,236,.82); max-width:480px; margin:0 0 36px; }
+  .cine .hero-ctas { display:flex; gap:16px; flex-wrap:wrap; }
+  .cine .hero-scrollcue { position:absolute; bottom:34px; left:50%; transform:translateX(-50%); width:22px; height:36px;
+    border:1.5px solid rgba(255,246,236,.4); border-radius:12px; }
+  .cine .hero-scrollcue span { position:absolute; top:7px; left:50%; width:3px; height:7px; margin-left:-1.5px;
+    border-radius:2px; background:var(--orange); animation:cue 2.2s ease-in-out infinite; }
+  @keyframes cue { 0%,100%{ transform:translateY(0); opacity:1 } 55%{ transform:translateY(12px); opacity:0 } }
+  @media (prefers-reduced-motion: reduce){ .cine .hero-scrollcue span{ animation:none } }
+
+  /* 2. Problem + counters. */
+  .cine .probe { padding:110px 0 90px; }
+  .cine .two-col { display:grid; grid-template-columns:1.4fr 1fr; gap:64px; align-items:center; }
+  .cine .label-dark { color:var(--orange); }
+  .cine .counters { display:grid; gap:26px; }
+  .cine .counter { border-left:3px solid var(--orange); padding-left:20px; }
+  .cine .counter .num { font-family:'Poppins',sans-serif; font-variant-numeric:tabular-nums; font-weight:600;
+    font-size:52px; color:var(--navy); line-height:1; display:block; }
+  .cine .counter .cap { font-family:'Poppins',sans-serif; font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:var(--gray); }
+
+  /* 3. The four families. */
+  .cine .os { padding:40px 0 110px; }
+  .cine .os-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:24px; }
+  .cine .os-card { background:var(--navy); border-radius:10px; padding:28px 24px 24px; text-decoration:none;
+    display:flex; flex-direction:column; min-height:250px; transition:transform .4s cubic-bezier(.22,1,.36,1), box-shadow .4s; }
+  .cine .os-card:hover { transform:translateY(-4px); box-shadow:0 16px 40px rgba(18,16,63,.35); }
+  .cine .os-num { font-family:'Poppins',sans-serif; font-size:12px; font-weight:600; letter-spacing:.16em; color:var(--orange); margin-bottom:14px; }
+  .cine .os-card h3 { font-family:'Lora',serif; font-size:20px; color:var(--cream); margin:0 0 10px; line-height:1.25; }
+  .cine .os-card p { font-size:13.5px; line-height:1.6; color:rgba(255,246,236,.75); margin:0 0 18px; }
+  .cine .os-go { margin-top:auto; font-family:'Poppins',sans-serif; font-size:13px; font-weight:600; color:var(--cream); opacity:.85; }
+  .cine .os-card:hover .os-go { color:var(--orange); opacity:1; }
+
+  /* 4. Proof. */
+  .cine .proof { background:#F7EDDF; padding:100px 0; }
+  .cine .pedigree { font-size:14px; color:var(--gray); border-top:1px solid rgba(122,138,158,.3); padding-top:18px; margin-top:22px; }
+  .cine .proof-actions { display:flex; flex-direction:column; gap:14px; align-items:flex-start; }
+
+  /* 5. The rail. */
+  .cine .rail { padding:110px 0 90px; }
+  .cine .rail-scroll { display:flex; gap:14px; overflow-x:auto; padding:34px 24px 26px; scroll-snap-type:x proximity;
+    max-width:1208px; margin:0 auto; scrollbar-width:thin; }
+  .cine .spine { flex:0 0 148px; height:300px; scroll-snap-align:start; border-radius:6px; padding:18px 14px;
+    background:linear-gradient(160deg, #2A2180, var(--navy) 55%, var(--deep)); color:var(--cream); text-decoration:none;
+    font-family:'Lora',serif; font-size:15px; line-height:1.35; display:flex; flex-direction:column;
+    box-shadow:inset 3px 0 0 rgba(255,246,236,.14), 0 10px 24px rgba(18,16,63,.25);
+    transform:perspective(700px) rotateY(7deg); transition:transform .4s cubic-bezier(.22,1,.36,1), box-shadow .4s; }
+  .cine .spine:hover { transform:perspective(700px) rotateY(0) translateY(-10px); box-shadow:0 20px 44px rgba(18,16,63,.4); }
+  .cine .spine span { font-family:'Poppins',sans-serif; font-size:11px; font-weight:600; letter-spacing:.16em; color:var(--orange); margin-bottom:12px; }
+  .cine .spine em { margin-top:auto; font-family:'Poppins',sans-serif; font-style:normal; font-size:11px;
+    letter-spacing:.1em; text-transform:uppercase; color:rgba(255,246,236,.7); }
+  .cine .spine.s-avail { background:linear-gradient(160deg,#33288F,#241C74 55%,#181250); }
+  .cine .spine.s-launch { outline:2px solid var(--orange); outline-offset:2px; }
+  .cine .spine.s-launch em { color:var(--orange); }
+  .cine .spine.s-fiction { background:linear-gradient(165deg,#17142E,#0D0B20 60%,#080714); box-shadow:inset 3px 0 0 rgba(240,120,0,.35), 0 10px 24px rgba(0,0,0,.45); }
+
+  /* 6. Five stones. */
+  .cine .stones { background:var(--navy); padding:100px 0; }
+  .cine .stones h2 { color:var(--cream); }
+  .cine .stones .label { color:var(--orange); }
+  .cine .stones-row { list-style:none; display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin:34px 0 0; padding:0;
+    counter-reset:stone; position:relative; }
+  .cine .stones-row::before { content:''; position:absolute; top:26px; left:5%; right:5%; height:1px;
+    background:linear-gradient(90deg, transparent, rgba(255,246,236,.35), transparent); }
+  .cine .stones-row li { position:relative; padding-top:56px; text-align:center; }
+  .cine .stones-row li::before { counter-increment:stone; content:counter(stone,decimal-leading-zero);
+    position:absolute; top:8px; left:50%; transform:translateX(-50%); width:38px; height:38px; border-radius:50%;
+    background:var(--deep); border:1px solid rgba(255,246,236,.3); color:var(--orange);
+    font-family:'Poppins',sans-serif; font-size:12px; font-weight:600; display:flex; align-items:center; justify-content:center; }
+  .cine .stones-row b { display:block; font-family:'Lora',serif; font-size:19px; color:var(--cream); margin-bottom:8px; }
+  .cine .stones-row span { font-family:'Poppins',sans-serif; font-size:13px; line-height:1.55; color:rgba(255,246,236,.7); }
+
+  /* 7. The World of AI strip. */
+  .cine .twoai { padding:84px 0; }
+  .cine .twoai-row { display:flex; align-items:center; justify-content:space-between; gap:40px; }
+  .cine .twoai-lede { max-width:560px; margin:0; }
+
+  /* 8. Finale. */
+  .cine .finale { position:relative; background:radial-gradient(90% 130% at 50% 115%, #1A1357 0%, var(--deep) 55%, #0C0A2E 100%);
+    padding:150px 0; overflow:hidden; text-align:center; }
+  .cine .finale-core { position:absolute; left:50%; bottom:-140px; width:340px; height:340px; transform:translateX(-50%);
+    border-radius:50%; background:radial-gradient(circle, rgba(240,120,0,.85), rgba(240,120,0,.25) 45%, transparent 70%);
+    filter:blur(6px); animation:corebreathe 6s ease-in-out infinite; }
+  @keyframes corebreathe { 0%,100%{ transform:translateX(-50%) scale(1); opacity:.9 } 50%{ transform:translateX(-50%) scale(1.07); opacity:1 } }
+  @media (prefers-reduced-motion: reduce){ .cine .finale-core{ animation:none } }
+  .cine .finale h2 { color:var(--cream); font-size:clamp(32px,4.6vw,52px); margin-bottom:36px; }
+  .cine .finale-inner { position:relative; z-index:2; }
+
+  /* Mobile: single column, no canvas (guarded in JS), poster composition holds. */
+  @media (max-width: 980px) {
+    .cine .os-grid { grid-template-columns:repeat(2,1fr); }
+    .cine .stones-row { grid-template-columns:1fr; gap:26px; }
+    .cine .stones-row::before { display:none; }
+    .cine .stones-row li { padding-top:0; padding-left:56px; text-align:left; }
+    .cine .stones-row li::before { left:0; top:0; transform:none; }
+    .cine .two-col { grid-template-columns:1fr; gap:44px; }
+    .cine .twoai-row { flex-direction:column; align-items:flex-start; }
+  }
+  @media (max-width: 620px) {
+    .cine .os-grid { grid-template-columns:1fr; }
+    .cine .hero-inner { padding:100px 24px 140px; }
+  }
 </style>
