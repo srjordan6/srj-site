@@ -126,7 +126,7 @@
    CTA section (page footer call-to-action)
    ------------------------------------------------------------------------- */
 .about-page-gutenberg .srj-cta-section {
-    background: #f5efe8;
+    background: #1A1357;
     padding: 60px 40px;
     margin-block: 60px 0;
     border-radius: 6px;
@@ -140,7 +140,7 @@
 
 .about-page-gutenberg .srj-cta-heading em {
     font-style: italic;
-    color: #b85a18;
+    color: #F07800;
 }
 
 .about-page-gutenberg .srj-cta-button {
@@ -163,12 +163,21 @@
 .about-page-gutenberg .srj-cta-phone {
     margin-top: 1rem;
     font-size: 0.95rem;
-    color: #555;
+    color: rgba(255, 246, 236, 0.75);
 }
 
 .about-page-gutenberg .srj-cta-phone a {
-    color: #1f2d5f;
+    color: #FFF6EC;
     font-weight: 600;
+}
+
+/* Closing paragraphs that sit after .about-content, direct children of the
+   article: without a constraint they run the full viewport width. Same
+   measure as .about-content so the page ends on one column. */
+.about-page-gutenberg .about-article > p {
+    max-width: 1100px;
+    margin: 20px auto 0;
+    padding: 0 20px;
 }
 
 /* -------------------------------------------------------------------------
