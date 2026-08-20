@@ -132,8 +132,26 @@ const EMAIL = 'info@srjconsultingservices.com';
   <div class="mainbar">
     <div class="container bar">
       <a class="brand" href="/">
+        {/* The docked mark: the hero's Operating System at rest, an SVG twin
+            of the Three.js object so the machine reads as always running.
+            Rotation is CSS, honors prefers-reduced-motion, costs no JS. */}
+        <svg class="brand-system" viewBox="0 0 44 44" aria-hidden="true" width="34" height="34">
+          <g class="bs-r2"><circle cx="22" cy="22" r="18" fill="none" stroke="#201868" stroke-opacity=".55" stroke-width="1"/>
+            <rect x="20.6" y="2.6" width="2.8" height="4.6" rx="0.6" fill="#201868"/>
+            <rect x="20.6" y="36.8" width="2.8" height="4.6" rx="0.6" fill="#201868"/>
+            <rect x="2.6" y="20.6" width="4.6" height="2.8" rx="0.6" fill="#201868"/>
+            <rect x="36.8" y="20.6" width="4.6" height="2.8" rx="0.6" fill="#201868"/></g>
+          <g class="bs-r1"><circle cx="22" cy="22" r="10.5" fill="none" stroke="#201868" stroke-opacity=".75" stroke-width="1.2"/>
+            <circle cx="22" cy="11.5" r="2" fill="#FFF6EC" stroke="#201868" stroke-width="1"/>
+            <circle cx="32.5" cy="22" r="2" fill="#FFF6EC" stroke="#201868" stroke-width="1"/>
+            <circle cx="22" cy="32.5" r="2" fill="#FFF6EC" stroke="#201868" stroke-width="1"/>
+            <circle cx="11.5" cy="22" r="2" fill="#FFF6EC" stroke="#201868" stroke-width="1"/></g>
+          <circle class="bs-core" cx="22" cy="22" r="4.6" fill="#F07800"/>
+        </svg>
+        <span class="brand-text">
         <span class="brand-line">SRJ Consulting <span class="amp">&amp;</span>Services</span>
         <span class="brand-tag">The Operating Discipline for AI Library&trade;</span>
+        </span>
       </a>
       <nav aria-label="Primary">
         <ul>
@@ -488,4 +506,15 @@ const EMAIL = 'info@srjconsultingservices.com';
      translation (or anything else) can never scroll it out of reach. */
   .topbar{position:sticky;top:0;z-index:1100}
   body.srj-menu-open{overflow:hidden}
+
+  /* The docked Operating System mark. */
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-text { display: flex; flex-direction: column; }
+  .brand-system { flex: 0 0 auto; }
+  .bs-r1 { transform-origin: 22px 22px; animation: bs-spin 90s linear infinite; }
+  .bs-r2 { transform-origin: 22px 22px; animation: bs-spin 140s linear infinite reverse; }
+  .bs-core { animation: bs-pulse 6s ease-in-out infinite; transform-origin: 22px 22px; }
+  @keyframes bs-spin { to { transform: rotate(360deg); } }
+  @keyframes bs-pulse { 0%,100% { opacity: .92; transform: scale(1); } 50% { opacity: 1; transform: scale(1.08); } }
+  @media (prefers-reduced-motion: reduce) { .bs-r1, .bs-r2, .bs-core { animation: none; } }
 </style>
