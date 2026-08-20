@@ -224,28 +224,6 @@ export default {
       });
     }
 
-    // 0t. TEMPORARY booking-QR ingest, August 20 2026. The contact page has
-    // referenced /wp-content/themes/srj-consulting/assets/images/
-    // srj-booking-qr.png since migration, but the object never made it into
-    // R2 (Stephen spotted the broken placeholder). One hash-pinned fetch
-    // writes the freshly generated code, navy on white, 540px, verified to
-    // decode to /schedule-consultation/ before staging. Route removed in the
-    // next commit once the object serves 200.
-    if (url.pathname === '/api/tmp-booking-qr-4v7n') {
-      const SRC = 'https://x0.at/OtKL.png';
-      const SHA = 'ea6b11489e0f4076a1daac0f1e61f553b8ef26405dddf0c0c79a75d935a3b41a';
-      const res = await fetch(SRC);
-      if (!res.ok) return new Response('fetch failed', { status: 502 });
-      const buf = new Uint8Array(await res.arrayBuffer());
-      const digest = await crypto.subtle.digest('SHA-256', buf);
-      const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
-      if (hex !== SHA) return new Response('sha mismatch ' + hex, { status: 409 });
-      await env.MEDIA.put('wp-content/themes/srj-consulting/assets/images/srj-booking-qr.png', buf, {
-        httpMetadata: { contentType: 'image/png', cacheControl: 'public, max-age=31536000, immutable' },
-      });
-      return new Response(JSON.stringify({ ok: true }), { headers: { 'content-type': 'application/json' } });
-    }
-
     // 0c. Asset manifest. Read-only key listing of the PUBLIC media bucket,
     // for auditing what is stored versus what the site actually references
     // (the R2 dashboard paginates at ~30 rows and has no export). Bearer
