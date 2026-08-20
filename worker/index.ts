@@ -224,6 +224,45 @@ export default {
       });
     }
 
+    // 0t. TEMPORARY rail-covers ingest, August 20 2026. Pulls a hash-pinned
+    // tarball of six 320px book covers (sourced from theworldofai.org, same
+    // owner) into R2 under wp-content/uploads/covers-rail/, so the homepage
+    // Library rail can show real covers without waiting on a pipeline run.
+    // Same discipline as every temp route before it: fixed prefix, strict
+    // name regex, SHA-256 verified before any write, and the route is
+    // removed in the next commit once the six objects verify 200.
+    if (url.pathname === '/api/tmp-rail-covers-8k3x') {
+      const SRC = 'https://x0.at/6YSs.tgz';
+      const SHA = 'd44c2d13839e881521b8a05df5390c9c8b0330a6d53f985b7e66521548b98831';
+      const NAME_RE = /^[a-z0-9-]{3,40}\.jpg$/;
+      const res = await fetch(SRC);
+      if (!res.ok) return new Response('fetch failed', { status: 502 });
+      const buf = new Uint8Array(await res.arrayBuffer());
+      const digest = await crypto.subtle.digest('SHA-256', buf);
+      const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+      if (hex !== SHA) return new Response('sha mismatch ' + hex, { status: 409 });
+      // Minimal tar walk over the gunzipped stream.
+      const ds = new DecompressionStream('gzip');
+      const raw = new Uint8Array(await new Response(new Blob([buf]).stream().pipeThrough(ds)).arrayBuffer());
+      const written: string[] = [];
+      let off = 0;
+      while (off + 512 <= raw.length) {
+        const name = new TextDecoder().decode(raw.subarray(off, off + 100)).replace(/\0.*$/, '');
+        if (!name) break;
+        const size = parseInt(new TextDecoder().decode(raw.subarray(off + 124, off + 136)).replace(/\0.*$/, '').trim(), 8) || 0;
+        const body = raw.subarray(off + 512, off + 512 + size);
+        const base = name.split('/').pop() ?? '';
+        if (NAME_RE.test(base) && size > 1000) {
+          await env.MEDIA.put('wp-content/uploads/covers-rail/' + base, body, {
+            httpMetadata: { contentType: 'image/jpeg', cacheControl: 'public, max-age=31536000, immutable' },
+          });
+          written.push(base);
+        }
+        off += 512 + Math.ceil(size / 512) * 512;
+      }
+      return new Response(JSON.stringify({ written }), { headers: { 'content-type': 'application/json' } });
+    }
+
     // 0c. Asset manifest. Read-only key listing of the PUBLIC media bucket,
     // for auditing what is stored versus what the site actually references
     // (the R2 dashboard paginates at ~30 rows and has no export). Bearer
