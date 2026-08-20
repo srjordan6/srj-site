@@ -1,6 +1,6 @@
 ---
 /**
- * The cinematic homepage, the relaunch of August 2026. Preview build 3.
+ * The cinematic homepage, the relaunch of August 2026.
  *
  * Replaces the migrated WordPress front page. The treatment document is the
  * contract (SRJ-Cinematic-3D-Website-Treatment.md, approved by Stephen
@@ -122,16 +122,16 @@ const schemaRaw: string[] = page.schema ?? [];
       <h2>Nine books. <em>And one novel.</em></h2>
     </div>
     <div class="rail-scroll" tabindex="0" aria-label="The Library, scroll horizontally">
-      <a class="spine s-avail" href="/books/ai-business-services/the-ai-business-enablement-audit/"><span>01</span>The AI Business Enablement Audit™</a>
-      <a class="spine s-avail" href="/books/ai-business-services/the-ai-readiness-performance-assessment/"><span>02</span>The AI Readiness &amp; Performance Assessment™</a>
-      <a class="spine s-avail" href="/books/ai-business-services/the-ai-risk-governance-review/"><span>03</span>The AI Risk &amp; Governance Review™</a>
-      <a class="spine s-avail" href="/books/ai-business-services/the-ai-efficiency-process-optimization/"><span>04</span>The AI Efficiency &amp; Process Optimization™</a>
-      <a class="spine s-avail" href="/books/ai-risk-governance-security/the-ai-it-security-audit/"><span>05</span>The AI IT Security Audit™</a>
+      <a class="spine s-cover" href="/books/ai-business-services/the-ai-business-enablement-audit/" aria-label="The AI Business Enablement Audit, Book 01"><img src="/wp-content/uploads/covers-rail/enablement-audit.jpg" alt="The AI Business Enablement Audit™ book cover" loading="lazy" decoding="async" width="148" height="237"/></a>
+      <a class="spine s-cover" href="/books/ai-business-services/the-ai-readiness-performance-assessment/" aria-label="The AI Readiness and Performance Assessment, Book 02"><img src="/wp-content/uploads/covers-rail/readiness-assessment.jpg" alt="The AI Readiness &amp; Performance Assessment™ book cover" loading="lazy" decoding="async" width="148" height="237"/></a>
+      <a class="spine s-cover" href="/books/ai-business-services/the-ai-risk-governance-review/" aria-label="The AI Risk and Governance Review, Book 03"><img src="/wp-content/uploads/covers-rail/risk-governance-review.jpg" alt="The AI Risk &amp; Governance Review™ book cover" loading="lazy" decoding="async" width="148" height="237"/></a>
+      <a class="spine s-cover" href="/books/ai-business-services/the-ai-efficiency-process-optimization/" aria-label="The AI Efficiency and Process Optimization, Book 04"><img src="/wp-content/uploads/covers-rail/efficiency-optimization.jpg" alt="The AI Efficiency &amp; Process Optimization™ book cover" loading="lazy" decoding="async" width="148" height="237"/></a>
+      <a class="spine s-cover" href="/books/ai-risk-governance-security/the-ai-it-security-audit/" aria-label="The AI IT Security Audit, Book 05"><img src="/wp-content/uploads/covers-rail/it-security-audit.jpg" alt="The AI IT Security Audit™ book cover" loading="lazy" decoding="async" width="148" height="237"/></a>
       <a class="spine s-launch" href="/books/ai-risk-governance-security/the-ai-it-security-implementation-strategy/"><span>06</span>The AI IT Security Implementation &amp; Strategy™<em>Launching August 31</em></a>
       <a class="spine" href="/books/ai-risk-governance-security/the-secure-by-design/"><span>07</span>Secure by Design in the Age of AI™</a>
       <a class="spine" href="/books/ai-risk-governance-security/the-application-security/"><span>08</span>Application Security in the Age of AI™</a>
       <a class="spine" href="/books/ai-risk-governance-security/the-cloud-infrastructure-security/"><span>09</span>Cloud and Infrastructure Security in the Age of AI™</a>
-      <a class="spine s-fiction" href="/books/works-of-fiction/the-ai-lawyer/"><span>10</span>The AI Lawyer<em>A Novel</em></a>
+      <a class="spine s-cover s-fiction" href="/books/works-of-fiction/the-ai-lawyer/" aria-label="The AI Lawyer, a novel, Book 10"><img src="/wp-content/uploads/covers-rail/ai-lawyer.jpg" alt="The AI Lawyer book cover" loading="lazy" decoding="async" width="148" height="237"/></a>
     </div>
   </section>
 
@@ -288,6 +288,8 @@ const schemaRaw: string[] = page.schema ?? [];
   .cine .spine.s-launch { outline:2px solid var(--orange); outline-offset:2px; }
   .cine .spine.s-launch em { color:var(--orange); }
   .cine .spine.s-fiction { background:linear-gradient(165deg,#17142E,#0D0B20 60%,#080714); box-shadow:inset 3px 0 0 rgba(240,120,0,.35), 0 10px 24px rgba(0,0,0,.45); }
+  .cine .spine.s-cover { padding:0; overflow:hidden; background:var(--deep); }
+  .cine .spine.s-cover img { width:100%; height:100%; object-fit:cover; display:block; }
 
   /* 6. Five stones. */
   .cine .stones { background:var(--navy); padding:100px 0; }
