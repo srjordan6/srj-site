@@ -797,7 +797,12 @@
   color:var(--ink-soft);
   line-height:1.8;
   margin-bottom:22px;
-} :where(.migrated) .longform p strong{color:var(--ink);font-weight:600} :where(.migrated) .longform ul, :where(.migrated) .longform ol{
+} :where(.migrated) .longform p strong{color:var(--ink);font-weight:600}
+/* Inside a colored band (WP has-background groups, incl. inline dsgo colors),
+   strong must inherit the band's own text color: the ink override above is
+   for dark-on-light prose and turned white CTA lines near-invisible on navy
+   (outcomestar page, Aug 20 2026). */
+:where(.migrated) .longform .has-background p strong, :where(.migrated) .longform [data-dsgo-inline-bg] p strong{color:inherit} :where(.migrated) .longform ul, :where(.migrated) .longform ol{
   margin:0 0 28px;
   padding-left:24px;
 } :where(.migrated) .longform ul li, :where(.migrated) .longform ol li{
