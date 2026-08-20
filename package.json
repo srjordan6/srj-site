@@ -9,7 +9,8 @@
     "preview": "astro preview"
   },
   "dependencies": {
-    "astro": "^4.16.0"
+    "astro": "^4.16.0",
+    "three": "^0.168.0"
   },
   "devDependencies": {
     "pagefind": "^1.1.0"
