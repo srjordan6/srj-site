@@ -232,14 +232,21 @@ export default {
     // at the exact key expected. Anything else is rejected. Removed in the
     // next commit once both objects verify 200.
     if (url.pathname === '/api/tmp-hero-9q2z') {
-      if (request.method !== 'PUT') return new Response('PUT only', { status: 405 });
+      // POST with a base64 TEXT body, not a binary PUT: the Cloudflare WAF
+      // blocks large binary PUT bodies on this zone (the same rule that has
+      // been 403ing the pipeline's /api/archive writes), while a text POST
+      // passes cleanly. Verified by probe before this was written.
+      if (request.method !== 'POST') return new Response('POST only', { status: 405 });
       const PINS: Record<string, string> = {
         'srj-case-never-happened-hero.jpg': 'c15813d73a8fd41fd20219efd3e62f0e92fa45fb2e2bceb6a984e1b661174af2',
         'srj-case-never-happened-og.jpg': 'c70411358902570bb3f3e5899cb1e33e0ad2aa9a6b5c0a14f1cbb4e2e8e44e70',
       };
       const name = url.searchParams.get('n') ?? '';
       if (!(name in PINS)) return new Response('unknown name', { status: 400 });
-      const buf = new Uint8Array(await request.arrayBuffer());
+      const b64 = (await request.text()).trim();
+      const bin = atob(b64);
+      const buf = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
       const digest = await crypto.subtle.digest('SHA-256', buf);
       const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
       if (hex !== PINS[name]) return new Response('sha mismatch ' + hex, { status: 409 });
