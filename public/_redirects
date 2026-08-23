@@ -151,3 +151,24 @@
 # mapping in four lines instead of 64 rules, and preserves query strings. This
 # file remains the single source for INTERNAL redirects only; external
 # migrations go in the Worker.
+
+# --- Insights moved under /insights/ (August 23, 2026) -------------------
+# The posts were at the site root, a WordPress default the migration
+# preserved verbatim. They now live where the section says they live, so the
+# URL, the breadcrumb, and the Insights index finally agree. Slugs are
+# unchanged, so every rule below is a straight one-hop 301 that carries the
+# accumulated ranking signal to the new address. Internal targets, so these
+# count against the 2,000 static limit, not the 100 dynamic one.
+/ai-audit-free-beta/ /insights/ai-audit-free-beta/ 301
+/ai-governance-audit-gap/ /insights/ai-governance-audit-gap/ 301
+/ai-governance-for-executives/ /insights/ai-governance-for-executives/ 301
+/ai-maturity-assessment/ /insights/ai-maturity-assessment/ 301
+/ai-pilot-to-production-ey-microsoft-1b-signal/ /insights/ai-pilot-to-production-ey-microsoft-1b-signal/ 301
+/ai-readiness-assessment-baseline/ /insights/ai-readiness-assessment-baseline/ 301
+/shadow-ai-breach-cost-governance/ /insights/shadow-ai-breach-cost-governance/ 301
+/srj-consulting-is-transitioning-fully-to-ai-advisory/ /insights/srj-consulting-is-transitioning-fully-to-ai-advisory/ 301
+/srj-consulting-services-now-live/ /insights/srj-consulting-services-now-live/ 301
+/why-we-are-not-an-ai-tool-vendor-and-why-that-matters-to-your-leadership-team/ /insights/why-we-are-not-an-ai-tool-vendor-and-why-that-matters-to-your-leadership-team/ 301
+/ai-governance-update-aug-2026/ /insights/ai-governance-update-aug-2026/ 301
+/autonomous-soc/ /insights/autonomous-soc/ 301
+/the-case-that-never-happened/ /insights/the-case-that-never-happened/ 301

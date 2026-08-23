@@ -12,10 +12,15 @@
 // from production on 2026-07-28 and encoded below.
 //
 // The split is not derivable from the URL. /insights/ is a post, /about/ is a
-// page, and /ai-audit-free-beta/ is a post despite reading like a landing page,
+// page, and ai-audit-free-beta is a post despite reading like a landing page,
 // because WordPress post type is what decides, not the path. Guessing would put
 // pages in the wrong child sitemap, which is a silent inconsistency with what
 // Search Console already has.
+//
+// August 23, 2026: the posts moved from the site root to /insights/{slug}/, so
+// the paths below carry the prefix. They are matched exactly, which is why this
+// list has to move with them: a stale entry does not error, it silently drops
+// the post out of post-sitemap.xml. Old URLs 301 from public/_redirects.
 import migrated from '../content/migrated/migrated-pages.json';
 
 export const SITE = 'https://srjconsultingservices.com';
@@ -24,16 +29,20 @@ export const SITE = 'https://srjconsultingservices.com';
  *  set that is not a category archive is a page. */
 export const POST_PATHS = new Set([
   '/insights/',
-  '/ai-audit-free-beta/',
-  '/ai-maturity-assessment/',
-  '/ai-readiness-assessment-baseline/',
-  '/srj-consulting-is-transitioning-fully-to-ai-advisory/',
-  '/ai-governance-audit-gap/',
-  '/ai-governance-for-executives/',
-  '/ai-pilot-to-production-ey-microsoft-1b-signal/',
-  '/shadow-ai-breach-cost-governance/',
-  '/srj-consulting-services-now-live/',
-  '/why-we-are-not-an-ai-tool-vendor-and-why-that-matters-to-your-leadership-team/',
+  '/insights/ai-audit-free-beta/',
+  '/insights/ai-maturity-assessment/',
+  '/insights/ai-readiness-assessment-baseline/',
+  '/insights/srj-consulting-is-transitioning-fully-to-ai-advisory/',
+  '/insights/ai-governance-audit-gap/',
+  '/insights/ai-governance-for-executives/',
+  '/insights/ai-pilot-to-production-ey-microsoft-1b-signal/',
+  '/insights/shadow-ai-breach-cost-governance/',
+  '/insights/srj-consulting-services-now-live/',
+  '/insights/why-we-are-not-an-ai-tool-vendor-and-why-that-matters-to-your-leadership-team/',
+  // Posts published after the capture, now also under /insights/.
+  '/insights/autonomous-soc/',
+  '/insights/ai-governance-update-aug-2026/',
+  '/insights/the-case-that-never-happened/',
 ]);
 
 export const migratedPaths = (): string[] =>
