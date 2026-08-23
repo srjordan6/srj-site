@@ -61,7 +61,6 @@
 /industries-we-serve/ /industries/ 301
 /hospitality/ /industries/ 301
 /blog/ /insights/ 301
-/blog/* /insights/ 301
 /press-releases/ /insights/ 301
 /newsletter-archives/2024/5/ /newsletter/ 301
 /newsletter-archives/ /insights/ 301
@@ -213,7 +212,6 @@
 /hvac/ /industries/ 301
 /resources/tax-forms/ /insights/ 301
 /guide-to-using-the-portal/ /client-upload/ 301
-/newsletter-archives/* /newsletter/ 301
 
 # Section names the old site used, and the trailing-slash-free variants Google
 # still holds for pages that already redirect with the slash.
@@ -230,3 +228,15 @@
 /category/newsletter/feed/ /newsletter/ 301
 /srj-consulting-is-transitioning-fully-to-ai-advisory/feed/ /insights/srj-consulting-is-transitioning-fully-to-ai-advisory/ 301
 /contact/share-testimonial /contact/ 301
+
+# --- WILDCARD RULES MUST STAY LAST ------------------------------------------
+# Cloudflare counts every rule at or AFTER the first wildcard as dynamic, and
+# caps dynamic rules at 100. It does not count only the wildcards themselves.
+# Proven on August 23, 2026: with /blog/* sitting at line 64, the deploy failed
+# with "Line 201: Maximum number of dynamic _redirects rules limit of 100
+# exceeded" and line 201 was exactly the 101st rule counting from that
+# wildcard, an ordinary static rule. Moving the wildcards to the end returns
+# the count to two. Anything added below this banner is dynamic, so add new
+# exact-path rules ABOVE it.
+/blog/* /insights/ 301
+/newsletter-archives/* /newsletter/ 301
