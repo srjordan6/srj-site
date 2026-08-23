@@ -224,6 +224,33 @@ export default {
       });
     }
 
+    // 0t. TEMPORARY hero-image ingest, August 22 2026. Accepts the two
+    // derivatives of the essay hero graphic as a direct PUT and writes them to
+    // R2. No external staging host is involved and no token is needed, because
+    // the route is self-authenticating: each accepted key is pinned to one
+    // SHA-256, so the only body it will ever store is the exact file expected,
+    // at the exact key expected. Anything else is rejected. Removed in the
+    // next commit once both objects verify 200.
+    if (url.pathname === '/api/tmp-hero-9q2z') {
+      if (request.method !== 'PUT') return new Response('PUT only', { status: 405 });
+      const PINS: Record<string, string> = {
+        'srj-case-never-happened-hero.jpg': 'c15813d73a8fd41fd20219efd3e62f0e92fa45fb2e2bceb6a984e1b661174af2',
+        'srj-case-never-happened-og.jpg': 'c70411358902570bb3f3e5899cb1e33e0ad2aa9a6b5c0a14f1cbb4e2e8e44e70',
+      };
+      const name = url.searchParams.get('n') ?? '';
+      if (!(name in PINS)) return new Response('unknown name', { status: 400 });
+      const buf = new Uint8Array(await request.arrayBuffer());
+      const digest = await crypto.subtle.digest('SHA-256', buf);
+      const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+      if (hex !== PINS[name]) return new Response('sha mismatch ' + hex, { status: 409 });
+      await env.MEDIA.put('wp-content/uploads/' + name, buf, {
+        httpMetadata: { contentType: 'image/jpeg', cacheControl: 'public, max-age=31536000, immutable' },
+      });
+      return new Response(JSON.stringify({ ok: true, name, bytes: buf.length }), {
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+
     // 0c. Asset manifest. Read-only key listing of the PUBLIC media bucket,
     // for auditing what is stored versus what the site actually references
     // (the R2 dashboard paginates at ~30 rows and has no export). Bearer

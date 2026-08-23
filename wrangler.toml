@@ -43,7 +43,7 @@ binding = "ASSETS"
 run_worker_first = [
   "/wp-content/*", "/api/contact", "/api/upload",
   "/api/worksheet-access", "/api/worksheet-confirm", "/api/newsletter", "/api/archive",
-  "/api/assets-manifest", "/ai-governance/*", "/ai-resources/*",
+  "/api/assets-manifest", "/api/tmp-hero-9q2z", "/ai-governance/*", "/ai-resources/*",
 ]
 # Serve dist/404.html for any path with no matching asset that the Worker
 # does not claim. Without this a miss is a blank Astro-runtime 404.
