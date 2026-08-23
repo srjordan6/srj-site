@@ -73,7 +73,10 @@
 /services/ai-readiness-performance/ /services/business-services/ai-readiness-performance/ 301
 /services/business-services/risk-governance-security/ /services/risk-governance-security/ 301
 /services/ai-security-implementation/ /services/risk-governance-security/ai-security-implementation/ 301
-/services/ai-it-security-audit/ /books/ai-risk-governance-security/ai-it-security-audit/ 301
+# Corrected August 23, 2026: this pointed into the books namespace, which then
+# redirected again, and Google reported the two-hop chain as a duplicate with a
+# different chosen canonical. One hop now.
+/services/ai-it-security-audit/ /services/risk-governance-security/ai-it-security-audit/ 301
 /services/ai-risk-governance-review/ /services/business-services/ai-risk-governance-review/ 301
 /services/risk-governance-security/the-ai-it-security-audit/ /books/ai-risk-governance-security/the-ai-it-security-audit/ 301
 /books/ai-risk-governance-security/ai-it-security-audit/ /services/risk-governance-security/ai-it-security-audit/ 301
@@ -172,3 +175,58 @@
 /ai-governance-update-aug-2026/ /insights/ai-governance-update-aug-2026/ 301
 /autonomous-soc/ /insights/autonomous-soc/ 301
 /the-case-that-never-happened/ /insights/the-case-that-never-happened/ 301
+
+# --- Search Console coverage cleanup (August 23, 2026) -------------------
+# From the six GSC drilldown exports. Every target below was verified to
+# return 200 before the rule was written.
+#
+# WordPress numbered-duplicate slugs. When a page was recreated during the
+# build, WordPress appended -2 or -3 rather than reusing the slug, and Google
+# indexed the orphans. They point at the page they were always meant to be.
+/books/ai-business-services-2/ /books/ai-business-services/ 301
+/books/ai-business-services-3/ /books/ai-business-services/ 301
+/books/ai-risk-governance-security-2/ /books/ai-risk-governance-security/ 301
+/books/ai-risk-governance-security-3/ /books/ai-risk-governance-security/ 301
+/industries/aerospace-defense-2/ /industries/aerospace-defense/ 301
+/industries/aerospace-defense-3/ /industries/aerospace-defense/ 301
+/industries/agriculture-2/ /industries/agriculture/ 301
+/industries/financial-services-2/ /industries/financial-services/ 301
+/industries/healthcare-life-sciences-2/ /industries/healthcare-life-sciences/ 301
+/industries/healthcare-life-sciences-3/ /industries/healthcare-life-sciences/ 301
+/industries/insurance-2/ /industries/insurance/ 301
+/industries/insurance-3/ /industries/insurance/ 301
+/industries/legal-services-2/ /industries/legal-services/ 301
+/industries/manufacturing-2/ /industries/manufacturing/ 301
+/industries/media-telecom-2/ /industries/media-telecom/ 301
+/industries/retail-ecommerce-2/ /industries/retail-ecommerce/ 301
+/industries/technology-software-2/ /industries/technology-software/ 301
+/industries/technology-software-3/ /industries/technology-software/ 301
+
+# Pre-nesting service URLs that were never given a rule in the v1.6
+# restructure, so they have been 404ing since.
+/ai-business-enablement-audit/ /services/business-services/ai-business-enablement-audit/ 301
+/ai-risk-governance-review/ /services/business-services/ai-risk-governance-review/ 301
+
+# Bookkeeping-era pages, still crawled years later.
+/business-advisory-services/ /services/ 301
+/business-valuation/ /services/ 301
+/hvac/ /industries/ 301
+/resources/tax-forms/ /insights/ 301
+/guide-to-using-the-portal/ /client-upload/ 301
+/newsletter-archives/* /newsletter/ 301
+
+# Section names the old site used, and the trailing-slash-free variants Google
+# still holds for pages that already redirect with the slash.
+/blog /insights/ 301
+/press-releases /press/ 301
+/my-mission /about/ 301
+/srj-biography /insights/ 301
+
+# WordPress plumbing: the author archive and the per-post RSS feeds. The site
+# is static now and publishes no feeds, so these point at the human equivalent
+# rather than dying.
+/author/wpusername5649/ /about/ 301
+/author/wpusername5649/feed/ /about/ 301
+/category/newsletter/feed/ /newsletter/ 301
+/srj-consulting-is-transitioning-fully-to-ai-advisory/feed/ /insights/srj-consulting-is-transitioning-fully-to-ai-advisory/ 301
+/contact/share-testimonial /contact/ 301
