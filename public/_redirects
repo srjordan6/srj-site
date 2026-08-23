@@ -200,6 +200,9 @@
 /industries/retail-ecommerce-2/ /industries/retail-ecommerce/ 301
 /industries/technology-software-2/ /industries/technology-software/ 301
 /industries/technology-software-3/ /industries/technology-software/ 301
+/industries/agriculture-3/ /industries/agriculture/ 301
+/industries/financial-services-3/ /industries/financial-services/ 301
+/industries/legal-services-3/ /industries/legal-services/ 301
 
 # Pre-nesting service URLs that were never given a rule in the v1.6
 # restructure, so they have been 404ing since.
