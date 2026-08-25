@@ -224,6 +224,33 @@ export default {
       });
     }
 
+    // 0t. TEMPORARY Book 06 cover ingest, August 23 2026. The book published
+    // today, so the rail and the detail page both need its cover. Same
+    // self-authenticating shape as the essay hero route: each key is pinned to
+    // one SHA-256, base64 over POST because this zone's WAF blocks large
+    // binary PUT bodies. Removed in the next commit once both verify 200.
+    if (url.pathname === '/api/tmp-bk06-2r9w') {
+      if (request.method !== 'POST') return new Response('POST only', { status: 405 });
+      const PINS: Record<string, string> = {
+        'the-ai-it-security-implementation-strategy-cover.jpg': '4d036f26b6041e1da6f391c50b046fa8f1d1cba2f866a0586ed224659f887c37',
+        'covers-rail/it-security-implementation.jpg': '38f90742dbc06cadd7ed993ab8e01d1724cd7a92b5a17ff0bfeeedea54f37b7c',
+      };
+      const name = url.searchParams.get('n') ?? '';
+      if (!(name in PINS)) return new Response('unknown name', { status: 400 });
+      const bin = atob((await request.text()).trim());
+      const buf = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+      const digest = await crypto.subtle.digest('SHA-256', buf);
+      const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+      if (hex !== PINS[name]) return new Response('sha mismatch ' + hex, { status: 409 });
+      await env.MEDIA.put('wp-content/uploads/' + name, buf, {
+        httpMetadata: { contentType: 'image/jpeg', cacheControl: 'public, max-age=31536000, immutable' },
+      });
+      return new Response(JSON.stringify({ ok: true, name, bytes: buf.length }), {
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+
     // 0c. Asset manifest. Read-only key listing of the PUBLIC media bucket,
     // for auditing what is stored versus what the site actually references
     // (the R2 dashboard paginates at ~30 rows and has no export). Bearer
