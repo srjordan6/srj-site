@@ -320,7 +320,13 @@ export default {
     }
 
     // 2 and 3. Assets, then R2 for the migrated media tree.
-    if (url.pathname.startsWith('/wp-content/')) {
+    // /briefings/ joins /wp-content/ as an R2-served prefix. The executive
+    // briefings have shipped as build output until now, which means a new one
+    // cannot appear without a pipeline change and a deploy. Serving the prefix
+    // from R2 as well makes a briefing a file drop: the static handler still
+    // gets first refusal, so the briefings already in the build keep winning
+    // and nothing about Book 06 changes.
+    if (url.pathname.startsWith('/wp-content/') || url.pathname.startsWith('/briefings/')) {
       // Static handler gets first refusal, so anything genuinely in the build
       // still wins.
       const fromBuild = await env.ASSETS.fetch(request);
