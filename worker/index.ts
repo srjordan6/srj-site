@@ -224,6 +224,40 @@ export default {
       });
     }
 
+    // 0t. TEMPORARY Book 07 asset ingest, August 2026: cover derivatives and the
+    // executive briefing PDF for Secure by Design in the Age of AI. Same
+    // self-authenticating shape as the Book 06 route, each key pinned to one
+    // SHA-256, base64 over POST because this zone's WAF blocks large binary PUT
+    // bodies. Removed in the next commit once all three verify 200. The book's
+    // 220 figures and 33 toolkit workfiles do NOT come through here: that is a
+    // bulk sync straight to R2, because 253 files through a Worker one at a time
+    // is the wrong tool.
+    if (url.pathname === '/api/tmp-bk07-6h4p') {
+      if (request.method !== 'POST') return new Response('POST only', { status: 405 });
+      const PINS: Record<string, string> = {
+        'wp-content/uploads/secure-by-design-cover.jpg': 'a19bddf3606c7b285c511e94a3c487b66cb9186f2f2de2b0749c13bb61e8a68b',
+        'wp-content/uploads/covers-rail/secure-by-design.jpg': 'd90b39632c982505c6a537ce8b521d472822ea786a51968cb703611ec704c4c5',
+        'briefings/Secure_by_Design_in_the_Age_of_AI_Executive_Briefing.pdf': '36fbfaf88dc0ca08d2b9e0d0de23f48d140a81efe12a6b0a310959bd317cbd3f',
+      };
+      const name = url.searchParams.get('n') ?? '';
+      if (!(name in PINS)) return new Response('unknown name', { status: 400 });
+      const bin = atob((await request.text()).trim());
+      const buf = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+      const digest = await crypto.subtle.digest('SHA-256', buf);
+      const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+      if (hex !== PINS[name]) return new Response('sha mismatch ' + hex, { status: 409 });
+      await env.MEDIA.put(name, buf, {
+        httpMetadata: {
+          contentType: name.endsWith('.pdf') ? 'application/pdf' : 'image/jpeg',
+          cacheControl: 'public, max-age=31536000, immutable',
+        },
+      });
+      return new Response(JSON.stringify({ ok: true, name, bytes: buf.length }), {
+        headers: { 'content-type': 'application/json' },
+      });
+    }
+
     // 0c. Asset manifest. Read-only key listing of the PUBLIC media bucket,
     // for auditing what is stored versus what the site actually references
     // (the R2 dashboard paginates at ~30 rows and has no export). Bearer
