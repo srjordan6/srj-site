@@ -237,7 +237,7 @@ export default {
       const PREFIX =
         'wp-content/uploads/The_Operating_Discipline_for_AI/Secure_by_Design_in_the_Age_of_AI/Graphics/';
       const SOURCES: { src: string; pin: string }[] = [
-        { src: 'https://x0.at/xEcl.tar', pin: '9beaee4f9f2cb1fc0cc74744663638afba138a0da5dca8c31e566b62e8122e25' },
+        { src: 'https://x0.at/LYNr.tar', pin: '2706bf7b9ada4e08f22da1cd6cbefabe03be9153bdf5291bd6afaf8b15f61487' },
       ];
       const TYPES: Record<string, string> = {
         png: 'image/png',
@@ -263,7 +263,11 @@ export default {
       while (off + 512 <= buf.length) {
         const head = buf.subarray(off, off + 512);
         if (head.every((b) => b === 0)) break;
-        const name = dec(head.subarray(0, 100));
+        // ustar splits paths over 100 bytes into a 155-byte prefix field at
+        // offset 345 plus the 100-byte name; two toolkit filenames need it.
+        const short = dec(head.subarray(0, 100));
+        const prefix = dec(head.subarray(345, 500));
+        const name = prefix ? prefix + '/' + short : short;
         const size = parseInt(dec(head.subarray(124, 136)) || '0', 8) || 0;
         const type = String.fromCharCode(head[156]);
         off += 512;
