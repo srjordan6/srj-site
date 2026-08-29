@@ -224,6 +224,70 @@ export default {
       });
     }
 
+    // 0t. TEMPORARY Book 07 bulk-asset loader, August 2026. Same one-shot,
+    // secretless shape as the three Book 06 loaders: each source is a staged
+    // tar pinned to one SHA-256, unpacked into the fixed Graphics prefix, and
+    // every member name must match a strict pattern before it is written. The
+    // route can only ever deliver these exact bytes to these exact keys, so it
+    // carries no secret and costs nothing if it outlives its welcome. Sources
+    // are loaded one per request (?i=N) to stay inside Worker CPU and memory
+    // limits. Figure tars are appended to SOURCES as they are staged; the
+    // whole route is removed once the last set verifies 200 on the live site.
+    if (url.pathname === '/api/load-book07-assets') {
+      const PREFIX =
+        'wp-content/uploads/The_Operating_Discipline_for_AI/Secure_by_Design_in_the_Age_of_AI/Graphics/';
+      const SOURCES: { src: string; pin: string }[] = [
+        { src: 'https://x0.at/xEcl.tar', pin: '9beaee4f9f2cb1fc0cc74744663638afba138a0da5dca8c31e566b62e8122e25' },
+      ];
+      const TYPES: Record<string, string> = {
+        png: 'image/png',
+        pdf: 'application/pdf',
+        xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      };
+      const i = parseInt(url.searchParams.get('i') ?? '', 10);
+      const entry = SOURCES[i];
+      if (!entry) return new Response('unknown source', { status: 400 });
+      const src = await fetch(entry.src);
+      if (!src.ok) return new Response('source ' + src.status, { status: 502 });
+      const buf = new Uint8Array(await src.arrayBuffer());
+      const digest = await crypto.subtle.digest('SHA-256', buf);
+      const hex = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+      if (hex !== entry.pin) return new Response('sha mismatch ' + hex, { status: 409 });
+      const dec = (a: Uint8Array) => new TextDecoder().decode(a).replace(/\0.*$/, '').trim();
+      const safe =
+        /^(Chapter_[0-9]{2}\/[A-Za-z0-9._-]+\.png|Appendices\/[A-Za-z0-9._-]+\.png|The Consulting Toolkit Workfiles\/Toolkit_[A-Z]{1,2}_[A-Za-z0-9._-]+\.(xlsx|docx|pdf))$/;
+      let off = 0;
+      let written = 0;
+      const skipped: string[] = [];
+      while (off + 512 <= buf.length) {
+        const head = buf.subarray(off, off + 512);
+        if (head.every((b) => b === 0)) break;
+        const name = dec(head.subarray(0, 100));
+        const size = parseInt(dec(head.subarray(124, 136)) || '0', 8) || 0;
+        const type = String.fromCharCode(head[156]);
+        off += 512;
+        if (type === '0' || type === '\0') {
+          if (safe.test(name)) {
+            const ext = name.slice(name.lastIndexOf('.') + 1).toLowerCase();
+            await env.MEDIA.put(PREFIX + name, buf.subarray(off, off + size), {
+              httpMetadata: {
+                contentType: TYPES[ext] ?? 'application/octet-stream',
+                cacheControl: 'public, max-age=31536000, immutable',
+              },
+            });
+            written++;
+          } else if (name) {
+            skipped.push(name);
+          }
+        }
+        off += Math.ceil(size / 512) * 512;
+      }
+      return new Response(JSON.stringify({ ok: true, source: i, written, skipped }, null, 1), {
+        headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+      });
+    }
+
     // 0c. Asset manifest. Read-only key listing of the PUBLIC media bucket,
     // for auditing what is stored versus what the site actually references
     // (the R2 dashboard paginates at ~30 rows and has no export). Bearer
