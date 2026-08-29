@@ -268,6 +268,8 @@ export default {
           const page = await env.MEDIA.list({ prefix: cp, limit: 1000, cursor });
           for (const o of page.objects) {
             const base = o.key.slice(o.key.lastIndexOf('/') + 1);
+            // The stale -small render shares this prefix; never re-key it.
+            if (base.endsWith('-small.png')) { skipped.push(o.key); continue; }
             let dest: string | null = null;
             const m = /^Ch(\d\d)_Fig_[0-9_]+[A-Za-z0-9._-]*\.png$/.exec(base);
             if (m) dest = 'Chapter_' + m[1] + '/' + base;
