@@ -290,6 +290,8 @@ export default {
       }
       const SOURCES: { src: string; pin: string }[] = [
         { src: 'https://x0.at/LYNr.tar', pin: '2706bf7b9ada4e08f22da1cd6cbefabe03be9153bdf5291bd6afaf8b15f61487' },
+        { src: 'https://x0.at/IJgv.tar', pin: '59850eaa0cff5d53eb71dbce064e46751e8226fac35d753832230e8982c1cba2' },
+        { src: 'https://x0.at/RWLf.tar', pin: '9889522659af958bbaf59e68a6b0a330f785642ab93180343c3cf8cc26cf7ff1' },
       ];
       const TYPES: Record<string, string> = {
         png: 'image/png',
