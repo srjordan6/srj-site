@@ -236,6 +236,56 @@ export default {
     if (url.pathname === '/api/load-book07-assets') {
       const PREFIX =
         'wp-content/uploads/The_Operating_Discipline_for_AI/Secure_by_Design_in_the_Age_of_AI/Graphics/';
+      // Discovery mode: list bucket keys under a prefix, names only, to find
+      // where a dashboard upload landed. The bucket is the public site bucket,
+      // every object is already fetchable by name, and the route dies with the
+      // rest of this block.
+      const ls = url.searchParams.get('ls');
+      if (ls !== null) {
+        const out: { key: string; size: number }[] = [];
+        let cursor: string | undefined;
+        do {
+          const page = await env.MEDIA.list({ prefix: ls, limit: 1000, cursor });
+          for (const o of page.objects) out.push({ key: o.key, size: o.size });
+          cursor = page.truncated ? page.cursor : undefined;
+        } while (cursor && out.length < 5000);
+        return new Response(JSON.stringify({ ok: true, prefix: ls, count: out.length, objects: out }, null, 1), {
+          headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+        });
+      }
+      // Re-key mode: copy objects found under an arbitrary source prefix into
+      // the canonical Graphics layout. The destination is derived from the
+      // basename alone (ChNN_* -> Chapter_NN/, Appendix_* -> Appendices/) and
+      // must pass the same strict pattern as the tar path, so whatever the
+      // source folder shape was, only legitimate figure files can land, and
+      // only at their one canonical key.
+      const cp = url.searchParams.get('cp');
+      if (cp !== null) {
+        let cursor: string | undefined;
+        let copied = 0;
+        const skipped: string[] = [];
+        do {
+          const page = await env.MEDIA.list({ prefix: cp, limit: 1000, cursor });
+          for (const o of page.objects) {
+            const base = o.key.slice(o.key.lastIndexOf('/') + 1);
+            let dest: string | null = null;
+            const m = /^Ch(\d\d)_Fig_[0-9_]+[A-Za-z0-9._-]*\.png$/.exec(base);
+            if (m) dest = 'Chapter_' + m[1] + '/' + base;
+            else if (/^Appendix_[A-Z]{1,2}_[A-Za-z0-9._-]+\.png$/.test(base)) dest = 'Appendices/' + base;
+            if (!dest) { skipped.push(o.key); continue; }
+            const obj = await env.MEDIA.get(o.key);
+            if (!obj) { skipped.push(o.key); continue; }
+            await env.MEDIA.put(PREFIX + dest, obj.body, {
+              httpMetadata: { contentType: 'image/png', cacheControl: 'public, max-age=31536000, immutable' },
+            });
+            copied++;
+          }
+          cursor = page.truncated ? page.cursor : undefined;
+        } while (cursor);
+        return new Response(JSON.stringify({ ok: true, from: cp, copied, skipped }, null, 1), {
+          headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+        });
+      }
       const SOURCES: { src: string; pin: string }[] = [
         { src: 'https://x0.at/LYNr.tar', pin: '2706bf7b9ada4e08f22da1cd6cbefabe03be9153bdf5291bd6afaf8b15f61487' },
       ];
