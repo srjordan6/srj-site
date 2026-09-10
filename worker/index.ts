@@ -28,6 +28,7 @@ import {
   handleContact, handleUpload, handleWorksheetAccess, handleWorksheetConfirm,
   handleNewsletter, type FormEnv,
 } from './forms';
+import { handlePress, PRESS_KIT_PREFIX } from './press';
 
 export interface Env extends FormEnv {
   /** The built site, bound by wrangler's [assets] block. */
@@ -36,33 +37,14 @@ export interface Env extends FormEnv {
   MEDIA: R2Bucket;
   /** Bearer token gating /api/archive corpus writes from the pipeline cron. */
   ARCHIVE_TOKEN?: string;
-  /** The press-kit Worker, srj-press. Bound as a service, never fetched over
-   *  HTTP: a workers.dev Worker cannot fetch another workers.dev Worker
-   *  (Cloudflare error 1042), and going out to the public internet and back
-   *  for a first-party document would be a hop for nothing either way. */
-  PRESS?: Fetcher;
+  /** srj-mcp, the Worker that serves /press.json from Postgres through
+   *  Hyperdrive. A service binding, never a URL: a workers.dev Worker cannot
+   *  fetch another workers.dev Worker (Cloudflare error 1042). */
+  MCP?: Fetcher;
+  /** Cloudflare API token with Browser Rendering > Edit, for the press-kit
+   *  PDFs. Moved here from the retired srj-press Worker. */
+  CF_API_TOKEN?: string;
 }
-
-/**
- * Where the press kit lives on this site.
- *
- * It was reachable only at srj-press.srjordan.workers.dev, which is a fine
- * origin and a poor thing to hand a journalist. The kit is first-party
- * material and should read like it, so it is served here and the Worker
- * behind it is an implementation detail nobody outside needs to know.
- *
- * Everything under the prefix maps to the press Worker's own paths:
- *   /press/press_kit            -> /
- *   /press/press_kit/kit.zip    -> /kit.zip
- *   /press/press_kit/short-bio.pdf -> /short-bio.pdf  (and the rest)
- *
- * The Worker emits root-relative links (/kit.zip, /press-kit.pdf) because it
- * was written to be served at a root. Rather than teach it about a mount
- * point, the HTML it returns is rewritten on the way out, which keeps the two
- * services independent: srj-press stays correct at its own origin, and this
- * prefix can move by changing one constant.
- */
-const PRESS_KIT_PREFIX = '/press/press_kit';
 
 /**
  * Content types worth pinning. R2 stores whatever type the uploader set and
@@ -131,7 +113,7 @@ function resolveRange(header: string | null, size: number): { first: number; las
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
     // 0. Canonical host. WordPress 301'd www to the apex, and the whole site
@@ -311,44 +293,10 @@ export default {
       }
     }
 
-    // 1.5 The press kit, proxied from the srj-press Worker so it answers on
-    //     this domain instead of a workers.dev hostname.
+    // 1.5 The press kit, rendered in this Worker from the press_* tables.
+    //     See worker/press.ts for why it moved in from a Worker of its own.
     if (url.pathname === PRESS_KIT_PREFIX || url.pathname.startsWith(PRESS_KIT_PREFIX + '/')) {
-      if (!env.PRESS) {
-        return new Response('The press kit is temporarily unavailable. Please email info@srjconsultingservices.com.', {
-          status: 503,
-          headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
-        });
-      }
-
-      // Give the kit one canonical URL. Without the trailing slash the page
-      // still renders, so this is about not publishing the same document at
-      // two addresses rather than about anything breaking.
-      if (url.pathname === PRESS_KIT_PREFIX) {
-        return Response.redirect(`${url.origin}${PRESS_KIT_PREFIX}/${url.search}`, 301);
-      }
-
-      const rest = url.pathname.slice(PRESS_KIT_PREFIX.length) || '/';
-      const upstream = new URL(request.url);
-      upstream.pathname = rest;
-      const res = await env.PRESS.fetch(new Request(upstream.toString(), request));
-
-      // Only the HTML page carries links. PDFs and the zip stream through
-      // untouched, which also keeps their Content-Disposition intact.
-      const type = res.headers.get('content-type') || '';
-      if (!type.includes('text/html')) return res;
-
-      // Root-relative hrefs become prefix-relative. Anything already pointing
-      // into the prefix, or off-site, or at an anchor, is left alone.
-      const prefixHref = (el: Element, attr: string) => {
-        const v = el.getAttribute(attr);
-        if (!v || !v.startsWith('/') || v.startsWith('//') || v.startsWith(PRESS_KIT_PREFIX)) return;
-        el.setAttribute(attr, PRESS_KIT_PREFIX + v);
-      };
-      return new HTMLRewriter()
-        .on('a[href]', { element: (el) => prefixHref(el, 'href') })
-        .on('form[action]', { element: (el) => prefixHref(el, 'action') })
-        .transform(res);
+      return handlePress(request, env, ctx);
     }
 
     // 2 and 3. Assets, then R2 for the migrated media tree.

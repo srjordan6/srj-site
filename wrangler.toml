@@ -71,11 +71,10 @@ bucket_name = "srj-assets"
 binding = "UPLOADS"
 bucket_name = "srj-uploads"
 
-# The press-kit Worker. A service binding, not a URL: two workers.dev Workers
-# cannot fetch each other over HTTP (Cloudflare error 1042), and a first-party
-# document should not leave the edge to come back anyway. This is what lets the
-# kit answer at srjconsultingservices.com/press/press_kit/ instead of at a
-# workers.dev hostname.
+# srj-mcp, which serves /press.json from the press_* tables in Postgres
+# through Hyperdrive. A service binding, not a URL: two workers.dev Workers
+# cannot fetch each other over HTTP (Cloudflare error 1042). The press kit at
+# /press/press_kit/ renders from this payload; see worker/press.ts.
 [[services]]
-binding = "PRESS"
-service = "srj-press"
+binding = "MCP"
+service = "srj-mcp"
