@@ -830,7 +830,9 @@ function livePageHtml({ press, updated, notice }) {
   const books    = press.books || [];
   const out      = published(press);
 
-  const factSheetBlock = Object.entries(press.fact_groups || {}).map(([group, rows]) => `
+  const factSheetBlock = Object.entries(press.fact_groups || {})
+    .filter(([group]) => group !== "The Book")
+    .map(([group, rows]) => `
       <div class="factcol">
         <h3>${esc(group)}</h3>
         ${rows.map((r) => `<div class="fact"><span class="k">${esc(r.fact)}</span><span class="v">${esc(r.value)}</span></div>`).join("")}
@@ -858,15 +860,14 @@ function livePageHtml({ press, updated, notice }) {
         ? `<span style="color:var(--orange);font-weight:600">Available Now</span>`
         : "Forthcoming";
       const num = String(b.book_number).padStart(2, "0");
-      return `<div><b>${esc(b.title)}</b><span style="display:block;font-size:12.5px;color:var(--gray);margin-top:4px;font-family:'Poppins',sans-serif;font-weight:400">Book ${num} &middot; ${badge}</span></div>`;
+      const inner = `<b>${esc(b.title)}</b><span style="display:block;font-size:12.5px;color:var(--gray);margin-top:4px;font-family:'Poppins',sans-serif;font-weight:400">Book ${num} &middot; ${badge}</span>`;
+      // Each card is the book's own page, from press_books.url_path.
+      return b.url_path
+        ? `<a class="bk" href="${esc(b.url_path)}">${inner}</a>`
+        : `<div>${inner}</div>`;
     }).join("");
     return `<div class="label"${idx ? "" : ` style="margin-top:26px"`}>Pillar ${ROMAN[idx + 1]} &middot; ${esc(p.name)}&trade;</div><div class="svc">${cards}</div>`;
   }).join("");
-
-  const libraryLine = out.map((b) => {
-    const isbn = primaryIsbn(b);
-    return `<em>${esc(b.title)}</em> (${b.pages ? `${b.pages} pp, ` : ""}ISBN ${isbn})`;
-  }).join(", ");
 
   const dl = (path, label, sub) =>
     `<a class="dl" href="${path}"><span class="dlt">${label}</span><span class="dls">${sub}</span></a>`;
@@ -910,8 +911,10 @@ ${FONTS_HEAD_PUBLIC}
   .layer{display:flex;gap:12px}.layer .n{font-family:'Lora';font-weight:600;color:var(--orange);font-size:20px}
   .layer h4{color:var(--navy);font-size:15px}.layer p{font-size:13.5px;color:#3a3f50}
   .svc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
-  .svc div{background:var(--soft);border-radius:6px;padding:10px 13px;font-size:14px}
+  .svc div,.svc a.bk{background:var(--soft);border-radius:6px;padding:10px 13px;font-size:14px;display:block;text-decoration:none;color:var(--ink);transition:.15s}
+  .svc a.bk:hover{background:#EEF0F6;box-shadow:inset 3px 0 0 var(--orange)}
   .svc b{font-family:'Lora';color:var(--navy);font-weight:600}
+  .svc a.bk:hover b{color:var(--orange)}
   .foot{padding:30px 0 50px;color:var(--gray);font-size:13px;text-align:center}
   .stamp{font-size:12px;color:var(--gray);margin-top:18px}
   @media(max-width:640px){.hero h1{font-size:34px}.layers,.svc{grid-template-columns:1fr}}
@@ -958,11 +961,6 @@ ${FONTS_HEAD_PUBLIC}
   <section>
     <h2>Fact Sheet</h2>
     <div class="facts">${factSheetBlock}</div>
-  </section>
-
-  <section>
-    <h2>The Library</h2>
-    <p style="font-size:16px"><strong>${series}</strong>, ${volumeLine(press)}. ${esc(publisher)}, 2026. ${libraryLine}. Hardcover, paperback, and Kindle. <a href="${AMAZON_SERIES}" target="_blank" rel="noopener">View the series on Amazon &rarr;</a></p>
   </section>
 
   <div class="stamp">Every download on this page is built fresh on request: the Worker reads the SRJ database, renders the PDFs, and assembles the zip. Page generated ${updated}.</div>
@@ -1226,10 +1224,12 @@ async function handleKitZip(request, env, ctx) {
     }));
 
     const pad = (s, n) => (s + " ".repeat(n)).slice(0, n);
+    const allNames = [...(A.documents || []).map((d) => d.zip_path || ""), ...files.map((a) => a.zip_path)];
+    const col = Math.max(30, ...allNames.map((n) => n.length)) + 3;
     const lines = [];
-    for (const d of (A.documents || [])) lines.push(`  ${pad(d.zip_path || "", 52)}${d.description}`);
+    for (const d of (A.documents || [])) lines.push(`  ${pad(d.zip_path || "", col)}${d.description}`);
     for (const [a, bytes] of fetched) {
-      lines.push(`  ${pad(a.zip_path, 52)}${a.description}${bytes ? "" : "  (unavailable at build time)"}`);
+      lines.push(`  ${pad(a.zip_path, col)}${a.description}${bytes ? "" : "  (unavailable at build time)"}`);
     }
     const readme = new TextEncoder().encode(
 `SRJ Consulting & Services, Press Kit
