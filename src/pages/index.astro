@@ -275,7 +275,7 @@ const schemaRaw: string[] = page.schema ?? [];
   .cine .rail { padding:110px 0 90px; }
   .cine .rail-scroll { display:flex; gap:14px; overflow-x:auto; padding:34px 24px 26px; scroll-snap-type:x proximity;
     max-width:1208px; margin:0 auto; scrollbar-width:thin; }
-  .cine .spine { flex:0 0 148px; height:300px; scroll-snap-align:start; border-radius:6px; padding:18px 14px;
+  .cine .spine { flex:0 0 188px; height:300px; scroll-snap-align:start; border-radius:6px; padding:18px 14px;
     background:linear-gradient(160deg, #2A2180, var(--navy) 55%, var(--deep)); color:var(--cream); text-decoration:none;
     font-family:'Lora',serif; font-size:15px; line-height:1.35; display:flex; flex-direction:column;
     box-shadow:inset 3px 0 0 rgba(255,246,236,.14), 0 10px 24px rgba(18,16,63,.25);
@@ -287,7 +287,14 @@ const schemaRaw: string[] = page.schema ?? [];
   .cine .spine.s-avail { background:linear-gradient(160deg,#33288F,#241C74 55%,#181250); }
   .cine .spine.s-fiction { background:linear-gradient(165deg,#17142E,#0D0B20 60%,#080714); box-shadow:inset 3px 0 0 rgba(240,120,0,.35), 0 10px 24px rgba(0,0,0,.45); }
   .cine .spine.s-cover { padding:0; overflow:hidden; background:var(--deep); }
-  .cine .spine.s-cover img { width:100%; height:100%; object-fit:cover; display:block; }
+  /* The spine is 188x300, a ratio of .627, which is what a KDP cover is
+     (1600x2560 = .625). It used to be 148x300, a ratio of .49, and object-fit
+     cover filled the height and sliced about twenty pixels off each side,
+     straight through the titles. contain rather than cover is the belt to that
+     braces: two of the eight covers are .64 and .667 rather than .625, and a
+     book title should never be cropped to save a few pixels of letterbox on
+     a navy panel that is already navy. */
+  .cine .spine.s-cover img { width:100%; height:100%; object-fit:contain; display:block; }
 
   /* 6. Five stones. */
   .cine .stones { background:var(--navy); padding:100px 0; }
