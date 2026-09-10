@@ -2640,3 +2640,46 @@
   :where(.migrated) .srj-seq-rail{ grid-template-columns: 1fr; gap: 12px; }
 }
 
+/* ---------------------------------------------------------------------------
+   The five-service-line graphic on the Pillar II page, and the service detail
+   blocks under it.
+
+   The markup sequence built earlier today is kept in the stylesheet above and
+   still renders on narrow screens, where a five-column 1536px image is
+   unreadable. Above 900px the designed artwork shows instead. One fact, two
+   presentations: if a service line ever changes, the markup version is correct
+   immediately and the artwork has to be redrawn, which is the trade the image
+   buys and worth knowing before the next volume ships.
+--------------------------------------------------------------------------- */
+:where(.migrated) .srj-seq-art{ display: none; margin: 40px 0 36px; }
+:where(.migrated) .srj-seq-art img{
+  display: block; width: 100%; height: auto;
+  border: 1px solid var(--line);
+}
+@media (min-width: 900px){
+  :where(.migrated) .srj-seq-art{ display: block; }
+  :where(.migrated) .srj-seq{ display: none; }
+}
+
+/* Each service line's detail, below the graphic. The rule is orange so the
+   three read as a set against the navy headings around them. */
+:where(.migrated) .svc-detail{
+  margin: 34px 0 0; padding: 26px 0 0; border-top: 1px solid var(--line);
+}
+:where(.migrated) .svc-detail h3{
+  font-family: 'Lora', serif; font-size: 23px; line-height: 1.25;
+  font-weight: 500; color: var(--navy); margin: 0 0 6px;
+}
+:where(.migrated) .svc-detail h3::after{
+  content: ''; display: block; width: 38px; height: 3px;
+  background: var(--orange); margin: 12px 0 16px;
+}
+:where(.migrated) .svc-detail p{ margin: 0 0 16px; }
+:where(.migrated) .svc-detail .svc-detail-link{
+  font-family: 'Poppins', sans-serif; font-size: 13px; font-weight: 600;
+  letter-spacing: .04em; color: var(--navy); text-decoration: none;
+  border-bottom: 2px solid var(--orange); padding-bottom: 2px;
+  transition: color .15s ease;
+}
+:where(.migrated) .svc-detail .svc-detail-link:hover{ color: var(--orange); }
+
