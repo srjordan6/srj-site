@@ -185,18 +185,17 @@ async function loadAssets(env, press) {
 
 // ---------- Shared template chrome ----------
 //
-// FONTS_HEAD is used by the PDF templates only. Those are rendered server-side
-// by Cloudflare Browser Rendering, so no visitor's IP reaches Google.
-//
-// The live HTML page uses FONTS_HEAD_PUBLIC instead, which self-hosts. Loading
-// fonts.googleapis.com on a page a person visits transmits their IP to Google
-// before any consent can be sought, which the Munich Regional Court held to be
-// a GDPR violation (3 O 17493/20). The main site was moved off Google Fonts for
-// this reason; this page should not be the exception.
+// Both the PDF templates and the live page use the site's self-hosted fonts.
+// The PDFs used to load Google Fonts, which was fine for privacy (Browser
+// Rendering fetches them, not a visitor) but not for reliability: the render
+// waits for networkidle0 before snapshotting, and with four PDFs rendering in
+// parallel for the zip, a slow Google round-trip was enough to trip Browser
+// Rendering's timeout (422, code 6002). The self-hosted files sit on the same
+// edge as everything else. The URL is absolute because the HTML is handed to
+// the renderer inline and has no base to resolve against; the url() calls
+// inside fonts.css resolve against the stylesheet's own origin.
 const FONTS_HEAD = `
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,400;1,500&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://srjconsultingservices.com/fonts/fonts.css">
 `;
 const FONTS_HEAD_PUBLIC = `
 <link rel="stylesheet" href="/fonts/fonts.css">
@@ -976,7 +975,7 @@ ${FONTS_HEAD_PUBLIC}
 async function renderPdf(env, html) {
   if (!env.CF_API_TOKEN) throw new Error("CF_API_TOKEN secret is not set");
   const endpoint = `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/browser-rendering/pdf`;
-  const res = await fetch(endpoint, {
+  const attempt = () => fetch(endpoint, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${env.CF_API_TOKEN}`,
@@ -988,6 +987,19 @@ async function renderPdf(env, html) {
       gotoOptions: { waitUntil: "networkidle0", timeout: 30000 },
     }),
   });
+  // One retry on a timeout or a 5xx. A timeout is the renderer losing a race
+  // it usually wins, not a fault in the document, so a second pass is worth
+  // more than a 500 to a journalist. Anything else (401, 400) is real and
+  // surfaces immediately.
+  let res = await attempt();
+  if (res.status === 422 || res.status >= 500) {
+    const first = await res.text();
+    if (res.status >= 500 || first.includes("timeout") || first.includes("timed out")) {
+      res = await attempt();
+    } else {
+      throw new Error(`Browser Rendering ${res.status}: ${first.slice(0, 500)}`);
+    }
+  }
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`Browser Rendering ${res.status}: ${text.slice(0, 500)}`);
