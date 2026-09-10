@@ -2547,3 +2547,96 @@
 :where(.migrated) .srjvol1-brief-cta a.srjvol1-btn-outline:focus{border-color:#FFFFFF;background:rgba(255,255,255,.08);color:#FFFFFF !important}
 :where(.migrated) .srjvol1-brief-cta a span{color:inherit !important}
 
+/* ---------------------------------------------------------------------------
+   The AI Security Sequence, Pillar II.
+
+   Replaces ai-security-sequence-2.png, a flat image that said "Two service
+   lines" and named only the audit and the implementation engagement. The
+   pillar has had five since Secure by Design, Application Security, and Cloud
+   and Infrastructure Security were added, so the picture had been wrong for
+   longer than anyone noticed. Built in markup rather than redrawn as a PNG for
+   the reason the old one went stale: a graphic nobody can edit is a fact that
+   cannot be corrected. This one reflows to five, or to six, by editing a list.
+
+   Brand tokens only, no new colours. Lora for the step names, Poppins for
+   everything else, per the standards sheet.
+--------------------------------------------------------------------------- */
+:where(.migrated) .srj-seq{
+  margin: 44px 0 40px;
+  padding: 40px 40px 44px;
+  background: var(--paper-warm);
+  border: 1px solid var(--line);
+}
+:where(.migrated) .srj-seq-title{
+  font-family: 'Lora', serif; font-size: 28px; line-height: 1.2;
+  font-weight: 500; color: var(--navy); margin: 0 0 10px;
+}
+:where(.migrated) .srj-seq-title::after{
+  content: ''; display: block; width: 46px; height: 3px;
+  background: var(--orange); margin-top: 12px;
+}
+:where(.migrated) .srj-seq-lede{
+  font-family: 'Poppins', sans-serif; font-size: 15.5px; line-height: 1.65;
+  color: var(--gray); margin: 14px 0 0; max-width: 640px;
+}
+
+/* The rail. A dashed line runs behind the cards at the row's top edge, which
+   is where the step numbers sit, so the sequence reads left to right without
+   drawing arrows that would break the moment the count changes. */
+:where(.migrated) .srj-seq-rail{
+  list-style: none; margin: 32px 0 0; padding: 0;
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px;
+  position: relative;
+}
+:where(.migrated) .srj-seq-rail::before{
+  content: ''; position: absolute; left: 6%; right: 6%; top: 30px;
+  border-top: 2px dashed var(--gray-light); z-index: 0;
+}
+:where(.migrated) .srj-seq-step{
+  position: relative; z-index: 1;
+  background: #FFFFFF; border: 1px solid var(--gray-light);
+  padding: 22px 20px 20px; display: flex; flex-direction: column;
+}
+/* Step one is where every engagement starts, so it carries the weight. */
+:where(.migrated) .srj-seq-step.is-first{
+  background: var(--navy); border-color: var(--navy);
+}
+:where(.migrated) .srj-seq-num{
+  font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--orange);
+  margin-bottom: 12px;
+}
+:where(.migrated) .srj-seq-name{
+  font-family: 'Lora', serif; font-size: 18px; line-height: 1.28;
+  font-weight: 500; color: var(--navy); text-decoration: none;
+  margin-bottom: 10px; transition: color .15s ease;
+}
+:where(.migrated) .srj-seq-name:hover{ color: var(--orange); }
+:where(.migrated) .srj-seq-step.is-first .srj-seq-name{ color: #FFFFFF; }
+:where(.migrated) .srj-seq-step.is-first .srj-seq-name:hover{ color: var(--orange); }
+:where(.migrated) .srj-seq-desc{
+  font-family: 'Poppins', sans-serif; font-size: 13.5px; line-height: 1.6;
+  color: var(--ink-soft); margin: 0 0 16px;
+}
+:where(.migrated) .srj-seq-step.is-first .srj-seq-desc{ color: rgba(255,255,255,.82); }
+/* The outcome line, pinned to the bottom so the five read as one row of
+   promises however uneven the descriptions above them are. */
+:where(.migrated) .srj-seq-tag{
+  margin-top: auto; padding-top: 14px; border-top: 1px solid var(--gray-light);
+  font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600;
+  letter-spacing: .04em; color: var(--navy);
+}
+:where(.migrated) .srj-seq-step.is-first .srj-seq-tag{
+  color: var(--orange); border-top-color: rgba(255,255,255,.22);
+}
+
+@media (max-width: 1080px){
+  :where(.migrated) .srj-seq-rail{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  :where(.migrated) .srj-seq-rail::before{ display: none; }
+}
+@media (max-width: 720px){
+  :where(.migrated) .srj-seq{ padding: 28px 22px 30px; }
+  :where(.migrated) .srj-seq-title{ font-size: 23px; }
+  :where(.migrated) .srj-seq-rail{ grid-template-columns: 1fr; gap: 12px; }
+}
+
