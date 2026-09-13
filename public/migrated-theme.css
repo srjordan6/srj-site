@@ -2683,3 +2683,29 @@
 }
 :where(.migrated) .svc-detail .svc-detail-link:hover{ color: var(--orange); }
 
+/* ---------------------------------------------------------------------------
+   The CTA bands sit inside .longform on the service pages, so they inherit
+   .longform a:not(.btn), which paints links navy with an orange underline.
+   That rule is right for prose on white and wrong inside a navy band: the
+   phone number turned navy-on-navy and vanished, leaving its orange underline
+   floating beside the button with nothing above it. The band owns its own link
+   colours, so it states them.
+--------------------------------------------------------------------------- */
+:where(.migrated) .inline-cta a:not(.btn),
+:where(.migrated) .longform .inline-cta a:not(.btn){
+  color: var(--paper);
+  border-bottom-color: rgba(255, 255, 255, .3);
+}
+:where(.migrated) .inline-cta a:not(.btn):hover,
+:where(.migrated) .longform .inline-cta a:not(.btn):hover{
+  color: var(--orange);
+  border-bottom-color: var(--orange);
+}
+/* The schedule button is a filled block, not an underlined link. */
+:where(.migrated) .inline-cta .btn-inline-schedule,
+:where(.migrated) .longform .inline-cta .btn-inline-schedule{
+  color: var(--navy-deep) !important;
+  border-bottom: none;
+  padding-bottom: 14px;
+}
+
