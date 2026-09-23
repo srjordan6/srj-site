@@ -92,6 +92,18 @@ const ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"];
 /** Books that are actually published, in order. */
 const published = (press) => (press.books || []).filter((b) => b.status === "available");
 
+/**
+ * Published fiction, from press.fiction. It sits outside the Library and is
+ * never counted in it: volumeLine() and every volume count read press.books
+ * only. The AI Lawyer went unmentioned in the kit for a month because nothing
+ * rendered this list.
+ */
+const fiction = (press) => (press.fiction || []).filter((b) => b.status === "available");
+/** "The AI Lawyer, a novel (276 pages, 2026)" per published novel, from the data. */
+const alsoByLine = (press) => fiction(press).map((b) =>
+  `<em>${esc(b.title)}</em>, a novel${b.pages ? ` (${b.pages} pages, ${String(b.published_on || "").slice(0, 4)})` : ""}`
+).join("; ");
+
 /** "Volumes I–IV of 9 in print" — derived, never written down. */
 function volumeLine(press) {
   const books = press.books || [];
@@ -363,6 +375,7 @@ ${jobs}
 
 <h2 class="sec">Authorship</h2>
 ${authorship}
+${alsoByLine(press) ? `<div class="line"><b>Also by the author</b>, ${alsoByLine(press)}. Fiction, outside the Library.</div>` : ""}
 
 ${proseSec("Intellectual Property", "bio.intellectual_property")}
 ${proseSec("Education", "bio.education")}
@@ -407,29 +420,29 @@ ${FONTS_HEAD}
 ${BRAND_VARS}
 @page{ size:Letter; margin:0; }
 body{ font-family:'Poppins',sans-serif; color:var(--ink); font-size:8.4pt; line-height:1.34; }
-.page{ width:8.5in; padding:0.34in 0.62in 0.3in; position:relative; }
+.page{ width:8.5in; padding:0.3in 0.62in 0.28in; position:relative; }
 h1,h2,h3,.serif{ font-family:'Lora',serif; }
-.head{ display:flex; justify-content:space-between; align-items:flex-start; border-bottom:3px solid var(--navy); padding-bottom:10px; }
+.head{ display:flex; justify-content:space-between; align-items:flex-start; border-bottom:3px solid var(--navy); padding-bottom:8px; }
 .head .logo{ height:46px; }
 .head .eyebrow{ font-weight:600; font-size:7.5pt; letter-spacing:0.22em; text-transform:uppercase; color:var(--orange); }
 .head h1{ font-size:21pt; color:var(--navy); line-height:1.05; margin-top:3px; font-weight:600; }
 .head .tag{ font-family:'Lora'; font-style:italic; font-size:9.5pt; color:var(--gray); margin-top:3px; }
 .head .right{ text-align:right; font-size:8pt; color:#3a3f50; line-height:1.6; padding-top:4px; }
 .head .right b{ color:var(--navy); }
-.cols{ display:flex; gap:22px; margin-top:11px; }
+.cols{ display:flex; gap:22px; margin-top:8px; }
 .col{ flex:1; }
 .col.left{ flex:1.05; }
-.sec{ margin-bottom:6px; }
+.sec{ margin-bottom:4px; }
 .sec h2{ font-size:8pt; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--orange);
   border-bottom:1px solid var(--line); padding-bottom:3px; margin-bottom:6px; font-family:'Poppins'; }
-dl{ display:grid; grid-template-columns:auto 1fr; gap:5px 12px; }
+dl{ display:grid; grid-template-columns:auto 1fr; gap:3px 12px; }
 dt{ color:var(--gray); font-size:8pt; }
 dd{ font-weight:500; }
 dd b{ font-weight:600; color:var(--navy); }
 p{ margin-bottom:5px; }
-.lead{ font-size:8.8pt; }
+.lead{ font-size:8.6pt; }
 ul{ margin:2px 0 0 0; padding-left:14px; }
-li{ margin-bottom:3px; }
+li{ margin-bottom:2px; }
 li::marker{ color:var(--orange); }
 .principal{ display:flex; gap:13px; align-items:flex-start; margin-bottom:9px; }
 .principal img{ width:0.85in; height:0.85in; object-fit:cover; border-radius:5px; border:2px solid #fff;
@@ -437,17 +450,17 @@ li::marker{ color:var(--orange); }
 .principal .nm{ font-family:'Lora'; font-size:13pt; font-weight:600; color:var(--navy); line-height:1.1; }
 .principal .rl{ font-size:8pt; color:var(--gray); margin-top:2px; }
 .facts{ display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:5px; overflow:hidden; }
-.fact{ background:#fff; padding:6px 10px; }
+.fact{ background:#fff; padding:5px 10px; }
 .fact .big{ font-family:'Lora'; font-weight:700; font-size:12.5pt; color:var(--navy); line-height:1; }
 .fact .cap{ font-size:7pt; color:var(--gray); margin-top:3px; line-height:1.25; }
 .book{ background:var(--soft); border-left:3px solid var(--orange); border-radius:4px; padding:10px 12px; }
 .book .t{ font-family:'Lora'; font-weight:600; font-size:10pt; color:var(--navy); }
 .book .s{ font-size:7.6pt; color:var(--gray); font-style:italic; margin:2px 0 6px; }
-.book dl{ gap:3px 10px; }
-.book dt,.book dd{ font-size:7.8pt; }
+.book dl{ gap:1px 10px; }
+.book dt,.book dd{ font-size:7.5pt; line-height:1.28; }
 .ip{ font-size:8pt; }
 .ip b{ color:var(--navy); }
-.foot{ display:flex; justify-content:space-between; margin-top:8px;
+.foot{ display:flex; justify-content:space-between; margin-top:4px;
   font-size:7pt; color:var(--gray); border-top:1px solid var(--line); padding-top:7px; }
 </style></head><body>
 <div class="page">
@@ -497,6 +510,20 @@ li::marker{ color:var(--orange); }
         <h2>${countWord} Service Lines</h2>
         <ul style="columns:2;column-gap:16px;">${serviceList}</ul>
       </div>
+      <div class="sec">
+        <h2>Career Fast Facts</h2>
+        <div class="facts">
+          <div class="fact"><div class="big">3 decades</div><div class="cap">Enterprise operations, security &amp; risk</div></div>
+          <div class="fact"><div class="big">500,000</div><div class="cap">Endpoints / 165 countries</div></div>
+          <div class="fact"><div class="big">120+</div><div class="cap">Security architects led</div></div>
+          <div class="fact"><div class="big">Texas LLC</div><div class="cap">Effective May 22, 2026</div></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <h2>Intellectual Property</h2>
+        <p class="ip"><b>The AI Business Enablement Audit&trade;</b>, USPTO trademark application filed May 31, 2026, International Class 16 (printed publications).</p>
+      </div>
     </div>
 
     <div class="col">
@@ -530,32 +557,19 @@ li::marker{ color:var(--orange); }
       </div>
 
       <div class="sec">
-        <h2>Career Fast Facts</h2>
-        <div class="facts">
-          <div class="fact"><div class="big">3 decades</div><div class="cap">Enterprise operations, security &amp; risk</div></div>
-          <div class="fact"><div class="big">500,000</div><div class="cap">Endpoints / 165 countries</div></div>
-          <div class="fact"><div class="big">120+</div><div class="cap">Security architects led</div></div>
-          <div class="fact"><div class="big">Texas LLC</div><div class="cap">Effective May 22, 2026</div></div>
-        </div>
-      </div>
-
-      <div class="sec">
         <h2>The Library</h2>
         <div class="book">
           <div class="t">${series}</div>
           <div class="s">${volumeLine(press)} &middot; ${esc(publisher)}, 2026</div>
           <dl>
             ${volumeRows}
+            ${alsoByLine(press) ? `<dt>Also</dt><dd>${alsoByLine(press)}</dd>` : ""}
             <dt>Formats</dt><dd>Hardcover &middot; Paperback &middot; Kindle</dd>
             <dt>Order</dt><dd>${AMAZON_SERIES.replace("https://www.", "")}</dd>
           </dl>
         </div>
       </div>
 
-      <div class="sec">
-        <h2>Intellectual Property</h2>
-        <p class="ip"><b>The AI Business Enablement Audit&trade;</b>, USPTO trademark application filed May 31, 2026, International Class 16 (printed publications).</p>
-      </div>
     </div>
   </div>
 
@@ -692,6 +706,9 @@ a{ color:var(--navy); text-decoration:none; }
   justify-content:center; flex:none; letter-spacing:0.03em; }
 .dl .nm{ font-weight:600; font-size:9.6pt; color:var(--ink); }
 .dl .ds{ font-size:8.4pt; color:var(--gray); }
+.covers{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; }
+.cv{ background:var(--soft); border-radius:4px; padding:6px 8px; font-size:7.4pt; line-height:1.3; color:var(--gray); }
+.cv b{ display:block; font-family:'Poppins'; font-size:7.4pt; letter-spacing:0.06em; color:var(--navy); }
 .foot{ position:absolute; bottom:0.5in; left:0.8in; right:0.8in; display:flex; justify-content:space-between;
   font-size:7.6pt; color:var(--gray); border-top:1px solid var(--line); padding-top:8px; }
 .cta{ background:var(--navy); color:#fff; border-radius:7px; padding:20px 24px; margin-top:8px; }
@@ -772,6 +789,7 @@ a{ color:var(--navy); text-decoration:none; }
     <p>The operating system for running AI as a permanent business function. Written for owners, presidents, CFOs, and COOs at organizations between 20 and 1,000 employees who would rather decide than guess, it closes the gap between AI technology primers and prompt collections.</p>
     <p>The book provides a complete framework to audit every AI tool and embedded feature in the business, govern AI usage without slowing the work, meet the regulatory bar without consulting-firm overhead, and turn AI from experiment into managed business function, structured as a working executive reference, not a narrative or a polemic.</p>
   </div>
+  ${alsoByLine(press) ? `<div class="block"><div class="label">Also by the author</div><p>${alsoByLine(press)}. Fiction, and deliberately outside the Library.</p></div>` : ""}
 </div>
 
 <div class="page">
@@ -804,7 +822,7 @@ a{ color:var(--navy); text-decoration:none; }
       <div class="label">Brand assets</div>
       ${kitRows(brand)}
       <div class="label" style="margin-top:14px;">Book covers</div>
-      ${kitRows(covers, (a) => "VOL " + ROMAN[Number(a.book_number)])}
+      <div class="covers">${covers.map((a) => `<div class="cv"><b>VOL ${ROMAN[Number(a.book_number)]}</b>${esc((a.description || "").split(", ").slice(1).join(", "))}</div>`).join("")}</div>
     </div>
   </div>
   <div class="cta">
@@ -955,6 +973,7 @@ ${FONTS_HEAD_PUBLIC}
     <h2>${esc(copyOf(press, "aios.name", "The AI Operating System™"))}</h2>
     <div class="layers">${layers}</div>
     ${bookBlocks}
+    ${alsoByLine(press) ? `<div class="label">Also by the author</div><p style="font-size:14px">${alsoByLine(press)}. Fiction, outside the Library.</p>` : ""}
   </section>
 
   <section>
