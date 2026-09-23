@@ -276,9 +276,72 @@ h1{ font-family:'Lora',serif; font-size:27pt; color:var(--navy); line-height:1.0
 }
 
 // ===================================================================
-// TEMPLATE: Executive Bio (résumé-style, multi-page)
+// TEMPLATE: Executive Bio (1 page, narrative)
 // ===================================================================
+//
+// The narrative biography a journalist or event host can quote as written:
+// the medium bio from press_bios, the photo, the Library in one line, and
+// the contact block. Until 2026-09-23 this address served a three-page
+// resume-style record; that document is now the Curriculum Vitae, below,
+// at /curriculum-vitae.pdf, so both are named for what they are.
 function executiveBioHtml({ assets, press }) {
+  const body   = parasToHtml(press.bios && press.bios.medium);
+  const series = copyOf(press, "series.name", "The Operating Discipline for AI Library&trade;");
+  const also   = alsoByLine(press);
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+${FONTS_HEAD}
+<style>
+${BRAND_VARS}
+@page{ size:Letter; margin:0; }
+body{ font-family:'Poppins',sans-serif; color:var(--ink); font-size:10.6pt; line-height:1.6; }
+.page{ width:8.5in; min-height:11in; padding:0.7in 0.85in 0.6in; position:relative; }
+.top{ display:flex; justify-content:space-between; align-items:flex-start; gap:24px;
+  border-bottom:3px solid var(--navy); padding-bottom:18px; }
+.top .logo{ height:42px; margin-bottom:20px; }
+.eyebrow{ font-weight:600; font-size:8pt; letter-spacing:0.22em; text-transform:uppercase; color:var(--orange); }
+h1{ font-family:'Lora',serif; font-size:27pt; color:var(--navy); line-height:1.05; margin-top:4px; font-weight:600; }
+.role{ font-family:'Lora',serif; font-style:italic; font-size:11.5pt; color:var(--gray); margin-top:6px; }
+.photo{ width:1.5in; height:1.5in; object-fit:cover; border-radius:6px; flex:none;
+  border:3px solid #fff; box-shadow:0 4px 16px rgba(32,24,104,0.18); }
+.body{ margin-top:24px; }
+.body p{ margin-bottom:12px; }
+.lib{ margin-top:18px; background:var(--soft); border-left:3px solid var(--orange); border-radius:4px;
+  padding:11px 14px; font-size:9.2pt; color:#3a3f50; }
+.lib b{ color:var(--navy); font-weight:600; }
+.contact{ margin-top:22px; padding-top:16px; border-top:1px solid var(--line);
+  display:flex; flex-wrap:wrap; gap:6px 28px; font-size:9pt; color:var(--gray); }
+.contact b{ color:var(--navy); font-weight:600; }
+.foot{ position:absolute; bottom:0.45in; left:0.85in; right:0.85in; font-size:7.6pt; color:var(--gray);
+  border-top:1px solid var(--line); padding-top:8px; display:flex; justify-content:space-between; }
+</style></head><body>
+<div class="page">
+  <div class="top">
+    <div>
+      <img class="logo" src="${assets.logoUri}">
+      <div class="eyebrow">Executive Biography</div>
+      <h1>Stephen R. Jordan</h1>
+      <div class="role">Founder &amp; Principal Advisor, SRJ Consulting &amp; Services LLC<br>Author, <em>${series}</em></div>
+    </div>
+    <img class="photo" src="${assets.photoUri}">
+  </div>
+  <div class="body">${body}</div>
+  <div class="lib"><b><em>${series}</em></b>, ${volumeLine(press)}.${also ? ` Also by the author: ${also}.` : ""}</div>
+  <div class="contact">
+    <span><b>Press</b>&nbsp; 415-413-7772</span>
+    <span><b>Email</b>&nbsp; info@srjconsultingservices.com</span>
+    <span><b>Web</b>&nbsp; srjconsultingservices.com</span>
+  </div>
+  <div class="foot">
+    <span>SRJ Consulting &amp; Services LLC &middot; Executive Biography</span>
+    <span>Generated ${todayLabel()}</span>
+  </div>
+</div></body></html>`;
+}
+
+// ===================================================================
+// TEMPLATE: Curriculum Vitae (multi-page career record)
+// ===================================================================
+function curriculumVitaeHtml({ assets, press }) {
   const series    = copyOf(press, "series.name", "The Operating Discipline for AI Library&trade;");
   const publisher = copyOf(press, "publisher", "SRJ Consulting & Services Publishing");
   const out       = published(press);
@@ -1214,6 +1277,14 @@ async function handleExecBio(request, env, ctx) {
     return pdfResponse(pdf, "SRJ_Executive_Bio.pdf");
   });
 }
+async function handleCv(request, env, ctx) {
+  return cached(request, ctx, async () => {
+    const press = await loadPress(env);
+    const assets = await loadAssets(env, press);
+    const pdf = await renderPdf(env, curriculumVitaeHtml({ assets, press }));
+    return pdfResponse(pdf, "SRJ_Curriculum_Vitae.pdf");
+  });
+}
 async function handleFactSheet(request, env, ctx) {
   return cached(request, ctx, async () => {
     const press = await loadPress(env);
@@ -1237,6 +1308,7 @@ async function handleKitZip(request, env, ctx) {
     const templates = [
       ["SRJ_Press_Kit.pdf",          pressKitHtml({ assets, press })],
       ["SRJ_Executive_Bio.pdf",      executiveBioHtml({ assets, press })],
+      ["SRJ_Curriculum_Vitae.pdf",   curriculumVitaeHtml({ assets, press })],
       ["SRJ_Short_Bio.pdf",          shortBioHtml({ assets, press })],
       ["SRJ_Company_Fact_Sheet.pdf", factSheetHtml({ assets, press })],
     ];
@@ -1303,6 +1375,7 @@ export async function handlePress(request, env, ctx) {
       case "/kit.zip":           return await handleKitZip(request, env, ctx);
       case "/press-kit.pdf":     return await handlePressKit(request, env, ctx);
       case "/executive-bio.pdf": return await handleExecBio(request, env, ctx);
+      case "/curriculum-vitae.pdf": return await handleCv(request, env, ctx);
       case "/short-bio.pdf":     return await handleShortBio(request, env, ctx);
       case "/fact-sheet.pdf":    return await handleFactSheet(request, env, ctx);
       default:                   return textResponse("Not Found", 404);
