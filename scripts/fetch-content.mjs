@@ -51,18 +51,36 @@ if (existsSync(sibling)) {
   }
   console.log('content: copied from sibling checkout');
 } else {
-  const tarball =
-    'mkdir -p src/content && curl -sL ' +
-    'https://codeload.github.com/srjordan6/srj-content/tar.gz/refs/heads/main -o /tmp/c.tgz';
-  const pull = (d, required) =>
-    ` && ${required ? '' : '('}tar -xzf /tmp/c.tgz -C src/content --strip-components=1 ` +
-    `srj-content-main/${d}${required ? '' : ' 2>/dev/null || true)'}`;
+  // Resolve main to an exact commit before downloading. The branch tarball at
+  // codeload.github.com/.../refs/heads/main is cached for a short time, and the
+  // pipeline triggers this build seconds after it commits content, so on
+  // 2026-09-23 a build fetched the previous commit and deployed a whole day of
+  // page changes as unchanged: the log showed only search indexes uploaded, no
+  // pages. git ls-remote asks the repository itself, which is not cached, and a
+  // tarball addressed by commit ID cannot be stale. If the lookup fails the
+  // build falls back to the branch, as before, and the log says so.
+  let ref = 'refs/heads/main';
+  let sha = '';
+  try {
+    sha = execSync('git ls-remote https://github.com/srjordan6/srj-content.git refs/heads/main',
+      { encoding: 'utf8' }).split(/\s/)[0];
+    if (/^[0-9a-f]{40}$/.test(sha)) ref = sha; else sha = '';
+  } catch { sha = ''; }
 
   execSync(
-    tarball + pull(REQUIRED, true) + DIRS.map((d) => pull(d, false)).join(''),
+    'rm -rf /tmp/c && mkdir -p /tmp/c src/content && ' +
+    `curl -sfL https://codeload.github.com/srjordan6/srj-content/tar.gz/${ref} -o /tmp/c.tgz && ` +
+    'tar -xzf /tmp/c.tgz -C /tmp/c --strip-components=1',
     { stdio: 'inherit' }
   );
-  console.log('content: fetched from srj-content@main');
+  cpSync(`/tmp/c/${REQUIRED}`, `src/content/${REQUIRED}`, { recursive: true });
+  for (const d of DIRS) {
+    if (existsSync(`/tmp/c/${d}`)) cpSync(`/tmp/c/${d}`, `src/content/${d}`, { recursive: true });
+    else console.warn(`content: srj-content has no ${d}/, skipping`);
+  }
+  console.log(sha
+    ? `content: fetched from srj-content@${sha.slice(0, 7)} (main, resolved by git ls-remote)`
+    : 'content: fetched from srj-content@main (commit lookup failed, branch tarball may lag)');
 }
 
 // Fail here, not 200 lines into astro build, when a directory a page hard-imports

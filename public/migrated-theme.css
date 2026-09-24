@@ -2746,4 +2746,29 @@
   :where(.migrated) .librarian-box .lb-card{ flex-direction: column; align-items: flex-start; padding: 20px; }
   :where(.migrated) .librarian-box a.lb-btn{ white-space: normal; }
 }
+/* The librarian box sits outside .book-body, so it does not inherit the body font. */
+:where(.migrated) .librarian-box p{ font-family: 'Poppins', sans-serif; }
+
+/* ---------------------------------------------------------------------------
+   Phones. Found 2026-09-23 when Stephen saw a box cut off on his phone.
+   On book pages the CTA bands sit inside the page's padded column, not full
+   width as on service pages, and their Schedule button never wrapped, so on a
+   390px screen the band was 27px too wide and its tagline was clipped
+   mid-word. The worksheet gate clipped the Cloudflare Turnstile widget, which
+   is a fixed 300px wide. Measured in a phone-sized browser at 320, 360, 390
+   and 414px before shipping: clean at 360 and above.
+--------------------------------------------------------------------------- */
+@media (max-width: 760px){
+  :where(.migrated) .inline-cta .container{ padding-left: 18px; padding-right: 18px; }
+  :where(.migrated) .inline-cta .inline-cta-row,
+  :where(.migrated) .inline-cta .inline-cta-row > *{ min-width: 0; max-width: 100%; }
+  :where(.migrated) .inline-cta .btn-inline-schedule,
+  :where(.migrated) .inline-cta .btn-inline-phone{ white-space: normal; }
+}
+@media (max-width: 480px){
+  :where(.migrated) .book-gate{ padding-left: 14px; padding-right: 10px; }
+}
+@media (max-width: 400px){
+  :where(.migrated) .book-detail .container{ padding-left: 16px; padding-right: 16px; }
+}
 
