@@ -232,6 +232,17 @@
 /srj-consulting-is-transitioning-fully-to-ai-advisory/feed/ /insights/srj-consulting-is-transitioning-fully-to-ai-advisory/ 301
 /contact/share-testimonial /contact/ 301
 
+# Fractional PSIRT landing page, 2026-09-26. Stephen chose the mixed-case
+# address /services/Fractional_PSIRT/ for the cold email campaign. URLs are
+# case sensitive, so the lowercase and hyphenated forms a person might type,
+# or an email client might produce, forward to it. The hyphenated form is the
+# address the build spec originally named.
+/services/Fractional_PSIRT /services/Fractional_PSIRT/ 301
+/services/fractional_psirt /services/Fractional_PSIRT/ 301
+/services/fractional_psirt/ /services/Fractional_PSIRT/ 301
+/services/fractional-psirt /services/Fractional_PSIRT/ 301
+/services/fractional-psirt/ /services/Fractional_PSIRT/ 301
+
 # --- WILDCARD RULES MUST STAY LAST ------------------------------------------
 # Cloudflare counts every rule at or AFTER the first wildcard as dynamic, and
 # caps dynamic rules at 100. It does not count only the wildcards themselves.
