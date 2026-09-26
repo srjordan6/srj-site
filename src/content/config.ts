@@ -12,7 +12,11 @@ const governance = defineCollection({
     subtitle: z.string(),
     short: z.string(),
     parent: z.string().nullable(),
-    children: z.array(z.string()),
+    // Defaults to [] rather than being required. On 2026-09-26 four new leaf
+    // pages arrived without the field and every build failed for hours,
+    // blocking all site changes, not only the governance ones. A page with no
+    // children is the common case, so a missing list means none.
+    children: z.array(z.string()).default([]),
     seo_title: z.string().nullable(),
     meta_description: z.string().nullable(),
     focus_keyword: z.string().nullable(),
