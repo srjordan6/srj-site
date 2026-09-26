@@ -138,13 +138,23 @@ const clarityTagCalls = Object.entries(clarityTags)
   /* Business-relevant clicks as their own events, so they can be marked key
      events in GA4 without further code. Both carry the dimensions above, so
      we can see which part of the site produces enquiries rather than only
-     which produces traffic. */
+     which produces traffic.
+
+     cta_position: a link may name its place on the page with data-cta, for
+     pages with several calls to action where the question is which one
+     converts. Added 2026-09-26 for the Fractional PSIRT landing page (hero,
+     s3, s6, s9, final). Register cta_position as an event-scoped custom
+     dimension in GA4, or it is collected but cannot be reported on.
+     email_intent: a mailto click, the one alternative to booking there. */
   document.addEventListener('click', function (e) {
     var a = e.target && e.target.closest && e.target.closest('a');
     if (!a || !a.href) return;
     var d = { pillar: ${JSON.stringify(gaPillar)}, section: ${JSON.stringify(gaSection)}, link_url: a.href };
+    if (a.dataset && a.dataset.cta) d.cta_position = a.dataset.cta;
     if (a.href.indexOf('/schedule-consultation') > -1 || a.href.indexOf('/contact') > -1) {
       gtag('event', 'consultation_intent', d);
+    } else if (a.href.indexOf('mailto:') === 0) {
+      gtag('event', 'email_intent', d);
     } else if (a.href.indexOf('amazon.') > -1) {
       gtag('event', 'affiliate_click', d);
     } else if (a.href.indexOf('theworldofai.org') > -1) {
